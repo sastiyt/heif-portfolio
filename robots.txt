@@ -1,0 +1,10 @@
+# robots.txt for HEIF Artist Portfolio
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: sitemap.xml
+
+# Disallow admin/system files
+Disallow: /assets/js/
+Disallow: /*.json$

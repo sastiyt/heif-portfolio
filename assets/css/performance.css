@@ -1,0 +1,27 @@
+/* Content is accessible even when scripts or optional effects fail. */
+#preloader { display: none !important; }
+.reveal:not(.reveal-pending) { opacity: 1; transform: none; }
+img { max-width: 100%; }
+img[width][height] { height: auto; }
+@media (prefers-reduced-motion: reduce) {
+ *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+ .reveal { opacity: 1 !important; transform: none !important; }
+ #webgl-canvas, #hero-3d-model, #ae-3d-model { display: none; }
+}
+
+.masonry-container { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 15px; translate: none; box-sizing: border-box; }
+.masonry-container .image-item { margin: 0; align-self: start; }
+.masonry-container .image-item img { display: block; width: 100%; height: auto; }
+@media(max-width:900px) { .masonry-container { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:540px) { .masonry-container { grid-template-columns:minmax(0,1fr); padding:12px; } }
+
+/* The primary heading must paint immediately, rather than waiting 1.5 seconds. */
+.hero h1 { opacity: 1; animation: none; }
+
+/* Preserve native touch scrolling and avoid GPU-heavy decoration on phones. */
+@media (max-width: 900px), (pointer: coarse), (prefers-reduced-motion: reduce) {
+ #webgl-canvas, #hero-3d-model, #ae-3d-model { display: none !important; }
+ .stars-layer, .stars-extra { animation: none !important; }
+ .hero1-parallax-wrapper { transform: none !important; }
+}
+.light-effects #webgl-canvas, .light-effects #hero-3d-model, .light-effects #ae-3d-model { display:none !important; }
