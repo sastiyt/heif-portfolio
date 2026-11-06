@@ -1,30 +1,30 @@
-const hoverTexts = document.querySelectorAll(".hover-text"),
-  hoverImage1 = document.getElementById("hover-image-1"),
-  hoverImage2 = document.getElementById("hover-image-2"),
-  hoverImage3 = document.getElementById("hover-image-3");
-let hoverTimers = {};
-hoverTexts.length > 0 &&
-  hoverTexts.forEach((e, t) => {
-    const n = 0 === t ? hoverImage1 : 1 === t ? hoverImage2 : hoverImage3;
-    n &&
-      (e.addEventListener("mouseenter", () => {
-        clearTimeout(hoverTimers[t]);
-        n.style.display = "block";
-      }),
-      e.addEventListener("mousemove", (e) => {
-        const l = n.offsetWidth || n.clientWidth;
-        let o = e.pageX - l / 2;
-        let i = e.pageY + 15; // Offset to prevent cursor overlap
-        (o < 8 && (o = 8),
-          o + l > window.innerWidth - 8 && (o = window.innerWidth - l - 8),
-          (n.style.transform = `translate(${o}px, ${i}px)`));
-      }),
-      e.addEventListener("mouseleave", () => {
-        hoverTimers[t] = setTimeout(() => {
-          n.style.display = "none";
-        }, 150);
-      }));
+// Hover previews are mouse-only; never leave a broken image over touch content.
+(() => {
+ const canHover=matchMedia('(hover: hover) and (pointer: fine)');
+ document.querySelectorAll('.hover-text').forEach((trigger,index)=>{
+  const preview=document.getElementById('hover-image-'+(index+1));
+  const image=preview?.querySelector('img');
+  if(!image)return;
+  let active=false;
+  const hide=()=>{active=false;preview.style.display='none';};
+  const show=()=>{if(active&&canHover.matches&&image.complete&&image.naturalWidth)preview.style.display='block';};
+  const position=event=>{
+   const width=Math.min(330,innerWidth-16);
+   const x=Math.max(8,Math.min(event.clientX-width/2,innerWidth-width-8));
+   const y=Math.max(8,Math.min(event.clientY+15,innerHeight-width-8));
+   preview.style.transform='translate('+x+'px,'+y+'px)';
+  };
+  trigger.addEventListener('pointerenter',event=>{
+   if(!canHover.matches||event.pointerType!=='mouse')return;
+   active=true;position(event);image.loading='eager';show();
   });
+  trigger.addEventListener('pointermove',position);
+  trigger.addEventListener('pointerleave',hide);
+  image.addEventListener('load',show);image.addEventListener('error',hide);
+  canHover.addEventListener('change',hide);
+  window.addEventListener('scroll',hide,{passive:true});
+ });
+})();
 const rotatingText = document.querySelector(".rotating-text");
 rotatingText &&
   (rotatingText.addEventListener("mouseover", () => {

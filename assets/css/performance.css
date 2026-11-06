@@ -25,3 +25,14 @@ img[width][height] { height: auto; }
  .hero1-parallax-wrapper { transform: none !important; }
 }
 .light-effects #webgl-canvas, .light-effects #hero-3d-model, .light-effects #ae-3d-model { display:none !important; }
+
+/* A playing video is unobstructed until tapped; keyboard focus stays usable. */
+.video-item.is-playing:not(.show-controls) .play-btn:not(:focus-visible) {
+ opacity:0; visibility:visible; pointer-events:none;
+}
+.video-item.is-playing .play-btn:focus-visible {
+ opacity:1; visibility:visible; pointer-events:auto;
+ outline:2px solid white; outline-offset:4px;
+}
+.hover-image { position:fixed; width:min(330px,calc(100vw - 16px)); height:auto; aspect-ratio:1; }
+@media (hover:none), (pointer:coarse) { .hover-image { display:none !important; } }
