@@ -7,3 +7,9 @@
 .poster-view-count strong{font-size:19px;line-height:1.2;color:#b0f5c5;font-variant-numeric:tabular-nums}
 .poster-view-count>span{font-size:10px;color:#aabeb1;white-space:nowrap}
 @media(max-width:600px){.poster-performance{padding:11px 13px;gap:12px}.poster-project-name{font-size:12px}.poster-view-count strong{font-size:18px}}
+
+/* Stack each column independently so mixed poster heights leave no row gaps. */
+.masonry-container.poster-gallery{display:block;columns:3;column-gap:15px}
+.masonry-container.poster-gallery>.image-item{display:inline-block;vertical-align:top;width:100%;margin:0 0 15px;break-inside:avoid;box-sizing:border-box}
+@media(max-width:900px){.masonry-container.poster-gallery{columns:2}}
+@media(max-width:540px){.masonry-container.poster-gallery{columns:1}}
