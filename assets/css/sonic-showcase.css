@@ -51,7 +51,7 @@
 .before-after-card .sonic-caption-bottom{margin-top:auto;padding-top:14px;border-top:1px solid #ffffff12}
 .breakdown-label{font-size:10px;color:#b0f5c5}
 @media(max-width:700px){.breakdown-count{flex-direction:row;align-items:center;gap:16px;padding:0;border:0;min-width:0}.breakdown-count strong{font-size:30px}.breakdown-count span{font-size:10px}.before-after-feature h2{font-size:36px;letter-spacing:-1.5px}.breakdown-description{font-size:13px}}
-.video-grid.portrait-project-grid{grid-template-columns:repeat(2,minmax(0,340px));justify-content:center;align-items:start;gap:28px;max-width:708px;margin:32px auto}
+.video-grid.portrait-project-grid{grid-template-columns:minmax(0,340px);justify-content:center;align-items:start;gap:28px;max-width:340px;margin:32px auto}
 .portrait-project-grid .video-thumbnail{aspect-ratio:9/16;overflow:hidden;background:#000}
 .portrait-project-grid .video-thumbnail video{width:100%;height:100%;object-fit:contain}
 .portrait-project-grid .video-caption{height:auto}
@@ -62,6 +62,5 @@
 .project-metrics-row strong{font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
 .project-metrics-row span{font-size:11px;color:#c4d2c9}
 .video-item.is-playing:not(.show-controls) .project-metrics{opacity:0}
-.portrait-project-grid .video-caption .project-stats-note{font-size:10px;color:#91a79a;margin-top:12px;line-height:1.5}
 @media(max-width:600px){.video-grid.portrait-project-grid{grid-template-columns:minmax(0,340px);gap:24px;width:100%}}
 @media(prefers-reduced-motion:reduce){.project-metrics{transition:none}}
