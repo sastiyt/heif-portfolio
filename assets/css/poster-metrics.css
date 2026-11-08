@@ -1,0 +1,9 @@
+/* Audience counts sit below the original artwork. */
+.poster-with-views{background:#101813;border:1px solid #293b30;box-sizing:border-box}
+.masonry-container .poster-with-views>img{border-radius:0;object-fit:contain}
+.poster-performance{position:static;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 15px;border-top:1px solid #ffffff12;color:#eef6f0;text-align:left;cursor:default}
+.poster-project-name{font-size:13px;font-weight:600;line-height:1.4}
+.poster-view-count{display:flex;align-items:baseline;justify-content:flex-end;flex-wrap:wrap;column-gap:6px;row-gap:2px;text-align:right}
+.poster-view-count strong{font-size:19px;line-height:1.2;color:#b0f5c5;font-variant-numeric:tabular-nums}
+.poster-view-count>span{font-size:10px;color:#aabeb1;white-space:nowrap}
+@media(max-width:600px){.poster-performance{padding:11px 13px;gap:12px}.poster-project-name{font-size:12px}.poster-view-count strong{font-size:18px}}
