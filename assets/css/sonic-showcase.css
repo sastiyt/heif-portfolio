@@ -64,3 +64,6 @@
 .video-item.is-playing:not(.show-controls) .project-metrics{opacity:0}
 @media(max-width:600px){.video-grid.portrait-project-grid{grid-template-columns:minmax(0,340px);gap:24px;width:100%}}
 @media(prefers-reduced-motion:reduce){.project-metrics{transition:none}}
+.project-metrics-compact{padding:30px 18px 14px}
+.project-metrics-compact .project-metrics-label{margin-bottom:8px}
+.project-metrics-compact .project-metrics-row strong{font-size:23px}
