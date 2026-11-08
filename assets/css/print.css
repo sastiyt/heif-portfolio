@@ -1,0 +1,11 @@
+@page{margin:15mm}
+*{box-shadow:none!important;text-shadow:none!important;animation:none!important;transition:none!important}
+html,body{background:#fff!important;color:#000!important;height:auto!important;overflow:visible!important}
+header,footer,.stars-layer,canvas,#hero-3d-model,#ae-3d-model,.hover-image,.scroll-tracker,.skip-link,.play-btn,.custom-cursor,.cursor{display:none!important}
+main,.wil-content,.page-wrap,.hero,.hero1{margin:0!important;padding:0!important;min-height:0!important;height:auto!important;transform:none!important}
+.reveal,.reveal-pending{opacity:1!important;transform:none!important}
+h1,h2,h3,p,span,a{color:#000!important}a{text-decoration:underline}
+.hero h1{font-size:32pt!important;line-height:1.1!important}.hero1 h2{font-size:18pt!important}
+.image-item,.video-item,.thumbnail{break-inside:avoid}.portfolio-container,.masonry-container,.sonic-reels{display:block!important;columns:2!important;gap:12pt!important}
+.portfolio-container>* ,.masonry-container>*,.sonic-reels>*{display:inline-block!important;width:100%!important;margin:0 0 12pt!important}
+img,video{max-width:100%!important;height:auto!important}.sonic-feature{background:#fff!important;border:1px solid #aaa!important}

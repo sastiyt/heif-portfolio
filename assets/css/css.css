@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'Halyard Display';
-    src: url('../FOnts/Halyard_Display_ExtraLight.otf') format('opentype');
+    src: url('../fonts-web/Halyard_Display_ExtraLight.woff2') format('woff2');
     font-weight: 200;
     font-style: normal;
     font-display: swap
@@ -8,7 +8,7 @@
 
 @font-face {
     font-family: 'Halyard Display';
-    src: url('../FOnts/Halyard_Display_Light.otf') format('opentype');
+    src: url('../fonts-web/Halyard_Display_Light.woff2') format('woff2');
     font-weight: 300;
     font-style: normal;
     font-display: swap
@@ -16,7 +16,7 @@
 
 @font-face {
     font-family: 'Halyard Display';
-    src: url('../FOnts/Halyard_Display_Book.otf') format('opentype');
+    src: url('../fonts-web/Halyard_Display_Book.woff2') format('woff2');
     font-weight: 350;
     font-style: normal;
     font-display: swap
@@ -24,7 +24,7 @@
 
 @font-face {
     font-family: 'Halyard Display';
-    src: url('../FOnts/Halyard_Display_Regular.otf') format('opentype');
+    src: url('../fonts-web/Halyard_Display_Regular.woff2') format('woff2');
     font-weight: 400;
     font-style: normal;
     font-display: swap
@@ -32,7 +32,7 @@
 
 @font-face {
     font-family: 'Halyard Display';
-    src: url('../FOnts/Halyard_Display_Medium.otf') format('opentype');
+    src: url('../fonts-web/Halyard_Display_Medium.woff2') format('woff2');
     font-weight: 500;
     font-style: normal;
     font-display: swap
@@ -40,7 +40,7 @@
 
 @font-face {
     font-family: 'Halyard Display';
-    src: url('../FOnts/Halyard_Display_SemiBold.otf') format('opentype');
+    src: url('../fonts-web/Halyard_Display_SemiBold.woff2') format('woff2');
     font-weight: 600;
     font-style: normal;
     font-display: swap
@@ -48,7 +48,7 @@
 
 @font-face {
     font-family: 'Halyard Display';
-    src: url('../FOnts/Halyard_Display_Bold.otf') format('opentype');
+    src: url('../fonts-web/Halyard_Display_Bold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap
@@ -56,7 +56,7 @@
 
 @font-face {
     font-family: 'Halyard Display';
-    src: url('../FOnts/Halyard_Display_Black.otf') format('opentype');
+    src: url('../fonts-web/Halyard_Display_Black.woff2') format('woff2');
     font-weight: 900;
     font-style: normal;
     font-display: swap
@@ -64,7 +64,7 @@
 
 @font-face {
     font-family: 'Phonk Contrast';
-    src: url('../FOnts/Phonk Contrast DEMO.otf') format('opentype');
+    src: url('../fonts-web/Phonk-Contrast-DEMO.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: swap
@@ -72,7 +72,7 @@
 
 @font-face {
     font-family: 'Josefin Sans';
-    src: url('../FOnts/JosefinSans-Thin.ttf') format('truetype');
+    src: url('../fonts-web/JosefinSans-Thin.woff2') format('woff2');
     font-weight: 100;
     font-style: normal;
     font-display: swap
@@ -80,7 +80,7 @@
 
 @font-face {
     font-family: 'Josefin Sans';
-    src: url('../FOnts/JosefinSans-ExtraLight.ttf') format('truetype');
+    src: url('../fonts-web/JosefinSans-ExtraLight.woff2') format('woff2');
     font-weight: 200;
     font-style: normal;
     font-display: swap
@@ -88,7 +88,7 @@
 
 @font-face {
     font-family: 'Josefin Sans';
-    src: url('../FOnts/JosefinSans-Light.ttf') format('truetype');
+    src: url('../fonts-web/JosefinSans-Light.woff2') format('woff2');
     font-weight: 300;
     font-style: normal;
     font-display: swap
@@ -96,7 +96,7 @@
 
 @font-face {
     font-family: 'Josefin Sans';
-    src: url('../FOnts/JosefinSans-Regular.ttf') format('truetype');
+    src: url('../fonts-web/JosefinSans-Regular.woff2') format('woff2');
     font-weight: 400;
     font-style: normal;
     font-display: swap
@@ -104,7 +104,7 @@
 
 @font-face {
     font-family: 'Josefin Sans';
-    src: url('../FOnts/JosefinSans-Medium.ttf') format('truetype');
+    src: url('../fonts-web/JosefinSans-Medium.woff2') format('woff2');
     font-weight: 500;
     font-style: normal;
     font-display: swap
@@ -112,7 +112,7 @@
 
 @font-face {
     font-family: 'Josefin Sans';
-    src: url('../FOnts/JosefinSans-SemiBold.ttf') format('truetype');
+    src: url('../fonts-web/JosefinSans-SemiBold.woff2') format('woff2');
     font-weight: 600;
     font-style: normal;
     font-display: swap
@@ -120,7 +120,7 @@
 
 @font-face {
     font-family: 'Josefin Sans';
-    src: url('../FOnts/JosefinSans-Bold.ttf') format('truetype');
+    src: url('../fonts-web/JosefinSans-Bold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap
@@ -128,7 +128,7 @@
 
 @font-face {
     font-family: 'Josefin Sans';
-    src: url('../FOnts/JosefinSans-Italic.ttf') format('truetype');
+    src: url('../fonts-web/JosefinSans-Italic.woff2') format('woff2');
     font-weight: 400;
     font-style: italic;
     font-display: swap
@@ -136,7 +136,7 @@
 
 @font-face {
     font-family: 'Josefin Sans';
-    src: url('../FOnts/JosefinSans-BoldItalic.ttf') format('truetype');
+    src: url('../fonts-web/JosefinSans-BoldItalic.woff2') format('woff2');
     font-weight: 700;
     font-style: italic;
     font-display: swap
@@ -978,7 +978,7 @@ body {
     margin-bottom: 10px
 }
 
-.contact-item h3 {
+.contact-item h2 {
     font-size: 20px;
     color: #fff;
     margin-bottom: 5px;
