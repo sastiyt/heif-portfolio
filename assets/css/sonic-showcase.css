@@ -77,7 +77,18 @@
 .sonic-client-feature .sonic-caption-bottom{justify-content:flex-start}
 @media(max-width:700px){.sonic-client-feature{padding:22px 16px 16px}.sonic-client-feature .sonic-reels{grid-template-columns:minmax(0,300px);gap:18px}}
 
-.artist-reels-feature .sonic-reels{grid-template-columns:repeat(2,minmax(0,300px))}
+.artist-reels-feature .sonic-reels{grid-template-columns:repeat(3,minmax(0,300px))}
 .artist-reels-feature .sonic-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
 .artist-reel-description{font-size:12px;line-height:1.65;color:#aab8af;margin:8px 0 12px}
 @media(max-width:700px){.artist-reels-feature .sonic-reels{grid-template-columns:minmax(0,300px)}}
+
+.artist-reels-feature{scroll-margin-top:90px}
+.artist-reels-feature .sonic-card{display:flex;flex-direction:column}
+.artist-reels-feature .sonic-frame{flex-shrink:0}
+.artist-reels-feature .sonic-caption{display:flex;flex-direction:column;flex:1}
+.artist-reels-feature .sonic-caption-bottom{margin-top:auto}
+.artist-profile{font-size:10px;color:#a6c3af;text-decoration:none;margin:0 0 8px;line-height:1.5}
+.artist-profile:hover{text-decoration:underline}
+.artist-reels-feature .project-metrics{padding:48px 14px 16px}
+.artist-reels-feature .project-metrics-row strong{font-size:23px}
+.artist-reels-feature .sonic-reels{align-items:stretch}
