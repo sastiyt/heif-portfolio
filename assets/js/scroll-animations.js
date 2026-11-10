@@ -17,36 +17,63 @@
   }), {rootMargin:'280px 0px'});
   images.forEach(img => loading.observe(img));
   if (motion.matches || !Element.prototype.animate) return;
-  const active = new Set();
+  const active = new Map();
+  const played = new WeakSet();
+  const pending = new Map();
+  const inView = el => {
+   const rect = el.getBoundingClientRect();
+   return rect.bottom > 80 && rect.top < innerHeight - Math.min(90, innerHeight * .12);
+  };
   const reveal = async (el, delay) => {
+   if (played.has(el) || pending.has(el) || document.hidden || motion.matches || !inView(el)) return;
+   const token = {};
+   pending.set(el, token);
    const pictures = [...el.querySelectorAll('img')];
    pictures.forEach(img => { img.loading='eager'; });
-   // Animate only after the artwork is decoded; slow images remain visible by default.
-   await Promise.all(pictures.map(img => img.decode ? img.decode().catch(() => {}) : Promise.resolve()));
-   const rect = el.getBoundingClientRect();
-   if (motion.matches || document.hidden || rect.bottom <= 0 || rect.top >= innerHeight) return;
+   // Preload near the viewport; never hold the reveal indefinitely for slow media.
+   await Promise.race([
+    Promise.all(pictures.map(img => img.decode ? img.decode().catch(() => {}) : Promise.resolve())),
+    new Promise(resolve => setTimeout(resolve, 350))
+   ]);
+   if (pending.get(el) !== token) return;
+   pending.delete(el);
+   if (motion.matches || document.hidden || !inView(el)) return;
+   played.add(el);
    const animation = el.animate([
-    {opacity:.12, transform:'translateY(28px)'},
+    {opacity:0, transform:'translateY(44px)'},
     {opacity:1, transform:'translateY(0)'}
-   ], {duration:700, delay, easing:'cubic-bezier(.22,1,.36,1)', fill:'backwards'});
-   active.add(animation);
-   animation.finished.catch(() => {}).finally(() => active.delete(animation));
+   ], {duration:900, delay, easing:'cubic-bezier(.16,1,.3,1)', fill:'backwards'});
+   active.set(el, animation);
+   animation.finished.catch(() => {}).finally(() => {
+    if (active.get(el) === animation) active.delete(el);
+   });
   };
-  const observer = new IntersectionObserver(entries => {
-   entries.filter(entry => entry.isIntersecting)
-    .sort((a,b) => a.boundingClientRect.top-b.boundingClientRect.top || a.boundingClientRect.left-b.boundingClientRect.left)
-    .forEach((entry,index) => {
-     observer.unobserve(entry.target);
-     reveal(entry.target, Math.min(index,3)*90).catch(() => {});
-    });
-  }, {threshold:0, rootMargin:'0px'});
-  elements.forEach(el => {
-   if (!el.matches('.hero h1')) observer.observe(el);
+  const orderedReveal = entries => entries
+   .filter(entry => entry.isIntersecting)
+   .sort((a,b) => a.boundingClientRect.top-b.boundingClientRect.top || a.boundingClientRect.left-b.boundingClientRect.left)
+   .forEach((entry,index) => reveal(entry.target, Math.min(index,3)*110).catch(() => {}));
+  // Enter well inside the screen, so the fade has not finished below the viewport.
+  const observer = new IntersectionObserver(orderedReveal, {threshold:0, rootMargin:'-80px 0px -' + Math.min(90, innerHeight * .12) + 'px 0px'});
+  // Re-arm only after the entire card leaves the screen, avoiding edge flicker.
+  const exits = new IntersectionObserver(entries => entries.forEach(entry => {
+   if (!entry.isIntersecting) {
+    played.delete(entry.target);
+    pending.delete(entry.target);
+    active.get(entry.target)?.cancel();
+   }
+  }), {threshold:0});
+  const targets = elements.filter(el => !el.matches('.hero h1'));
+  targets.forEach(el => { observer.observe(el); exits.observe(el); });
+  const cancel = () => { pending.clear(); active.forEach(animation => animation.cancel()); active.clear(); };
+  motion.addEventListener('change', () => {
+   if (motion.matches) cancel();
+   else targets.forEach(el => { if (inView(el)) reveal(el,0).catch(() => {}); });
   });
-  const cancel = () => { active.forEach(animation => animation.cancel()); active.clear(); };
-  motion.addEventListener('change', () => { if (motion.matches) { observer.disconnect(); cancel(); } });
   window.addEventListener('beforeprint', cancel);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) cancel(); });
+  document.addEventListener('visibilitychange', () => {
+   if (document.hidden) cancel();
+   else targets.forEach(el => { if (inView(el)) reveal(el,0).catch(() => {}); });
+  });
  };
  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded',setup,{once:true}) : setup();
 })();

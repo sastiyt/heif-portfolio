@@ -117,19 +117,31 @@ body > header nav ul li a[aria-current="page"] { color:#fff; }
  .compare__separator { transition:left .16s cubic-bezier(.2,.7,.2,1); }
 }
 
-/* A compact animated neon surface, with dark ink for readable navigation. */
+/* Black navigation with a moving neon wash and a crisp luminous edge. */
 body > header {
- background:linear-gradient(110deg,#c4ff61 0%,#65ff54 28%,#2de889 56%,#a4ff54 80%,#c4ff61 100%);
- background-size:220% 100%;
- animation:header-gradient-drift 14s ease-in-out infinite alternate;
- border-bottom:1px solid #b8ff8a;
- box-shadow:0 5px 24px rgba(32,188,90,.08);
+ background:#050906;
+ animation:none;
+ isolation:isolate;
+ border-bottom:1px solid rgba(136,255,74,.24);
+ box-shadow:0 8px 24px rgba(0,0,0,.25);
 }
-@keyframes header-gradient-drift { from{background-position:0% 50%} to{background-position:100% 50%} }
-body > header #anim-logo-h { filter:brightness(0); }
-body > header nav ul li a, body > header .nav-toggle { color:#102818; }
-body > header nav ul li a:hover, body > header nav ul li a[aria-current="page"] { color:#000; }
-body > header nav ul li a::after { background:#102818; }
+body > header::before {
+ content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+ background:radial-gradient(ellipse at 42% 145%,rgba(128,255,36,.65),rgba(53,153,16,.2) 38%,transparent 68%),linear-gradient(108deg,#030604 5%,#0b1e0d 24%,#245d13 39%,#163d0d 48%,#050906 66%,#153d11 85%,#030604 100%);
+ background-size:240% 100%;
+ animation:header-neon-flow 7s ease-in-out infinite alternate;
+}
+body > header::after {
+ content:""; position:absolute; bottom:-1px; left:0; right:0; height:2px; pointer-events:none;
+ background:linear-gradient(90deg,transparent 8%,#4aff29 32%,#ceff8c 42%,#76ff32 52%,transparent 76%);
+ background-size:220% 100%;
+ animation:header-neon-flow 7s ease-in-out infinite alternate;
+}
+@keyframes header-neon-flow { from{background-position:0% 50%} to{background-position:100% 50%} }
+body > header #anim-logo-h { filter:none; }
+body > header nav ul li a, body > header .nav-toggle { color:#e7f0e7; }
+body > header nav ul li a:hover, body > header nav ul li a[aria-current="page"] { color:#b5ff65; }
+body > header nav ul li a::after { background:#99ff4c; }
 body > main { padding-top:clamp(30px,4vw,58px); }
 .portfolio-intro { max-width:1240px; margin:0 auto; padding:16px 24px 38px; text-align:center; }
 .portfolio-intro .intro-eyebrow { margin:0 0 22px; color:#b1d4bd; font-size:11px; font-weight:600; line-height:1.5; letter-spacing:.22em; }
@@ -140,14 +152,14 @@ body > main { padding-top:clamp(30px,4vw,58px); }
 .portfolio-intro::after { content:""; display:block; width:52px; height:2px; margin:28px auto 0; background:linear-gradient(90deg,#c4ff61,#2de889); }
 .portfolio-intro + .sonic-feature { margin-top:16px; }
 @media(max-width:768px) {
- body > header nav > ul { background:#a5f96a; border-bottom:1px solid #6aca55; }
+ body > header nav > ul { background:linear-gradient(145deg,#071009,#152b0d); border-bottom:1px solid #44742c; }
  .portfolio-intro { padding:12px 20px 26px; }
  .portfolio-intro .intro-eyebrow { margin-bottom:16px; font-size:9px; letter-spacing:.18em; }
  .portfolio-intro .page-title__title { margin-bottom:20px; }
  .portfolio-intro .page-title__divider { font-size:14px; line-height:1.65; }
  .portfolio-intro::after { margin-top:24px; }
 }
-@media(prefers-reduced-motion:reduce) { body > header { animation:none; } }
+@media(prefers-reduced-motion:reduce) { body > header::before, body > header::after { animation:none; } }
 
 /* Fit the available page width, including browsers with a visible scrollbar. */
 html, body { min-width:0; }
