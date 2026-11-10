@@ -79,3 +79,19 @@ main#main-content.contact-studio {
  .contact-context > div:first-child { grid-column:1/-1; }
  .contact-context p { font-size:13px; }
 }
+
+/* Share taller-screen space across the composition, rather than one blank gap. */
+@media(min-width:1001px) {
+ main#main-content.contact-studio {
+  min-height:calc(100vh - 74px); min-height:calc(100svh - 74px);
+  padding-top:clamp(80px,14svh,180px); padding-bottom:clamp(48px,10svh,120px);
+  gap:clamp(40px,7svh,84px);
+ }
+ .contact-compose { flex:1; align-items:stretch; }
+ .contact-story { display:flex; flex-direction:column; justify-content:space-between; }
+ .contact-story > * { flex-shrink:0; }
+ .contact-channels { grid-template-rows:auto auto auto; align-content:center; gap:28px; }
+ .contact-email { padding-block:clamp(28px,3.5svh,42px); }
+ .contact-channel-row { padding-block:clamp(26px,3.5svh,42px); gap:22px; }
+ .contact-context { flex-shrink:0; padding-top:clamp(28px,3.5svh,40px); }
+}
