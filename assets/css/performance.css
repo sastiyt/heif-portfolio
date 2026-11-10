@@ -111,10 +111,15 @@ body > header nav ul li a[aria-current="page"] { color:#fff; }
 @media(max-width:900px) { .masonry-container.graphics-gallery { columns:2; } }
 @media(max-width:540px) { .masonry-container.graphics-gallery { columns:1; } }
 
-/* Keep the reveal edge and its handle synchronized with gentle input easing. */
+/* A full-size clipped layer avoids resizing a large image on every input. */
+.image-showcase .compare__mask { width:100%; clip-path:inset(0 calc(100% - var(--mask-width)) 0 0); border:0; transition:none; }
+.image-showcase .compare__image-two { width:100%; height:100%; max-width:none; }
+.image-showcase .compare__separator { transition:none; }
+.compare__input { touch-action:pan-y; }
+.compare__icon { left:50%; }
 @media(prefers-reduced-motion:no-preference) {
- .compare__mask { transition:width .16s cubic-bezier(.2,.7,.2,1); }
- .compare__separator { transition:left .16s cubic-bezier(.2,.7,.2,1); }
+ .compare:not(.is-dragging) .compare__mask { transition:clip-path .12s ease-out; }
+ .compare:not(.is-dragging) .compare__separator { transition:left .12s ease-out; }
 }
 
 /* Black navigation with a moving neon wash and a crisp luminous edge. */
@@ -129,13 +134,13 @@ body > header::before {
  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
  background:#050906 url("../img/smooth-green-surface.png") repeat;
  background-size:1536px 512px;
- animation:surface-gradient-flow 18s cubic-bezier(.45,0,.55,1) infinite alternate;
+ animation:surface-gradient-flow 9s cubic-bezier(.45,0,.55,1) infinite alternate;
 }
 body > header::after {
  content:""; position:absolute; bottom:-1px; left:0; right:0; height:1.5px; pointer-events:none;
  background:linear-gradient(90deg,transparent 8%,rgba(30,194,77,.2) 32%,rgba(30,194,77,.5) 42%,rgba(30,194,77,.28) 52%,transparent 76%);
  background-size:220% 100%;
- animation:header-neon-flow 12s cubic-bezier(.45,0,.55,1) infinite alternate;
+ animation:header-neon-flow 9s cubic-bezier(.45,0,.55,1) infinite alternate;
 }
 @keyframes header-neon-flow { from{background-position:0% 50%} to{background-position:100% 50%} }
 body > header #anim-logo-h { filter:none; }
@@ -185,7 +190,7 @@ footer.site-footer {
  padding:0 32px; margin-top:48px; text-align:left; z-index:1;
  background:#050906 url("../img/smooth-green-surface.png") repeat;
  background-size:1536px 512px;
- animation:surface-gradient-flow 18s cubic-bezier(.45,0,.55,1) infinite alternate;
+ animation:surface-gradient-flow 9s cubic-bezier(.45,0,.55,1) infinite alternate;
  border-top:1px solid rgba(30,194,77,.22); backdrop-filter:none;
 }
 .site-footer::before { display:none; }
@@ -274,3 +279,21 @@ footer.site-footer {
  #clothing-showcase .image-item { width:100%; max-width:100%!important; margin:0!important; align-self:start; }
  #clothing-showcase .image-item img { width:100%; height:auto; display:block; }
 }
+
+/* Remove the image baseline gap without changing the logo's horizontal position. */
+body > header .header__logo, body > header .header__logo > a { display:flex; align-items:center; flex-shrink:0; line-height:0; }
+body > header #anim-logo-h { display:block; }
+
+@media(max-width:600px) {
+ .image-showcase .mobile-masonry, .image-showcase .masonry-container.mobile-masonry {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); columns:auto; gap:10px;
+  align-items:start;
+ }
+ .mobile-masonry > .gallery-column { display:flex; flex-direction:column; gap:10px; min-width:0; }
+ .mobile-masonry > .gallery-column > .image-item {
+  display:block; flex:none; width:100%; max-width:100%; margin:0; box-sizing:border-box;
+ }
+}
+/* Mobile galaxy uses a small 2D canvas, not the desktop 3D engine. */
+html.mobile-galaxy #webgl-canvas { display:block!important; }
+@media(prefers-reduced-motion:reduce) { html.mobile-galaxy #webgl-canvas { display:none!important; } }

@@ -2,12 +2,14 @@
  'use strict';
  const connection = navigator.connection;
  const light = matchMedia('(max-width: 900px), (pointer: coarse), (prefers-reduced-motion: reduce)').matches || connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || '') || (navigator.deviceMemory && navigator.deviceMemory < 4);
- if (light) { document.documentElement.classList.add('light-effects'); return; }
+ if (light) document.documentElement.classList.add('light-effects');
  const load = src => new Promise((resolve,reject) => {
   const script=document.createElement('script'); script.src=src; script.onload=resolve; script.onerror=reject; document.head.appendChild(script);
  });
  const start = async () => {
   try {
+   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+   if (light) { await load('assets/js/mobile-galaxy.js?v=20261110-1'); return; }
    await load('assets/vendor/three.min.js');
    // Decorative stars do not need a scroll-animation framework.
    await load('assets/js/particles-effect.js');

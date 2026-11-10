@@ -2,6 +2,30 @@
  'use strict';
  const motion = matchMedia('(prefers-reduced-motion: reduce)');
  const setup = () => {
+  // Real columns avoid WebKit's fragmented multicolumn/transform paint gaps.
+  // Keep the source items so a breakpoint change restores the original order.
+  const mobile = matchMedia('(max-width: 600px)');
+  const galleries = [...document.querySelectorAll('.masonry-container, .image-showcase .mobile-pair-gallery')]
+   .map(container => ({container, items:[...container.children].filter(el => el.classList.contains('image-item'))}));
+  const layoutGalleries = () => galleries.forEach(({container,items}) => {
+   if (!items.length) return;
+   if (!mobile.matches) {
+    if (!container.classList.contains('mobile-masonry')) return;
+    items.forEach(el => container.appendChild(el));
+    container.querySelectorAll('.gallery-column').forEach(el => el.remove());
+    container.classList.remove('mobile-masonry');
+    return;
+   }
+   if (container.classList.contains('mobile-masonry')) return;
+   const columns = [0,1].map(() => {
+    const column = document.createElement('div'); column.className='gallery-column';
+    container.appendChild(column); return column;
+   });
+   items.forEach((el,index) => columns[index % 2].appendChild(el));
+   container.classList.add('mobile-masonry');
+  });
+  layoutGalleries();
+  mobile.addEventListener('change',layoutGalleries);
   document.querySelectorAll('main .image-item, main .thumbnail, main .about-portrait').forEach(el => {
    if (!el.querySelector('img') || el.querySelector('video, iframe')) return;
    el.classList.add('artwork-motion');
@@ -20,11 +44,13 @@
   const active = new Map();
   const pending = new Set();
   let frame = 0;
+  let nextStart = 0;
   const finish = el => {
    pending.delete(el);
    observer.unobserve(el);
    el.classList.remove('scroll-reveal-ready');
-   active.get(el)?.cancel();
+   const running = active.get(el);
+   if (running) { clearTimeout(running.timer); running.animation.cancel(); }
    active.delete(el);
   };
   const reveal = (el, delay = 0) => {
@@ -36,33 +62,46 @@
    try {
     // Start immediately: awaiting image decode here caused visible cards to flash off.
     const animation = el.animate([
-     {opacity:0, transform:'translateY(24px)'},
+     {opacity:0, transform:mobile.matches?'translateY(18px)':'translateY(24px)'},
      {opacity:1, transform:'translateY(0)'}
-    ], {duration:760, delay, easing:'cubic-bezier(.22,.61,.36,1)', fill:'both'});
-    active.set(el, animation);
+    ], {duration:660, delay, easing:'cubic-bezier(.22,.61,.36,1)', fill:'both'});
+    const timer = setTimeout(() => finish(el), delay + 1000);
+    active.set(el, {animation,timer});
     el.classList.remove('scroll-reveal-ready');
     animation.finished.catch(() => {}).finally(() => {
-     if (active.get(el) === animation) { animation.cancel(); active.delete(el); }
+     if (active.get(el)?.animation === animation) finish(el);
     });
    } catch (_) { finish(el); }
   };
-  const observer = new IntersectionObserver(entries => entries
-   .filter(entry => entry.isIntersecting)
-   .sort((a,b) => a.boundingClientRect.top-b.boundingClientRect.top || a.boundingClientRect.left-b.boundingClientRect.left)
-   .forEach((entry,index) => reveal(entry.target, Math.min(index,2)*75)),
-   {threshold:0, rootMargin:'0px 0px -48px 0px'});
+  // Both observer and scroll fallback feed one queue, so the fallback cannot
+  // bypass the stagger and reveal both columns at once.
+  const observer = new IntersectionObserver(() => schedule(),
+   {threshold:0, rootMargin:'0px 0px -24px 0px'});
   const checkVisible = () => {
    frame = 0;
    if (document.hidden) return;
-   [...pending].forEach(el => {
+   images.forEach(img => {
+    if (img.loading !== 'lazy') return;
+    const rect=img.getBoundingClientRect();
+    if (rect.top < innerHeight + 350 && rect.bottom > -100) img.loading='eager';
+   });
+   const near = [];
+   pending.forEach(el => {
     const rect = el.getBoundingClientRect();
     if (rect.bottom <= 0) finish(el);
-    else if (rect.top < innerHeight - 48) reveal(el);
+    else if (rect.top < innerHeight - 24) near.push({el,rect});
+   });
+   near.sort((a,b) => Math.round(a.rect.top/32)-Math.round(b.rect.top/32) || a.rect.left-b.rect.left);
+   const now = performance.now();
+   near.forEach(({el}) => {
+    const delay = Math.min(Math.max(0,nextStart-now),550);
+    reveal(el,delay);
+    nextStart = now + delay + (mobile.matches ? 130 : 90);
    });
   };
   // A cheap fallback handles fast scrolling, resizing and restored/background tabs.
   const schedule = () => {
-   if (pending.size && !frame) frame = requestAnimationFrame(checkVisible);
+   if (!frame) frame = requestAnimationFrame(checkVisible);
   };
   window.addEventListener('scroll', schedule, {passive:true});
   window.addEventListener('resize', schedule, {passive:true});
@@ -79,6 +118,7 @@
   document.addEventListener('focusin', event => {
    pending.forEach(el => { if (el.contains(event.target)) finish(el); });
   });
+  mobile.addEventListener('change',() => { finishAll(); schedule(); });
   // Already-visible content stays visible. Each off-screen card fades up only once.
   try {
    elements.forEach(el => {
