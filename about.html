@@ -43,14 +43,15 @@
   <link rel="canonical" href="https://heif.work/about.html">
   <meta property="og:url" content="https://heif.work/about.html">
   <link rel="stylesheet" href="assets/css/print.css?v=20261108-1" media="print">
-<link rel="stylesheet" href="assets/css/brand-motion.css?v=20261110-3">
+<link rel="stylesheet" href="assets/css/brand-motion.css?v=20261110-4">
 <link rel="preload" href="assets/fonts-web/embolism-spark.ttf" as="font" type="font/ttf" crossorigin>
 <script>document.documentElement.classList.add('brand-loading');setTimeout(function(){document.documentElement.classList.remove('brand-loading');},1800);</script>
 <style>
 .about-layout .about-portrait { max-width:380px; }
 @media(max-width:768px) { .about-layout .about-portrait { width:90%; max-width:300px; } }
-.about-video-frame { display:block; width:100%; overflow:hidden; border-radius:8px; clip-path:none; }
+.about-video-frame { position:relative; isolation:isolate; display:block; width:100%; overflow:hidden; border-radius:8px; clip-path:none; }
 .about-video-frame .about-profile-video { display:block; width:100%; height:auto; max-height:none; margin:0; border:0; border-radius:0; object-fit:contain; cursor:pointer; }
+.about-video-frame::after { content:""; position:absolute; inset:0; border-radius:inherit; background:url("assets/img/portrait-grain.png") repeat; opacity:.08; mix-blend-mode:soft-light; pointer-events:none; }
 .about-profile-video:focus-visible { outline:2px solid #1ec24d; outline-offset:-4px; }
 </style>
 </head>

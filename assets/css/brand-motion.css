@@ -37,7 +37,7 @@ body > header nav ul li a:has(.nav-label) { position:relative; }
 .hub-links>a:nth-child(5) { --link-phase:-4.4s; }
 .hub-links>a:nth-child(6) { --link-phase:-5.5s; }
 @media(prefers-reduced-motion:no-preference) {
- .hub-profile-in-view .camera-flash { animation:camera-snap 1.5s ease-in-out infinite; }
+ .hub-profile-in-view .camera-flash { animation:camera-snap 2s ease-in-out infinite; }
  .hub-name-in-view .hub-name-accent { animation:hub-name-sheen 5s ease-in-out infinite,hub-heif-wiggle 3.6s ease-in-out infinite; transform-origin:50% 65%; }
  .hub-links-in-view>a::before { animation:hub-link-sweep 7s linear var(--link-phase,0s) infinite; }
  .hub-links-in-view>a>.ui-arrow,.hub-links-in-view .hub-featured-arrow .ui-arrow { animation:hub-arrow-flow 3.6s ease-in-out var(--link-phase,0s) infinite; }
@@ -70,3 +70,7 @@ body > header nav ul li a:has(.nav-label) { position:relative; }
 @media(prefers-reduced-motion:reduce) { .brand-loader { display:none; } }
 
 @media(max-width:768px) { .brand-loader picture { width:min(38vw,140px); } }
+
+/* Center the identity as a unit inside its footer column. */
+.footer-identity { display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
+.footer-identity .footer-profession { justify-content:center; width:100%; padding:0; border-left:0; }

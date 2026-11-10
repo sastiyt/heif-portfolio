@@ -1,0 +1,58 @@
+
+.contact-studio { position:relative; z-index:1; width:min(1200px,calc(100% - 64px)); margin:0 auto; padding:100px 0 64px; }
+.contact-compose { display:grid; grid-template-columns:1fr 1fr; gap:clamp(40px,7vw,100px); align-items:start; }
+.contact-eyebrow { display:flex; align-items:center; gap:10px; margin:0 0 30px; color:#a7b6ab; font:600 11px/1.4 'Josefin Sans',sans-serif; letter-spacing:.19em; }
+.contact-eyebrow span { width:6px; height:6px; border-radius:50%; background:#1ec24d; }
+.contact-story h1 { margin:0; color:#f1f6f2; font:400 clamp(36px,4.3vw,60px)/1.08 'Phonk Contrast',sans-serif; letter-spacing:-.035em; }
+.contact-story h1 em { display:inline-block; color:#1ec24d; font-style:normal; }
+.contact-lead { margin:28px 0 14px; color:#e8eee9; font-size:25px; line-height:1.3; }
+.contact-copy { max-width:390px; margin:0; color:#9caaa0; font-size:16px; line-height:1.8; }
+.contact-disciplines { display:flex; flex-wrap:wrap; gap:22px; margin-top:30px; color:#8ca693; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+.contact-disciplines span+span::before { content:'/'; margin-right:22px; color:#1ec24d; }
+.contact-channels { min-width:0; padding-top:8px; }
+.contact-channels a { text-decoration:none; color:#edf4ef; transition:color .25s ease; }
+.contact-channels a:hover { color:#1ec24d; }
+.contact-channels a:focus-visible { outline:2px solid #1ec24d; outline-offset:6px; }
+.contact-email { display:block; padding:26px 26px 28px; border-radius:12px; background:#102318; border:1px solid #284733; }
+.contact-channel-label,.contact-channel-row h2 { font:600 10px/1.5 'Josefin Sans',sans-serif; letter-spacing:.13em; color:#82bb92; }
+.contact-email-line { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:19px 0 12px; font-size:clamp(17px,1.8vw,24px); font-weight:600; letter-spacing:-.03em; }
+.contact-arrow { display:grid; place-items:center; flex:none; width:40px; height:40px; border-radius:50%; background:#1ec24d; color:#07110a; transition:transform .3s ease; }
+.contact-email:hover .contact-arrow { transform:rotate(45deg); }
+.contact-channel-note { display:block; color:#a1b4a7; font-size:13px; line-height:1.6; }
+.contact-channel-row { display:grid; grid-template-columns:1fr 1.6fr; gap:20px; padding:27px 0; border-bottom:1px solid #26322a; }
+.contact-channel-row h2 { margin:4px 0 0; color:#8d9d92; }
+.contact-channel-row a { display:flex; justify-content:space-between; align-items:center; gap:12px; min-height:34px; font-size:18px; }
+.contact-channel-row svg,.contact-secondary svg { width:15px; height:15px; flex:none; color:#7e9b87; transition:transform .25s ease; }
+.contact-channel-row a:hover svg,.contact-secondary a:hover svg { transform:translate(2px,-2px); }
+.contact-channel-row p { margin:0 0 10px; font-size:18px; line-height:1.55; color:#e0e9e3; }
+.contact-channel-row p span { color:#98a69c; font-size:15px; }
+.contact-channel-row .contact-social { font-size:14px; color:#95d5a7; }
+.contact-secondary { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; margin-top:20px; font-size:12px; color:#84978a; }
+.contact-secondary a { display:flex; gap:10px; align-items:center; color:#aabcb0; }
+.contact-brief { display:grid; grid-template-columns:1.25fr 1fr 1fr 1fr; gap:24px; align-items:center; border-top:1px solid #29342d; padding-top:28px; margin-top:70px; }
+.contact-brief h2 { margin:0; font-size:18px; font-weight:600; line-height:1.45; color:#e9f0eb; }
+.contact-brief h2 span { color:#84988b; font-weight:400; }
+.contact-brief p { margin:0; color:#bdc9c1; font-size:14px; line-height:1.5; }
+.contact-brief p>span { display:block; margin-bottom:9px; color:#1ec24d; font-size:11px; }
+@media(max-width:900px) { .contact-compose { gap:36px; } .contact-email { padding:20px; } .contact-email-line { flex-wrap:wrap; } .contact-brief { grid-template-columns:1fr 1fr; } }
+@media(max-width:680px) {
+ .contact-studio { width:calc(100% - 40px); padding:90px 0 30px; }
+ .contact-compose { grid-template-columns:1fr; gap:38px; }
+ .contact-eyebrow { margin-bottom:22px; }
+ .contact-story h1 { font-size:clamp(32px,8.4vw,48px); }
+ .contact-lead { font-size:22px; margin-top:23px; }
+ .contact-copy { font-size:15px; }
+ .contact-disciplines { margin-top:22px; }
+ .contact-email-line { flex-wrap:nowrap; font-size:clamp(15px,4.4vw,21px); }
+ .contact-arrow { width:32px; height:32px; }
+ .contact-arrow svg { width:18px; height:18px; }
+ .contact-email { padding:20px 16px; }
+ .contact-channel-row { grid-template-columns:.8fr 1.5fr; gap:12px; padding:24px 0; }
+ .contact-channel-row a,.contact-channel-row p { font-size:16px; }
+ .contact-brief { margin-top:40px; gap:24px 16px; }
+ .contact-brief h2 { grid-column:1/-1; }
+ .contact-brief p { font-size:13px; }
+}
+@media(prefers-reduced-motion:reduce) { .contact-channels a,.contact-channels svg,.contact-arrow { transition:none; } }
+
+.contact-studio, .contact-studio h1, .contact-studio h2, .contact-studio p { text-align:left; }
