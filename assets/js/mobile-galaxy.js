@@ -24,7 +24,7 @@
   scroll+=(target-scroll)*(1-Math.exp(-dt/110));
   ctx.clearRect(0,0,width,height);
   stars.forEach(star => {
-   const y=((star.y*height-time*(1+star.depth*2)-scroll*star.depth*.08)%height+height)%height;
+   const y=((star.y*height-time*(3+star.depth*4)-scroll*star.depth*.14)%height+height)%height;
    const x=star.x*width+Math.sin(time*.05+star.phase)*3;
    ctx.globalAlpha=.16+star.depth*.2+(Math.sin(time*.6+star.phase)+1)*.035;
    ctx.fillStyle='#e0f3e5';ctx.beginPath();ctx.arc(x,y,star.r,0,Math.PI*2);ctx.fill();

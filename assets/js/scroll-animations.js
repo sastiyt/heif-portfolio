@@ -26,12 +26,12 @@
   });
   layoutGalleries();
   mobile.addEventListener('change',layoutGalleries);
-  document.querySelectorAll('main .image-item, main .thumbnail, main .about-portrait').forEach(el => {
+  document.querySelectorAll('main .image-item, main .thumbnail').forEach(el => {
    if (!el.querySelector('img') || el.querySelector('video, iframe')) return;
    el.classList.add('artwork-motion');
    if (el.querySelector('.compare')) el.classList.add('artwork-compare');
   });
-  const elements = [...document.querySelectorAll('.reveal, .skill-item, .contact-item, .video-item, .image-item, .thumbnail, .about-portrait, .portfolio-intro > *, main .page-title:not(.portfolio-intro), .image-showcase > h2')];
+  const elements = [...document.querySelectorAll('.reveal, .skill-item, .contact-item, .video-item, .image-item, .thumbnail, .portfolio-intro > *, main .page-title:not(.portfolio-intro), .image-showcase > h2')];
   // Visible is the permanent state. An observer or animation failure cannot hide work.
   elements.forEach(el => { el.classList.add('reveal','visible'); el.classList.remove('reveal-pending'); });
   const images = [...document.querySelectorAll('main .image-item img, main .thumbnail img, main .about-portrait img')];

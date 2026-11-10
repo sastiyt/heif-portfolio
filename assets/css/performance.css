@@ -111,16 +111,16 @@ body > header nav ul li a[aria-current="page"] { color:#fff; }
 @media(max-width:900px) { .masonry-container.graphics-gallery { columns:2; } }
 @media(max-width:540px) { .masonry-container.graphics-gallery { columns:1; } }
 
-/* A full-size clipped layer avoids resizing a large image on every input. */
-.image-showcase .compare__mask { width:100%; clip-path:inset(0 calc(100% - var(--mask-width)) 0 0); border:0; transition:none; }
-.image-showcase .compare__image-two { width:100%; height:100%; max-width:none; }
-.image-showcase .compare__separator { transition:none; }
+/* Move two composited layers in opposite directions; images never resize. */
+.image-showcase .compare__mask { width:100%; clip-path:none; transform:translate3d(calc(var(--mask-width) - 100%),0,0); border:0; transition:none; }
+.image-showcase .compare__image-two { width:100%; height:100%; max-width:none; transform:translate3d(calc(100% - var(--mask-width)),0,0); }
+.image-showcase .compare__separator { left:0; margin-left:0; width:100%; background:none; box-shadow:none; transform:translate3d(var(--mask-width),0,0); transition:none; }
+.compare__separator::before { content:""; position:absolute; inset:0 auto 0 -1px; width:2px; background:rgba(255,255,255,.85); }
 .compare__input { touch-action:pan-y; }
-.compare__icon { left:50%; }
-@media(prefers-reduced-motion:no-preference) {
- .compare:not(.is-dragging) .compare__mask { transition:clip-path .12s ease-out; }
- .compare:not(.is-dragging) .compare__separator { transition:left .12s ease-out; }
-}
+.compare__icon { left:0; }
+.compare.is-dragging .compare__mask,
+.compare.is-dragging .compare__image-two,
+.compare.is-dragging .compare__separator { will-change:transform; }
 
 /* Black navigation with a moving neon wash and a crisp luminous edge. */
 body > header {
@@ -297,3 +297,40 @@ body > header #anim-logo-h { display:block; }
 /* Mobile galaxy uses a small 2D canvas, not the desktop 3D engine. */
 html.mobile-galaxy #webgl-canvas { display:block!important; }
 @media(prefers-reduced-motion:reduce) { html.mobile-galaxy #webgl-canvas { display:none!important; } }
+
+/* Still portrait: an asymmetric crop frame, with no motion or decorative border. */
+.about-layout .about-portrait {
+ position:relative; top:auto; width:100%; max-width:440px; margin:0 auto;
+ border:0; outline:0; background:none; box-shadow:none; animation:none; transition:none;
+ transform:none; translate:none; scale:none;
+}
+.about-portrait picture { display:block; width:100%; }
+.about-portrait picture img {
+ display:block; width:100%; max-height:none; height:auto; margin:0;
+ border-radius:48px 12px 48px 12px; border:0; outline:0;
+ animation:none; transition:none; transform:none;
+}
+.about-layout .about-right { position:relative; min-width:0; }
+.about-right .about-name { margin-top:0; }
+@media(max-width:768px) {
+ .about-layout { gap:32px; }
+ .about-layout .about-portrait { position:static; }
+ .about-portrait picture img { border-radius:32px 8px 32px 8px; }
+}
+body > header nav ul li a[aria-current="page"] { font-weight:400; }
+
+/* Consistent neutral role icons, including browsers with sticky touch hover. */
+.role-badge, .role-badge:hover { color:#fff; background:rgba(255,255,255,.05); box-shadow:none; transform:none; }
+.role-badge::before { display:none; }
+.role-badge svg, .role-badge:hover svg { color:#d7ded9; opacity:1; transform:none; filter:none; transition:none; }
+
+/* Real text replaces the eight noisy thumbnail images. */
+.text-categories .thumbnail { background:none; border:0; outline:none; }
+.text-categories .thumbnail > a { display:flex; align-items:center; justify-content:center; min-height:180px; padding:20px 8px; color:#fff; background:none; }
+.text-categories .category-label { font-family:var(--font-heading); font-size:clamp(19px,2vw,28px); line-height:1.2; text-align:center; text-wrap:balance; }
+.text-categories .thumbnail > a:hover { color:#1ec24d; }
+.text-categories .thumbnail > a:focus-visible { outline:2px solid #1ec24d; outline-offset:-4px; }
+@media(max-width:600px) {
+ .text-categories .thumbnail > a { min-height:122px; padding:16px 4px; }
+ .text-categories .category-label { font-size:clamp(12px,3.2vw,18px); }
+}
