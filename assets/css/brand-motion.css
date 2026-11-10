@@ -2,7 +2,9 @@
 /* Animated identity, with stable navigation geometry. */
 @font-face { font-family:"Embolism Spark"; src:url("../fonts-web/embolism-spark.ttf") format("truetype"); font-weight:400; font-style:normal; font-display:swap; }
 .brand-logo { display:block; line-height:0; }
-body > header #anim-logo-h { width:134px; height:auto; scale:1; }
+.footer-identity .brand-logo img { width:120px; }
+@media(max-width:768px) { .footer-identity .brand-logo img { width:104px; } }
+body > header #anim-logo-h { width:112px; height:auto; scale:1; }
 body > header nav ul li a:has(.nav-label) { position:relative; }
 .nav-label { display:inline-block; transition:opacity .16s ease; }
 .nav-hover-label { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:max-content; pointer-events:none; opacity:0; font:400 25px/1 "Embolism Spark",cursive; text-transform:none; letter-spacing:0; transition:opacity .16s ease; }
@@ -10,7 +12,7 @@ body > header nav ul li a:has(.nav-label) { position:relative; }
  body > header nav ul li a:hover .nav-label { opacity:0; }
  body > header nav ul li a:hover .nav-hover-label { opacity:1; }
 }
-@media(max-width:768px) { body > header #anim-logo-h { width:116px; } }
+@media(max-width:768px) { body > header #anim-logo-h { width:96px; } }
 
 /* The camera light is entirely contained by the photograph's frame. */
 .hub-portrait-frame { display:block; position:relative; width:100%; height:100%; border-radius:22px; overflow:hidden; isolation:isolate; }
@@ -25,14 +27,21 @@ body > header nav ul li a:has(.nav-label) { position:relative; }
 .hub-links>a:nth-child(5) { --link-phase:-4.4s; }
 .hub-links>a:nth-child(6) { --link-phase:-5.5s; }
 @media(prefers-reduced-motion:no-preference) {
- .hub-profile-in-view .camera-flash { animation:camera-snap 6.8s ease-out infinite; }
+ .hub-profile-in-view .camera-flash { animation:camera-snap 1.5s linear infinite; }
  .hub-name-in-view .hub-name-accent { animation:hub-name-sheen 5s ease-in-out infinite,hub-heif-wiggle 3.6s ease-in-out infinite; transform-origin:50% 65%; }
  .hub-links-in-view>a::before { animation:hub-link-sweep 7s linear var(--link-phase,0s) infinite; }
  .hub-links-in-view>a>.ui-arrow,.hub-links-in-view .hub-featured-arrow .ui-arrow { animation:hub-arrow-flow 3.6s ease-in-out var(--link-phase,0s) infinite; }
  .hub-links-in-view .hub-icon { animation:hub-icon-float 4.5s ease-in-out var(--link-phase,0s) infinite; }
 }
 @keyframes hub-heif-wiggle { 0%,100%{transform:rotate(-2deg) translateY(0)} 25%{transform:rotate(1.5deg) translateY(-2px)} 50%{transform:rotate(-1deg) translateY(0)} 75%{transform:rotate(2deg) translateY(-1px)} }
-@keyframes camera-snap { 0%,76%,91%,100%{opacity:0;transform:translate(-50%,-50%) scale(.3)} 79%{opacity:.95;transform:translate(-50%,-50%) scale(.8)} 82%{opacity:.75;transform:translate(-50%,-50%) scale(1)} 90%{opacity:0;transform:translate(-50%,-50%) scale(1.2)} }
+@keyframes camera-snap {
+  0%,58%,100% { opacity:0; transform:translate(-50%,-50%) scale(.3); }
+  60% { opacity:.72; transform:translate(-50%,-50%) scale(.65); }
+  64%,68% { opacity:0; transform:translate(-50%,-50%) scale(.8); }
+  70% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+  74% { opacity:.55; transform:translate(-50%,-50%) scale(1.1); }
+  86% { opacity:0; transform:translate(-50%,-50%) scale(1.3); }
+}
 @keyframes hub-link-sweep { from{transform:translateX(-130%)} to{transform:translateX(130%)} }
 @keyframes hub-arrow-flow { 0%,100%{transform:translate(0,0)} 50%{transform:translate(3px,-3px)} }
 @keyframes hub-icon-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
@@ -44,8 +53,10 @@ body > header nav ul li a:has(.nav-label) { position:relative; }
 
 /* Never gate the page on videos or optional effects. CSS and JS both fail open. */
 .brand-loader { position:fixed; inset:0; z-index:100000; display:grid; place-items:center; background:#050906; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .18s ease,visibility .18s; }
-.brand-loader picture { width:min(68vw,340px); display:block; }
+.brand-loader picture { width:min(42vw,200px); display:block; }
 .brand-loader img { display:block; width:100%; height:auto; }
 .brand-loading .brand-loader { opacity:1; visibility:visible; animation:brand-loader-timeout 1.8s step-end forwards; }
 @keyframes brand-loader-timeout { 0%{opacity:1;visibility:visible} 100%{opacity:0;visibility:hidden} }
 @media(prefers-reduced-motion:reduce) { .brand-loader { display:none; } }
+
+@media(max-width:768px) { .brand-loader picture { width:min(38vw,140px); } }
