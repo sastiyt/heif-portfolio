@@ -130,19 +130,27 @@ body > header {
  border-bottom:1px solid rgba(30,194,77,.12);
  box-shadow:0 8px 24px rgba(0,0,0,.25);
 }
-body > header::before {
- content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
- background:radial-gradient(ellipse at 42% 145%,rgba(30,194,77,.14),rgba(30,194,77,.04) 38%,transparent 68%),linear-gradient(108deg,#030604 5%,rgba(30,194,77,.025) 24%,rgba(30,194,77,.09) 39%,rgba(30,194,77,.045) 48%,#050906 66%,rgba(30,194,77,.035) 85%,#030604 100%);
- background-size:240% 100%;
- animation:header-neon-flow 12s cubic-bezier(.45,0,.55,1) infinite alternate;
+/* Opaque colour stops avoid stacked low-alpha bands. The equal tile edges
+   make the forward-only loop seamless; blur touches the colour layer only. */
+body > header::before, footer.site-footer::before {
+ content:""; display:block; position:absolute; inset:-16px; width:auto; height:auto; transform:none; z-index:-1; pointer-events:none;
+ background:linear-gradient(90deg,#030604 0%,#050b07 18%,#08180d 36%,#0a2210 48%,#081a0d 60%,#050c07 80%,#030604 100%);
+ background-size:200% 100%; background-repeat:repeat-x;
+ filter:blur(12px); clip-path:inset(16px);
+ animation:header-neon-flow 9s linear infinite;
+}
+@supports (background:linear-gradient(90deg in oklab,#000,#fff)) {
+ body > header::before, footer.site-footer::before {
+  background-image:linear-gradient(90deg in oklab,#030604 0%,#050b07 18%,#08180d 36%,#0a2210 48%,#081a0d 60%,#050c07 80%,#030604 100%);
+ }
 }
 body > header::after {
  content:""; position:absolute; bottom:-1px; left:0; right:0; height:1.5px; pointer-events:none;
  background:linear-gradient(90deg,transparent 8%,rgba(30,194,77,.2) 32%,rgba(30,194,77,.5) 42%,rgba(30,194,77,.28) 52%,transparent 76%);
- background-size:220% 100%;
- animation:header-neon-flow 12s cubic-bezier(.45,0,.55,1) infinite alternate;
+ background-size:200% 100%; background-repeat:repeat-x;
+ animation:header-neon-flow 9s linear infinite;
 }
-@keyframes header-neon-flow { from{background-position:0% 50%} to{background-position:100% 50%} }
+@keyframes header-neon-flow { from{background-position:200% 50%} to{background-position:0% 50%} }
 body > header #anim-logo-h { filter:none; }
 body > header nav ul li a, body > header .nav-toggle { color:#e7f0e7; }
 body > header nav ul li a:hover, body > header nav ul li a[aria-current="page"] { color:#1ec24d; }
@@ -188,12 +196,9 @@ body > header nav ul li a:focus-visible { color:#1ec24d; }
 /* A shared closing invitation, with the same black/neon palette as the work. */
 footer.site-footer {
  padding:0 32px; margin-top:48px; text-align:left; z-index:1;
- background:radial-gradient(ellipse at 42% 145%,rgba(30,194,77,.14),rgba(30,194,77,.04) 38%,transparent 68%),linear-gradient(108deg,#030604 5%,rgba(30,194,77,.025) 24%,rgba(30,194,77,.09) 39%,rgba(30,194,77,.045) 48%,#050906 66%,rgba(30,194,77,.035) 85%,#030604 100%),#050906;
- background-size:240% 100%;
- animation:header-neon-flow 12s cubic-bezier(.45,0,.55,1) infinite alternate;
+ position:relative; isolation:isolate; background:#050906;
  border-top:1px solid rgba(30,194,77,.22); backdrop-filter:none;
 }
-.site-footer::before { display:none; }
 .footer-inner { width:100%; max-width:1200px; margin:0 auto; }
 .footer-invite { display:grid; grid-template-columns:1.6fr 1fr; align-items:center; gap:48px; padding:40px 0 34px; border-bottom:1px solid #243027; }
 .footer-kicker { display:flex; align-items:center; gap:9px; margin:0 0 16px; color:#a4b4a8; font-size:10px; font-weight:600; letter-spacing:.2em; line-height:1.5; }
@@ -242,7 +247,7 @@ footer.site-footer {
 .footer-profession span:last-child { color:#1ec24d; }
 @media(max-width:768px) { .footer-identity .footer-profession { font-size:16px; } }
 
-@media(prefers-reduced-motion:reduce) { footer.site-footer { animation:none; } }
+@media(prefers-reduced-motion:reduce) { footer.site-footer::before { animation:none; } }
 
 
 
@@ -334,3 +339,7 @@ body > header nav ul li a[aria-current="page"] { font-weight:400; }
  .role-badge:not(.is-active):hover svg { color:inherit; opacity:.7; transform:none; filter:none; }
  .role-badge:not(.is-active):hover::before { opacity:0; }
 }
+
+/* Category cards retain movement without a coloured frame. */
+main .thumbnail, main .thumbnail.artwork-motion:hover, main .thumbnail.artwork-motion:focus-within { border:0; outline:none; }
+main .thumbnail a:focus-visible { outline:2px solid #fff; outline-offset:-3px; }
