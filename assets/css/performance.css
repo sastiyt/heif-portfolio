@@ -246,3 +246,9 @@ footer.site-footer {
  from { background-position:0 0,0% 50%,0% 50%; }
  to { background-position:0 0,100% 50%,100% 50%; }
 }
+
+/* Vector arrows stay monochrome on iOS instead of becoming emoji. */
+.ui-arrow { display:inline-block; width:18px; height:18px; flex-shrink:0; vertical-align:middle; }
+.footer-project-link .ui-arrow { width:23px; height:23px; }
+.footer-links .ui-arrow { width:15px; height:15px; color:#9eaf9e; }
+.footer-top .ui-arrow { width:17px; height:17px; }
