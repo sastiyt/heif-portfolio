@@ -116,3 +116,38 @@ body > header nav ul li a[aria-current="page"] { color:#fff; }
  .compare__mask { transition:width .16s cubic-bezier(.2,.7,.2,1); }
  .compare__separator { transition:left .16s cubic-bezier(.2,.7,.2,1); }
 }
+
+/* A compact animated neon surface, with dark ink for readable navigation. */
+body > header {
+ background:linear-gradient(110deg,#c4ff61 0%,#65ff54 28%,#2de889 56%,#a4ff54 80%,#c4ff61 100%);
+ background-size:220% 100%;
+ animation:header-gradient-drift 14s ease-in-out infinite alternate;
+ border-bottom:1px solid #b8ff8a;
+ box-shadow:0 5px 24px rgba(32,188,90,.08);
+}
+@keyframes header-gradient-drift { from{background-position:0% 50%} to{background-position:100% 50%} }
+body > header #anim-logo-h { filter:brightness(0); }
+body > header nav ul li a, body > header .nav-toggle { color:#102818; }
+body > header nav ul li a:hover, body > header nav ul li a[aria-current="page"] { color:#000; }
+body > header nav ul li a::after { background:#102818; }
+body > main { padding-top:clamp(30px,4vw,58px); }
+.portfolio-intro { max-width:1240px; margin:0 auto; padding:16px 24px 38px; text-align:center; }
+.portfolio-intro .intro-eyebrow { margin:0 0 22px; color:#b1d4bd; font-size:11px; font-weight:600; line-height:1.5; letter-spacing:.22em; }
+.portfolio-intro .page-title__title { width:100%; max-width:1180px; margin:0 auto 24px; font-size:clamp(32px,5.8vw,76px); line-height:1.08; text-wrap:balance; letter-spacing:-.025em; }
+.portfolio-intro .page-title__divider { width:100%; max-width:650px; margin:0 auto; color:#a8b4ad; font-size:16px; line-height:1.7; text-wrap:pretty; }
+.portfolio-intro .page-title__divider strong { display:block; margin-bottom:7px; color:#f0f5f1; font-size:clamp(18px,2vw,23px); line-height:1.4; font-weight:500; }
+.portfolio-intro .page-title__divider span { display:block; }
+.portfolio-intro::after { content:""; display:block; width:52px; height:2px; margin:28px auto 0; background:linear-gradient(90deg,#c4ff61,#2de889); }
+.portfolio-intro + .sonic-feature { margin-top:16px; }
+@media(max-width:768px) {
+ body > header nav > ul { background:#a5f96a; border-bottom:1px solid #6aca55; }
+ .portfolio-intro { padding:12px 20px 26px; }
+ .portfolio-intro .intro-eyebrow { margin-bottom:16px; font-size:9px; letter-spacing:.18em; }
+ .portfolio-intro .page-title__title { margin-bottom:20px; }
+ .portfolio-intro .page-title__divider { font-size:14px; line-height:1.65; }
+ .portfolio-intro::after { margin-top:24px; }
+}
+@media(prefers-reduced-motion:reduce) { body > header { animation:none; } }
+
+/* Fit the available page width, including browsers with a visible scrollbar. */
+html, body { min-width:0; }
