@@ -18,62 +18,77 @@
   images.forEach(img => loading.observe(img));
   if (motion.matches || !Element.prototype.animate) return;
   const active = new Map();
-  const played = new WeakSet();
-  const pending = new Map();
-  const inView = el => {
-   const rect = el.getBoundingClientRect();
-   return rect.bottom > 80 && rect.top < innerHeight - Math.min(90, innerHeight * .12);
-  };
-  const reveal = async (el, delay) => {
-   if (played.has(el) || pending.has(el) || document.hidden || motion.matches || !inView(el)) return;
-   const token = {};
-   pending.set(el, token);
-   const pictures = [...el.querySelectorAll('img')];
-   pictures.forEach(img => { img.loading='eager'; });
-   // Preload near the viewport; never hold the reveal indefinitely for slow media.
-   await Promise.race([
-    Promise.all(pictures.map(img => img.decode ? img.decode().catch(() => {}) : Promise.resolve())),
-    new Promise(resolve => setTimeout(resolve, 350))
-   ]);
-   if (pending.get(el) !== token) return;
+  const pending = new Set();
+  let frame = 0;
+  const finish = el => {
    pending.delete(el);
-   if (motion.matches || document.hidden || !inView(el)) return;
-   played.add(el);
-   const animation = el.animate([
-    {opacity:0, transform:'translateY(44px)'},
-    {opacity:1, transform:'translateY(0)'}
-   ], {duration:900, delay, easing:'cubic-bezier(.16,1,.3,1)', fill:'backwards'});
-   active.set(el, animation);
-   animation.finished.catch(() => {}).finally(() => {
-    if (active.get(el) === animation) active.delete(el);
-   });
+   observer.unobserve(el);
+   el.classList.remove('scroll-reveal-ready');
+   active.get(el)?.cancel();
+   active.delete(el);
   };
-  const orderedReveal = entries => entries
+  const reveal = (el, delay = 0) => {
+   if (!pending.has(el) || document.hidden) return;
+   const rect = el.getBoundingClientRect();
+   if (motion.matches || rect.bottom <= 0) { finish(el); return; }
+   pending.delete(el);
+   observer.unobserve(el);
+   try {
+    // Start immediately: awaiting image decode here caused visible cards to flash off.
+    const animation = el.animate([
+     {opacity:0, transform:'translateY(24px)'},
+     {opacity:1, transform:'translateY(0)'}
+    ], {duration:760, delay, easing:'cubic-bezier(.22,.61,.36,1)', fill:'both'});
+    active.set(el, animation);
+    el.classList.remove('scroll-reveal-ready');
+    animation.finished.catch(() => {}).finally(() => {
+     if (active.get(el) === animation) { animation.cancel(); active.delete(el); }
+    });
+   } catch (_) { finish(el); }
+  };
+  const observer = new IntersectionObserver(entries => entries
    .filter(entry => entry.isIntersecting)
    .sort((a,b) => a.boundingClientRect.top-b.boundingClientRect.top || a.boundingClientRect.left-b.boundingClientRect.left)
-   .forEach((entry,index) => reveal(entry.target, Math.min(index,3)*110).catch(() => {}));
-  // Enter well inside the screen, so the fade has not finished below the viewport.
-  const observer = new IntersectionObserver(orderedReveal, {threshold:0, rootMargin:'-80px 0px -' + Math.min(90, innerHeight * .12) + 'px 0px'});
-  // Re-arm only after the entire card leaves the screen, avoiding edge flicker.
-  const exits = new IntersectionObserver(entries => entries.forEach(entry => {
-   if (!entry.isIntersecting) {
-    played.delete(entry.target);
-    pending.delete(entry.target);
-    active.get(entry.target)?.cancel();
-   }
-  }), {threshold:0});
-  const targets = elements.filter(el => !el.matches('.hero h1'));
-  targets.forEach(el => { observer.observe(el); exits.observe(el); });
-  const cancel = () => { pending.clear(); active.forEach(animation => animation.cancel()); active.clear(); };
-  motion.addEventListener('change', () => {
-   if (motion.matches) cancel();
-   else targets.forEach(el => { if (inView(el)) reveal(el,0).catch(() => {}); });
-  });
-  window.addEventListener('beforeprint', cancel);
+   .forEach((entry,index) => reveal(entry.target, Math.min(index,2)*75)),
+   {threshold:0, rootMargin:'0px 0px -48px 0px'});
+  const checkVisible = () => {
+   frame = 0;
+   if (document.hidden) return;
+   [...pending].forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.bottom <= 0) finish(el);
+    else if (rect.top < innerHeight - 48) reveal(el);
+   });
+  };
+  // A cheap fallback handles fast scrolling, resizing and restored/background tabs.
+  const schedule = () => {
+   if (pending.size && !frame) frame = requestAnimationFrame(checkVisible);
+  };
+  window.addEventListener('scroll', schedule, {passive:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('pageshow', schedule);
+  const finishAll = () => {
+   [...pending, ...active.keys()].forEach(finish);
+  };
+  motion.addEventListener('change', () => { if (motion.matches) finishAll(); });
+  window.addEventListener('beforeprint', finishAll);
   document.addEventListener('visibilitychange', () => {
-   if (document.hidden) cancel();
-   else targets.forEach(el => { if (inView(el)) reveal(el,0).catch(() => {}); });
+   if (document.hidden) [...active.keys()].forEach(finish);
+   else schedule();
   });
+  document.addEventListener('focusin', event => {
+   pending.forEach(el => { if (el.contains(event.target)) finish(el); });
+  });
+  // Already-visible content stays visible. Each off-screen card fades up only once.
+  try {
+   elements.forEach(el => {
+    if (el.matches('.hero h1') || el.getBoundingClientRect().top < innerHeight) return;
+    pending.add(el);
+    observer.observe(el);
+    el.classList.add('scroll-reveal-ready');
+   });
+   schedule();
+  } catch (_) { finishAll(); }
  };
  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded',setup,{once:true}) : setup();
 })();

@@ -129,13 +129,13 @@ body > header::before {
  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
  background:radial-gradient(ellipse at 42% 145%,rgba(128,255,36,.65),rgba(53,153,16,.2) 38%,transparent 68%),linear-gradient(108deg,#030604 5%,#0b1e0d 24%,#245d13 39%,#163d0d 48%,#050906 66%,#153d11 85%,#030604 100%);
  background-size:240% 100%;
- animation:header-neon-flow 7s ease-in-out infinite alternate;
+ animation:header-neon-flow 12s cubic-bezier(.45,0,.55,1) infinite alternate;
 }
 body > header::after {
- content:""; position:absolute; bottom:-1px; left:0; right:0; height:2px; pointer-events:none;
+ content:""; position:absolute; bottom:-1px; left:0; right:0; height:1.5px; pointer-events:none;
  background:linear-gradient(90deg,transparent 8%,#4aff29 32%,#ceff8c 42%,#76ff32 52%,transparent 76%);
  background-size:220% 100%;
- animation:header-neon-flow 7s ease-in-out infinite alternate;
+ animation:header-neon-flow 12s cubic-bezier(.45,0,.55,1) infinite alternate;
 }
 @keyframes header-neon-flow { from{background-position:0% 50%} to{background-position:100% 50%} }
 body > header #anim-logo-h { filter:none; }
@@ -163,3 +163,12 @@ body > main { padding-top:clamp(30px,4vw,58px); }
 
 /* Fit the available page width, including browsers with a visible scrollbar. */
 html, body { min-width:0; }
+
+/* Prepare only off-screen cards, before their first reveal. No visible-to-hidden jump. */
+.reveal.visible.scroll-reveal-ready { opacity:0; transform:translateY(24px); transition:none; }
+@media(prefers-reduced-motion:reduce) {
+ .reveal.visible.scroll-reveal-ready { opacity:1; transform:none; }
+}
+@media print {
+ .reveal.visible.scroll-reveal-ready { opacity:1!important; transform:none!important; }
+}
