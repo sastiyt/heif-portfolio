@@ -50,3 +50,14 @@
  0%,100% { transform:translateY(0) skewX(0deg); }
  50% { transform:translateY(-4px) skewX(-4deg); }
 }
+
+/* Give the contact composition its own breathing room before the shared footer. */
+main#main-content.contact-studio { margin-bottom:clamp(32px,4vw,64px); padding-bottom:64px; }
+.contact-copy { max-width:340px; margin:18px 0 0; color:#9caaa0; font-size:15px; line-height:1.75; }
+.contact-services { display:flex; flex-wrap:wrap; gap:18px; margin:24px 0 0; color:#90a697; font-size:11px; letter-spacing:.1em; text-transform:uppercase; }
+.contact-services span { color:#1ec24d; }
+@media(max-width:680px) {
+ main#main-content.contact-studio { margin-bottom:32px; padding-bottom:40px; }
+ .contact-copy { font-size:14px; max-width:320px; }
+ .contact-services { margin-top:20px; }
+}

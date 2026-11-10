@@ -12,7 +12,7 @@
  .footer-base > p { grid-column:1/-1; text-align:center; }
  .footer-base-logo { grid-row:2; }
  .footer-base-logo img { width:76px; }
- .footer-base .footer-top { grid-row:2; gap:5px; font-size:11px; white-space:nowrap; }
+ .footer-base .footer-top { grid-column:1/-1; grid-row:3; justify-self:center; gap:5px; font-size:11px; white-space:nowrap; }
 }
 body > header #anim-logo-h { width:112px; height:auto; scale:1; }
 body > header nav ul li a:has(.nav-label) { position:relative; }

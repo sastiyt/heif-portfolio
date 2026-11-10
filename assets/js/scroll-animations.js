@@ -21,8 +21,16 @@
     const column = document.createElement('div'); column.className='gallery-column';
     container.appendChild(column); return column;
    });
-   items.forEach((el,index) => columns[index % 2].appendChild(el));
    container.classList.add('mobile-masonry');
+   // Poster aspect ratios vary greatly. Place each card in the shorter column,
+   // using its reserved image dimensions and rendered caption height.
+   const heights = [0,0];
+   const balance = container.classList.contains('poster-gallery');
+   items.forEach((el,index) => {
+    const column = balance ? (heights[0] <= heights[1] ? 0 : 1) : index % 2;
+    columns[column].appendChild(el);
+    heights[column] += el.offsetHeight + 10;
+   });
   });
   layoutGalleries();
   mobile.addEventListener('change',layoutGalleries);

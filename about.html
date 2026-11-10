@@ -36,23 +36,32 @@
 	
 	<script src="assets/js/script.js?v=20261110-1" defer></script>
 
-	<script src="assets/js/scroll-animations.js?v=20261110-9" defer></script>
+	<script src="assets/js/scroll-animations.js?v=20261110-10" defer></script>
 	
 <link rel="stylesheet" href="assets/css/performance.css?v=20261110-21">
   <script src="assets/js/optional-effects.js?v=20261110-3" defer></script>
   <link rel="canonical" href="https://heif.work/about.html">
   <meta property="og:url" content="https://heif.work/about.html">
   <link rel="stylesheet" href="assets/css/print.css?v=20261108-1" media="print">
-<link rel="stylesheet" href="assets/css/brand-motion.css?v=20261110-5">
+<link rel="stylesheet" href="assets/css/brand-motion.css?v=20261110-6">
 <link rel="preload" href="assets/fonts-web/embolism-spark.ttf" as="font" type="font/ttf" crossorigin>
 <script>document.documentElement.classList.add('brand-loading');setTimeout(function(){document.documentElement.classList.remove('brand-loading');},1800);</script>
 <style>
 .about-layout .about-portrait { max-width:380px; }
 @media(max-width:768px) { .about-layout .about-portrait { width:90%; max-width:300px; } }
-.about-video-frame { position:relative; isolation:isolate; display:block; width:100%; overflow:hidden; border-radius:8px; clip-path:none; }
-.about-video-frame .about-profile-video { display:block; width:100%; height:auto; max-height:none; margin:0; border:0; border-radius:0; object-fit:contain; cursor:pointer; }
+.about-video-frame { position:relative; isolation:isolate; display:block; width:100%; overflow:hidden; border-radius:8px; clip-path:inset(0 round 8px); -webkit-mask-image:linear-gradient(#fff,#fff); }
+.about-video-frame .about-profile-video { display:block; width:100%; height:auto; max-height:none; margin:0; border:0; border-radius:8px; object-fit:contain; cursor:pointer; }
 .about-video-frame::after { content:""; position:absolute; inset:0; border-radius:inherit; background:url("assets/img/portrait-grain.png") repeat; opacity:.08; mix-blend-mode:soft-light; pointer-events:none; }
 .about-profile-video:focus-visible { outline:2px solid #1ec24d; outline-offset:-4px; }
+/* A balanced name lockup with a quieter supporting line. */
+.about-right .about-name { display:flex; flex-direction:column; gap:5px; margin:0 0 18px; font-size:clamp(32px,3.4vw,46px); line-height:1.12; font-weight:400; letter-spacing:-.025em; }
+.about-name span { display:block; }
+.about-name span:last-child { color:#1ec24d; }
+.about-right .about-tagline { margin:0 0 32px; max-width:340px; font-style:normal; font-size:15px; font-weight:400; letter-spacing:.02em; line-height:1.6; color:#a9b6ad; }
+@media(max-width:768px) {
+ .about-right .about-name { font-size:clamp(29px,7.8vw,38px); gap:4px; margin-bottom:14px; }
+ .about-right .about-tagline { max-width:290px; font-size:14px; margin-bottom:28px; }
+}
 </style>
 </head>
 
@@ -108,8 +117,8 @@
 
 				<!-- Right: Bio + Skills -->
 				<div class="about-right">
-					<h1 id="about-heading" class="about-name">HIRANI<br>HIMALAY</h1>
-					<p class="about-tagline">Visual Storytelling Through Design & Motion</p>
+					<h1 id="about-heading" class="about-name"><span>HIMALAY</span><span>HIRANI</span></h1>
+					<p class="about-tagline">Design, motion &amp; visual storytelling.</p>
 
 					<p class="about-bio-text">Hello! I’m Himalay Hirani, a passionate Graphic Designer, Photographer,
 						and Video Editor from Kutch, now based in Ahmedabad, India.
