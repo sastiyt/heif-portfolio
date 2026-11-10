@@ -71,3 +71,24 @@ main .thumbnail:hover img { transform:none; filter:none; }
 .masonry-container > .image-item { display:inline-block; vertical-align:top; width:100%; margin:0 0 15px; break-inside:avoid; box-sizing:border-box; }
 @media(max-width:900px) { .masonry-container { columns:2; } }
 @media(max-width:540px) { .masonry-container { columns:1; } }
+
+/* Keep navigation readable over artwork while scrolling. */
+body > header { background:#000; -webkit-backdrop-filter:none; backdrop-filter:none; }
+
+/* Comparison cards have neutral controls and hover feedback without an outline. */
+.image-showcase .artwork-compare,
+.image-showcase .artwork-compare:hover,
+.image-showcase .artwork-compare:focus-within { outline:none; border:0; translate:none; scale:1; align-self:flex-start; }
+.image-showcase .compare { border:0; transition:filter .25s ease; }
+.image-showcase .compare__separator { background:rgba(255,255,255,.85); }
+.image-showcase .compare__icon { background-color:#171717; border:1px solid rgba(255,255,255,.7); }
+.image-showcase .compare:has(.compare__input:focus-visible) { outline:2px solid #fff; outline-offset:-2px; }
+@media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+ .artwork-compare:hover .compare { filter:brightness(1.035); }
+}
+
+/* Explicit graphics layout: each column follows its own image heights. */
+.masonry-container.graphics-gallery { display:block; columns:3; column-gap:15px; }
+.masonry-container.graphics-gallery > .image-item { display:inline-block; width:100%; margin:0 0 15px; vertical-align:top; break-inside:avoid; }
+@media(max-width:900px) { .masonry-container.graphics-gallery { columns:2; } }
+@media(max-width:540px) { .masonry-container.graphics-gallery { columns:1; } }
