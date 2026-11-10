@@ -182,47 +182,55 @@ body > header nav ul li a:focus-visible { color:#b5ff65; }
 
 /* A shared closing invitation, with the same black/neon palette as the work. */
 footer.site-footer {
- padding:0 32px; margin-top:64px; text-align:left; z-index:1;
- background:radial-gradient(ellipse at 94% 95%,rgba(71,134,28,.15),transparent 52%),#060a07;
- border-top:1px solid rgba(153,255,76,.22); backdrop-filter:none;
+ padding:0 32px; margin-top:48px; text-align:left; z-index:1;
+ background:radial-gradient(ellipse at 94% 95%,rgba(30,194,77,.10),transparent 52%),#060a07;
+ border-top:1px solid rgba(30,194,77,.22); backdrop-filter:none;
 }
 .site-footer::before { display:none; }
 .footer-inner { width:100%; max-width:1200px; margin:0 auto; }
-.footer-invite { display:grid; grid-template-columns:1.6fr 1fr; align-items:center; gap:48px; padding:62px 0 52px; border-bottom:1px solid #243027; }
-.footer-kicker { display:flex; align-items:center; gap:9px; margin:0 0 22px; color:#a4b4a8; font-size:10px; font-weight:600; letter-spacing:.2em; line-height:1.5; }
-.footer-kicker span { width:6px; height:6px; border-radius:50%; background:#a7ff55; box-shadow:0 0 12px #83ff4640; }
-.footer-invite h2 { margin:0; color:#f3f6f2; font-family:var(--font-heading); font-size:clamp(28px,4.1vw,54px); line-height:1.2; letter-spacing:-.035em; }
-.footer-invite h2 em { color:#b5ff65; font-style:normal; }
+.footer-invite { display:grid; grid-template-columns:1.6fr 1fr; align-items:center; gap:48px; padding:40px 0 34px; border-bottom:1px solid #243027; }
+.footer-kicker { display:flex; align-items:center; gap:9px; margin:0 0 16px; color:#a4b4a8; font-size:10px; font-weight:600; letter-spacing:.2em; line-height:1.5; }
+.footer-kicker span { width:6px; height:6px; border-radius:50%; background:#1ec24d; box-shadow:0 0 12px #1ec24d40; }
+.footer-invite h2 { margin:0; color:#f3f6f2; font-family:var(--font-heading); font-size:clamp(28px,3.7vw,48px); line-height:1.2; letter-spacing:-.035em; }
+.footer-invite h2 em { color:#1ec24d; font-style:normal; }
 .footer-action { justify-self:end; }
-.footer-action p { margin:0 0 22px; color:#aab9ae; font-size:16px; line-height:1.65; }
+.footer-action p { margin:0 0 16px; color:#aab9ae; font-size:16px; line-height:1.65; }
 .site-footer a { text-decoration:none; transition:color .25s ease,background-color .25s ease,transform .25s ease; }
-.site-footer a:focus-visible { outline:2px solid #b5ff65; outline-offset:5px; }
-.site-footer .footer-project-link { display:inline-flex; align-items:center; gap:38px; min-height:52px; padding:0 22px; border-radius:5px; background:#b5ff65; color:#10170c; font-size:15px; font-weight:700; }
+.site-footer a:focus-visible { outline:2px solid #1ec24d; outline-offset:5px; }
+.site-footer .footer-project-link { display:inline-flex; align-items:center; gap:38px; min-height:52px; padding:0 22px; border-radius:5px; background:#1ec24d; color:#10170c; font-size:15px; font-weight:700; }
 .footer-project-link span { font-family:Arial,sans-serif; font-size:25px; }
-.site-footer .footer-project-link:hover { background:#d1ff9f; transform:translateY(-2px); }
-.footer-details { display:grid; grid-template-columns:2fr 1fr 1fr; gap:48px; padding:38px 0; }
-.footer-identity img { display:block; width:150px; height:auto; margin-bottom:20px; }
+.site-footer .footer-project-link:hover { background:#43d46c; transform:translateY(-2px); }
+.footer-details { display:grid; grid-template-columns:2fr 1fr 1fr; gap:48px; padding:24px 0; }
+.footer-identity img { display:block; width:150px; height:auto; margin-bottom:16px; }
 .footer-identity p { margin:0 0 8px; color:#d0dbd3; font-size:14px; line-height:1.6; }
 .footer-identity > span { color:#8f9f93; font-size:13px; }
 .footer-links { display:flex; flex-direction:column; align-items:flex-start; gap:0; }
 .footer-links p { margin:0 0 12px; color:#8f9f93; font-size:10px; font-weight:600; letter-spacing:.17em; }
 .footer-links a { display:flex; align-items:center; gap:12px; min-height:36px; color:#e4ece5; font-size:14px; }
-.footer-links a:hover, .footer-base a:hover { color:#b5ff65; }
+.footer-links a:hover, .footer-base a:hover { color:#1ec24d; }
 .footer-links a span { color:#9eaf9e; }
-.footer-base { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px 24px; border-top:1px solid #243027; padding:22px 0; }
+.footer-base { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px 24px; border-top:1px solid #243027; padding:14px 0; }
 .footer-base p { margin:0; color:#8f9f93; font-size:11px; line-height:1.6; }
 .footer-base a { color:#b9c8bc; }
 .footer-top { display:inline-flex; align-items:center; min-height:32px; gap:14px; font-size:12px; }
 .footer-top span { font-size:18px; }
 @media(max-width:768px) {
- footer.site-footer { padding:0 24px; margin-top:40px; }
- .footer-invite { grid-template-columns:1fr; gap:28px; padding:40px 0 32px; }
+ footer.site-footer { padding:0 24px; margin-top:32px; }
+ .footer-invite { grid-template-columns:1fr; gap:22px; padding:30px 0 24px; }
  .footer-invite h2 { font-size:clamp(27px,6vw,42px); }
  .footer-action { justify-self:start; }
  .footer-action p { font-size:14px; margin-bottom:16px; }
- .footer-kicker { margin-bottom:18px; font-size:9px; }
- .footer-details { grid-template-columns:1fr 1fr; gap:28px 20px; padding:30px 0; }
+ .footer-kicker { margin-bottom:14px; font-size:9px; }
+ .footer-details { grid-template-columns:1fr 1fr; gap:22px 20px; padding:22px 0; }
  .footer-identity { grid-column:1/-1; }
  .footer-links a { min-height:44px; }
- .footer-base { align-items:flex-start; flex-direction:column; gap:8px; padding:18px 0; }
+ .footer-base { align-items:flex-start; flex-direction:column; gap:6px; padding:12px 0; }
 }
+
+.footer-identity .footer-profession {
+ display:flex; flex-wrap:wrap; gap:3px 9px; width:fit-content; max-width:100%;
+ margin:0 0 12px; padding:7px 0 7px 12px; border-left:2px solid #1ec24d;
+ color:#eff8f1; font-size:17px; font-weight:600; line-height:1.5;
+}
+.footer-profession span:last-child { color:#1ec24d; }
+@media(max-width:768px) { .footer-identity .footer-profession { font-size:16px; } }
