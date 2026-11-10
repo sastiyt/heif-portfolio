@@ -63,7 +63,7 @@ body > header nav ul li a:has(.nav-label) { position:relative; }
 
 /* Never gate the page on videos or optional effects. CSS and JS both fail open. */
 .brand-loader { position:fixed; inset:0; z-index:100000; display:grid; place-items:center; background:#050906; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .18s ease,visibility .18s; }
-.brand-loader picture { width:min(42vw,200px); display:block; }
+.brand-loader picture { width:min(32vw,140px); display:block; }
 .brand-loader img { display:block; width:100%; height:auto; }
 .brand-loading .brand-loader { opacity:1; visibility:visible; animation:brand-loader-timeout 1.8s step-end forwards; }
 @keyframes brand-loader-timeout { 0%{opacity:1;visibility:visible} 100%{opacity:0;visibility:hidden} }
@@ -71,6 +71,6 @@ body > header nav ul li a:has(.nav-label) { position:relative; }
 
 @media(max-width:768px) { .brand-loader picture { width:min(38vw,140px); } }
 
-/* Center the identity as a unit inside its footer column. */
-.footer-identity { display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
-.footer-identity .footer-profession { justify-content:center; width:100%; padding:0; border-left:0; }
+/* Shared footer identity: left aligned consistently across every page. */
+.footer-identity { display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; text-align:left; }
+.footer-identity .footer-profession { justify-content:flex-start; width:fit-content; padding:7px 0 7px 12px; border-left:2px solid #1ec24d; text-align:left; }
