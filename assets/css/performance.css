@@ -183,7 +183,9 @@ body > header nav ul li a:focus-visible { color:#1ec24d; }
 /* A shared closing invitation, with the same black/neon palette as the work. */
 footer.site-footer {
  padding:0 32px; margin-top:48px; text-align:left; z-index:1;
- background:radial-gradient(ellipse at 94% 95%,rgba(30,194,77,.10),transparent 52%),#060a07;
+ background:radial-gradient(ellipse at 42% 145%,rgba(30,194,77,.14),rgba(30,194,77,.04) 38%,transparent 68%),linear-gradient(108deg,#030604 5%,rgba(30,194,77,.025) 24%,rgba(30,194,77,.09) 39%,rgba(30,194,77,.045) 48%,#050906 66%,rgba(30,194,77,.035) 85%,#030604 100%),#050906;
+ background-size:240% 100%;
+ animation:header-neon-flow 12s cubic-bezier(.45,0,.55,1) infinite alternate;
  border-top:1px solid rgba(30,194,77,.22); backdrop-filter:none;
 }
 .site-footer::before { display:none; }
@@ -234,3 +236,5 @@ footer.site-footer {
 }
 .footer-profession span:last-child { color:#1ec24d; }
 @media(max-width:768px) { .footer-identity .footer-profession { font-size:16px; } }
+
+@media(prefers-reduced-motion:reduce) { footer.site-footer { animation:none; } }
