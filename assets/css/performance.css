@@ -343,3 +343,26 @@ body > header nav ul li a[aria-current="page"] { font-weight:400; }
 /* Category cards retain movement without a coloured frame. */
 main .thumbnail, main .thumbnail.artwork-motion:hover, main .thumbnail.artwork-motion:focus-within { border:0; outline:none; }
 main .thumbnail a:focus-visible { outline:2px solid #fff; outline-offset:-3px; }
+
+/* Small, staged invitation; the resting heading is always readable. */
+.footer-invite .footer-word { display:inline-block; }
+.footer-invite .footer-word:nth-of-type(2) { --word-delay:100ms; }
+.footer-invite .footer-word:nth-of-type(3) { --word-delay:200ms; }
+.footer-invite h2 em { display:inline-block; transform:rotate(-5deg); transform-origin:50% 65%; }
+.site-footer .footer-project-link { position:relative; isolation:isolate; overflow:hidden; }
+.site-footer .footer-project-link::before {
+ content:""; position:absolute; inset:0; pointer-events:none; z-index:-1;
+ background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);
+ transform:translateX(-140%);
+}
+.site-footer .footer-project-link:active { transform:scale(.97); }
+@media(prefers-reduced-motion:no-preference) {
+ .site-footer.footer-revealed .footer-word { animation:footer-word-arrive .8s cubic-bezier(.22,1,.36,1) var(--word-delay,0ms) both; }
+ .site-footer.footer-in-view h2 em { animation:footer-bold-float 4.8s ease-in-out infinite; }
+ .site-footer.footer-in-view .footer-project-link::before { animation:footer-button-shine 5.5s ease-in-out infinite; }
+ .site-footer.footer-in-view .footer-project-link .ui-arrow { animation:footer-arrow-nudge 5.5s ease-in-out infinite; }
+}
+@keyframes footer-word-arrive { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes footer-bold-float { 0%,100%{transform:rotate(-5deg) translateY(0)} 50%{transform:rotate(-3deg) translateY(-3px)} }
+@keyframes footer-button-shine { 0%,64%{transform:translateX(-140%)} 90%,100%{transform:translateX(140%)} }
+@keyframes footer-arrow-nudge { 0%,65%,100%{transform:translate(0,0)} 78%{transform:translate(3px,-3px)} }
