@@ -130,18 +130,18 @@ body > header {
  border-bottom:1px solid rgba(30,194,77,.12);
  box-shadow:0 8px 24px rgba(0,0,0,.25);
 }
-/* Opaque colour stops avoid stacked low-alpha bands. The equal tile edges
-   make the forward-only loop seamless; blur touches the colour layer only. */
+/* Render the opaque colour field directly, without a quantized blur layer.
+   Equal tile edges preserve the continuous forward-only motion. */
 body > header::before, footer.site-footer::before {
  content:""; display:block; position:absolute; inset:0; width:auto; height:auto; transform:none; z-index:-1; pointer-events:none;
  background:linear-gradient(90deg,#030604 0%,#050b07 18%,#08180d 36%,#0a2210 48%,#081a0d 60%,#050c07 80%,#030604 100%);
  background-size:200% 100%; background-repeat:repeat-x;
- filter:blur(12px); clip-path:inset(0);
+ filter:none;
  animation:header-neon-flow 9s linear infinite;
 }
-@supports (background:linear-gradient(90deg in oklab,#000,#fff)) {
+@supports (background:linear-gradient(90deg in srgb-linear,#000,#fff)) {
  body > header::before, footer.site-footer::before {
-  background-image:linear-gradient(90deg in oklab,#030604 0%,#050b07 18%,#08180d 36%,#0a2210 48%,#081a0d 60%,#050c07 80%,#030604 100%);
+  background-image:linear-gradient(90deg in srgb-linear,#030604 0%,#050b07 18%,#08180d 36%,#0a2210 48%,#081a0d 60%,#050c07 80%,#030604 100%);
  }
 }
 body > header::after {

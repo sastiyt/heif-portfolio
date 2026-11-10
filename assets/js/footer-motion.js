@@ -12,3 +12,16 @@
  },{threshold:.12});
  observer.observe(invite);
 })();
+
+(() => {
+ 'use strict';
+ const name=document.querySelector('.hub-intro h1');
+ if(!name || matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+ const observer=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+   name.classList.toggle('hub-name-in-view',entry.isIntersecting);
+   if(entry.isIntersecting) name.classList.add('hub-name-visible');
+  });
+ },{threshold:.25});
+ observer.observe(name);
+})();
