@@ -46,6 +46,11 @@
 <link rel="stylesheet" href="assets/css/brand-motion.css?v=20261110-1">
 <link rel="preload" href="assets/fonts-web/embolism-spark.ttf" as="font" type="font/ttf" crossorigin>
 <script>document.documentElement.classList.add('brand-loading');setTimeout(function(){document.documentElement.classList.remove('brand-loading');},1800);</script>
+<style>
+.about-video-frame { display:block; width:100%; overflow:hidden; border-radius:46% 46% 4% 4% / 30% 30% 4% 4%; clip-path:polygon(0 0,100% 0,100% 86%,84% 100%,0 100%); }
+.about-video-frame .about-profile-video { display:block; width:100%; height:auto; max-height:none; margin:0; border:0; border-radius:0; object-fit:contain; cursor:pointer; }
+.about-profile-video:focus-visible { outline:2px solid #1ec24d; outline-offset:-4px; }
+</style>
 </head>
 
 <body>
@@ -91,11 +96,11 @@
 			<div class="about-layout">
 				<!-- Left: Portrait -->
 				<div class="about-portrait">
-					<picture id="about-img">
-						<source media="(max-width: 768px)" srcset="assets/optimized/about-mobile-480.webp 480w, assets/optimized/about-mobile-960.webp 960w" sizes="100vw">
-						<img src="assets/optimized/066c63ee842e01c2-1481.webp" alt="Himalay Hirani portrait" loading="lazy"
-						 decoding="async" srcset="assets/optimized/066c63ee842e01c2-480.webp 480w, assets/optimized/066c63ee842e01c2-960.webp 960w, assets/optimized/066c63ee842e01c2-1481.webp 1481w" sizes="(max-width: 768px) 100vw, 50vw" width="1481" height="1852">
-					</picture>
+					<div class="about-video-frame" id="about-img">
+                        <video class="about-profile-video" width="720" height="1000" muted loop playsinline preload="none" poster="assets/optimized/about-profile-poster-20261110.webp" aria-label="Himalay Hirani animated portrait. Pause video" role="button" tabindex="0">
+                            <source src="assets/optimized/about-profile-20261110.mp4" type="video/mp4">
+                        </video>
+                    </div>
 				</div>
 
 				<!-- Right: Bio + Skills -->
@@ -331,6 +336,7 @@
 	</script>
   <script src="assets/js/footer-motion.js?v=20261110-2" defer></script>
   <script src="assets/js/brand-motion.js?v=20261110-1" defer></script>
+<script src="assets/js/about-profile.js?v=20261110-1" defer></script>
 </body>
 
 </html>
