@@ -36,3 +36,34 @@ img[width][height] { height: auto; }
 }
 .hover-image { position:fixed; width:min(330px,calc(100vw - 16px)); height:auto; aspect-ratio:1; }
 @media (hover:none), (pointer:coarse) { .hover-image { display:none !important; } }
+
+
+/* Gentle artwork feedback; independent hover transforms preserve scroll reveals. */
+.artwork-motion {
+ position:relative;
+ outline:1px solid transparent;
+ outline-offset:2px;
+ transition:opacity .65s ease, transform .65s cubic-bezier(.22,1,.36,1),
+  translate .35s cubic-bezier(.22,1,.36,1), scale .35s cubic-bezier(.22,1,.36,1), outline-color .3s ease;
+ transition-delay:var(--reveal-delay,0ms),var(--reveal-delay,0ms),0ms,0ms,0ms;
+}
+.reveal.reveal-pending { opacity:0; transform:translateY(24px); }
+.artwork-motion::before { display:none; }
+/* Preserve the original design colours and edges, including thumbnail text. */
+main .thumbnail:hover img { transform:none; filter:none; }
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+ .artwork-motion:not(.reveal-pending):hover,
+ .artwork-motion:focus-within {
+  outline-color:rgba(100,220,142,.65);
+  translate:0 -4px;
+  scale:1.012;
+ }
+ .artwork-motion.artwork-compare:hover,
+ .artwork-motion.artwork-compare:focus-within { translate:none; scale:1; }
+}
+@media (prefers-reduced-motion:reduce) {
+ .artwork-motion, .reveal.reveal-pending { opacity:1; transform:none; translate:none; scale:1; }
+}
+@media print {
+ .artwork-motion, .reveal.reveal-pending { opacity:1!important; transform:none!important; translate:none!important; scale:1!important; outline:none!important; }
+}
