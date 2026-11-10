@@ -62,6 +62,14 @@
  .about-right .about-name { font-size:clamp(29px,7.8vw,38px); gap:4px; margin-bottom:14px; }
  .about-right .about-tagline { max-width:290px; font-size:14px; margin-bottom:28px; }
 }
+@media(prefers-reduced-motion:no-preference) {
+ .about-name span:last-child { transform-origin:50% 75%; animation:about-hirani 3.6s cubic-bezier(.45,0,.55,1) infinite; }
+}
+@keyframes about-hirani {
+ 0%,100% { transform:translateY(0) rotate(-1deg) skewX(0deg); }
+ 35% { transform:translateY(-5px) rotate(1deg) skewX(-5deg); }
+ 70% { transform:translateY(-1px) rotate(-1.5deg) skewX(2deg); }
+}
 </style>
 </head>
 

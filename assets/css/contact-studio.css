@@ -44,11 +44,12 @@
 .contact-studio, .contact-studio h1, .contact-studio h2, .contact-studio p { text-align:left; }
 /* Gentle motion on the accent word; no hidden or flashing text. */
 @media(prefers-reduced-motion:no-preference) {
- .contact-story h1 em { transform-origin:0 75%; animation:contact-happen 4.4s cubic-bezier(.45,0,.55,1) infinite; }
+ .contact-story h1 em { transform-origin:0 75%; animation:contact-happen 3.2s cubic-bezier(.45,0,.55,1) infinite; }
 }
 @keyframes contact-happen {
- 0%,100% { transform:translateY(0) skewX(0deg); }
- 50% { transform:translateY(-4px) skewX(-4deg); }
+ 0%,100% { transform:translateY(0) rotate(-1deg) skewX(0deg); }
+ 35% { transform:translateY(-7px) rotate(1deg) skewX(-6deg); }
+ 70% { transform:translateY(-2px) rotate(-1.5deg) skewX(2deg); }
 }
 
 /* Give the contact composition its own breathing room before the shared footer. */
@@ -60,4 +61,21 @@ main#main-content.contact-studio { margin-bottom:clamp(32px,4vw,64px); padding-b
  main#main-content.contact-studio { margin-bottom:32px; padding-bottom:40px; }
  .contact-copy { font-size:14px; max-width:320px; }
  .contact-services { margin-top:20px; }
+}
+
+/* The contact introduction occupies the first screen; the footer follows on scroll. */
+main#main-content.contact-studio {
+ min-height:100vh; min-height:100svh; box-sizing:border-box;
+ display:flex; flex-direction:column; justify-content:space-between; gap:64px;
+}
+.contact-context { display:grid; grid-template-columns:1.3fr repeat(3,1fr); gap:28px; border-top:1px solid #27372d; padding-top:28px; }
+.contact-context h2 { margin:0 0 5px; font:600 16px/1.4 'Josefin Sans',sans-serif; color:#e0e9e3; }
+.contact-context p { margin:0; font-size:14px; line-height:1.5; color:#a3b1a8; }
+.contact-context > div:first-child p { color:#82968a; }
+.contact-context span { display:block; margin-bottom:14px; font-size:10px; color:#1ec24d; }
+@media(max-width:680px) {
+ main#main-content.contact-studio { gap:48px; }
+ .contact-context { grid-template-columns:1fr 1fr; gap:26px 20px; padding-top:24px; }
+ .contact-context > div:first-child { grid-column:1/-1; }
+ .contact-context p { font-size:13px; }
 }
