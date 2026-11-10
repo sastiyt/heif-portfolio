@@ -132,15 +132,15 @@ body > header {
 }
 body > header::before {
  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
- background:#050906 url("../img/smooth-green-surface.png") repeat;
- background-size:1536px 512px;
- animation:surface-gradient-flow 9s cubic-bezier(.45,0,.55,1) infinite alternate;
+ background:radial-gradient(ellipse at 42% 145%,rgba(30,194,77,.14),rgba(30,194,77,.04) 38%,transparent 68%),linear-gradient(108deg,#030604 5%,rgba(30,194,77,.025) 24%,rgba(30,194,77,.09) 39%,rgba(30,194,77,.045) 48%,#050906 66%,rgba(30,194,77,.035) 85%,#030604 100%);
+ background-size:240% 100%;
+ animation:header-neon-flow 12s cubic-bezier(.45,0,.55,1) infinite alternate;
 }
 body > header::after {
  content:""; position:absolute; bottom:-1px; left:0; right:0; height:1.5px; pointer-events:none;
  background:linear-gradient(90deg,transparent 8%,rgba(30,194,77,.2) 32%,rgba(30,194,77,.5) 42%,rgba(30,194,77,.28) 52%,transparent 76%);
  background-size:220% 100%;
- animation:header-neon-flow 9s cubic-bezier(.45,0,.55,1) infinite alternate;
+ animation:header-neon-flow 12s cubic-bezier(.45,0,.55,1) infinite alternate;
 }
 @keyframes header-neon-flow { from{background-position:0% 50%} to{background-position:100% 50%} }
 body > header #anim-logo-h { filter:none; }
@@ -188,9 +188,9 @@ body > header nav ul li a:focus-visible { color:#1ec24d; }
 /* A shared closing invitation, with the same black/neon palette as the work. */
 footer.site-footer {
  padding:0 32px; margin-top:48px; text-align:left; z-index:1;
- background:#050906 url("../img/smooth-green-surface.png") repeat;
- background-size:1536px 512px;
- animation:surface-gradient-flow 9s cubic-bezier(.45,0,.55,1) infinite alternate;
+ background:radial-gradient(ellipse at 42% 145%,rgba(30,194,77,.14),rgba(30,194,77,.04) 38%,transparent 68%),linear-gradient(108deg,#030604 5%,rgba(30,194,77,.025) 24%,rgba(30,194,77,.09) 39%,rgba(30,194,77,.045) 48%,#050906 66%,rgba(30,194,77,.035) 85%,#030604 100%),#050906;
+ background-size:240% 100%;
+ animation:header-neon-flow 12s cubic-bezier(.45,0,.55,1) infinite alternate;
  border-top:1px solid rgba(30,194,77,.22); backdrop-filter:none;
 }
 .site-footer::before { display:none; }
@@ -244,11 +244,7 @@ footer.site-footer {
 
 @media(prefers-reduced-motion:reduce) { footer.site-footer { animation:none; } }
 
-/* A pre-dithered colour field avoids low-light CSS gradient bands. */
-@keyframes surface-gradient-flow {
- from { background-position:0 0; }
- to { background-position:160px 0; }
-}
+
 
 /* Vector arrows stay monochrome on iOS instead of becoming emoji. */
 .ui-arrow { display:inline-block; width:18px; height:18px; flex-shrink:0; vertical-align:middle; }
@@ -320,17 +316,6 @@ html.mobile-galaxy #webgl-canvas { display:block!important; }
 body > header nav ul li a[aria-current="page"] { font-weight:400; }
 
 
-/* The orbit is clipped independently so the mobile navigation can open normally. */
-body > header::before { display:none; }
-body > header, footer.site-footer { background:#040805; animation:none; isolation:isolate; }
-footer.site-footer { position:relative; }
-.surface-orbit { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:-1; border-radius:inherit; }
-.surface-orbit::before {
- content:""; position:absolute; left:50%; top:50%; width:max(140%,700px); aspect-ratio:1;
- background:url("../img/green-orbit.png") center/100% 100% no-repeat;
- animation:green-orbit-turn 8s linear infinite; will-change:transform;
-}
-@keyframes green-orbit-turn { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
 .hover-image { border-radius:16px; overflow:hidden; box-shadow:0 12px 40px #0009; }
 .hover-image img { animation:none; object-fit:cover; }
 .hover-text:focus-visible,.role-badge:focus-visible { outline:2px solid #1ec24d; outline-offset:5px; }
@@ -342,7 +327,7 @@ footer.site-footer { position:relative; }
  .role-badge:hover { background:rgba(30,194,77,.15); color:#1ec24d; border-color:#1ec24d; box-shadow:0 0 24px rgba(30,194,77,.28); }
  .role-badge:hover svg { color:#1ec24d; opacity:1; filter:drop-shadow(0 0 5px #1ec24d88); transform:none; }
 }
-@media(prefers-reduced-motion:reduce) { .surface-orbit::before { animation:none; } }
+
 
 @media(hover:none), (pointer:coarse) {
  .role-badge:not(.is-active):hover { color:#fff; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.15); box-shadow:none; }
