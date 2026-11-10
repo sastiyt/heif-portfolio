@@ -53,20 +53,20 @@
 }
 
 /* Give the contact composition its own breathing room before the shared footer. */
-main#main-content.contact-studio { margin-bottom:clamp(32px,4vw,64px); padding-bottom:64px; }
+main#main-content.contact-studio { margin-bottom:0; padding-bottom:32px; }
 .contact-copy { max-width:340px; margin:18px 0 0; color:#9caaa0; font-size:15px; line-height:1.75; }
 .contact-services { display:flex; flex-wrap:wrap; gap:18px; margin:24px 0 0; color:#90a697; font-size:11px; letter-spacing:.1em; text-transform:uppercase; }
 .contact-services span { color:#1ec24d; }
 @media(max-width:680px) {
- main#main-content.contact-studio { margin-bottom:32px; padding-bottom:40px; }
+ main#main-content.contact-studio { margin-bottom:0; padding-bottom:24px; }
  .contact-copy { font-size:14px; max-width:320px; }
  .contact-services { margin-top:20px; }
 }
 
-/* The contact introduction occupies the first screen; the footer follows on scroll. */
+/* Keep the context row close to the contact details, independent of screen height. */
 main#main-content.contact-studio {
- min-height:100vh; min-height:100svh; box-sizing:border-box;
- display:flex; flex-direction:column; justify-content:space-between; gap:64px;
+ min-height:0; box-sizing:border-box;
+ display:flex; flex-direction:column; justify-content:flex-start; gap:40px;
 }
 .contact-context { display:grid; grid-template-columns:1.3fr repeat(3,1fr); gap:28px; border-top:1px solid #27372d; padding-top:28px; }
 .contact-context h2 { margin:0 0 5px; font:600 16px/1.4 'Josefin Sans',sans-serif; color:#e0e9e3; }
@@ -74,7 +74,7 @@ main#main-content.contact-studio {
 .contact-context > div:first-child p { color:#82968a; }
 .contact-context span { display:block; margin-bottom:14px; font-size:10px; color:#1ec24d; }
 @media(max-width:680px) {
- main#main-content.contact-studio { gap:48px; }
+ main#main-content.contact-studio { gap:32px; }
  .contact-context { grid-template-columns:1fr 1fr; gap:26px 20px; padding-top:24px; }
  .contact-context > div:first-child { grid-column:1/-1; }
  .contact-context p { font-size:13px; }
