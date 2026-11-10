@@ -42,9 +42,13 @@
   <link rel="canonical" href="https://heif.work/work.html">
   <meta property="og:url" content="https://heif.work/work.html">
   <link rel="stylesheet" href="assets/css/print.css?v=20261108-1" media="print">
+<link rel="stylesheet" href="assets/css/brand-motion.css?v=20261110-1">
+<link rel="preload" href="assets/fonts-web/embolism-spark.ttf" as="font" type="font/ttf" crossorigin>
+<script>document.documentElement.classList.add('brand-loading');setTimeout(function(){document.documentElement.classList.remove('brand-loading');},1800);</script>
 </head>
 
 <body>
+<div class="brand-loader" id="brand-loader" aria-hidden="true"><picture><source media="(prefers-reduced-motion: reduce)" srcset="assets/img/heif-logo-still.png"><img src="assets/img/heif-logo-animated.gif" alt="" width="600" height="92" decoding="async" fetchpriority="high"></picture></div>
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="scroll-tracker"></div>
@@ -61,16 +65,16 @@
     <header role="banner">
         <div class="header__logo">
             <a href="index.html" aria-label="HEIF Artist Home">
-                <img src="assets/optimized/b6daf8fdbaca4369-480.webp" alt="HEIF Artist Logo" id="anim-logo-h" loading="eager" decoding="async">
+                <picture class="brand-logo"><source media="(prefers-reduced-motion: reduce)" srcset="assets/img/heif-logo-still.png"><img width="600" height="92" src="assets/img/heif-logo-animated.gif" alt="HEIF Artist Logo" id="anim-logo-h" loading="eager" decoding="async"></picture>
             </a>
         </div>
         <nav aria-label="Main navigation">
             <ul role="list">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="work.html" aria-current="page">Portfolio</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li><a href="linktree.html?v=20261110-2">Linktree</a></li>
+                <li><a href="index.html"><span class="nav-label">Home</span><span class="nav-hover-label" aria-hidden="true">Home</span></a></li>
+                <li><a href="about.html"><span class="nav-label">About</span><span class="nav-hover-label" aria-hidden="true">About</span></a></li>
+                <li><a href="work.html" aria-current="page"><span class="nav-label">Portfolio</span><span class="nav-hover-label" aria-hidden="true">Portfolio</span></a></li>
+                <li><a href="contact.html"><span class="nav-label">Contact</span><span class="nav-hover-label" aria-hidden="true">Contact</span></a></li>
+                <li><a href="linktree.html?v=20261110-2"><span class="nav-label">Linktree</span><span class="nav-hover-label" aria-hidden="true">Linktree</span></a></li>
             </ul>
             <a href="#" class="nav-toggle hover-link" aria-label="Toggle navigation menu" aria-expanded="false">
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="24" height="24">
@@ -158,7 +162,7 @@
       </div>
       <div class="footer-details">
         <div class="footer-identity">
-          <a href="index.html" aria-label="HEIF Artist Home"><img src="assets/optimized/b6daf8fdbaca4369-480.webp" width="2550" height="596" alt="HEIF Artist" loading="lazy" decoding="async"></a>
+          <a href="index.html" aria-label="HEIF Artist Home"><picture class="brand-logo"><source media="(prefers-reduced-motion: reduce)" srcset="assets/img/heif-logo-still.png"><img width="600" height="92" src="assets/img/heif-logo-animated.gif" alt="HEIF Artist" loading="lazy" decoding="async"></picture></a>
           <p class="footer-profession"><span>Graphic designer.</span> <span>Video editor.</span> <span>Visual artist.</span></p>
           <span>Kutch, India · Creating everywhere.</span>
         </div>
@@ -184,6 +188,7 @@
   </footer>
     
   <script src="assets/js/footer-motion.js?v=20261110-2" defer></script>
+  <script src="assets/js/brand-motion.js?v=20261110-1" defer></script>
 </body>
 
 </html>
