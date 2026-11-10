@@ -1,30 +1,59 @@
-// Hover previews are mouse-only; never leave a broken image over touch content.
+// Photo previews support hover, touch toggling and keyboard activation.
 (() => {
- const canHover=matchMedia('(hover: hover) and (pointer: fine)');
+ const canHover=matchMedia('(hover:hover) and (pointer:fine)');
+ const motion=matchMedia('(prefers-reduced-motion:reduce)');
+ const closeAll=[];
  document.querySelectorAll('.hover-text').forEach((trigger,index)=>{
   const preview=document.getElementById('hover-image-'+(index+1));
   const image=preview?.querySelector('img');
   if(!image)return;
-  let active=false;
-  const hide=()=>{active=false;preview.style.display='none';};
-  const show=()=>{if(active&&canHover.matches&&image.complete&&image.naturalWidth)preview.style.display='block';};
-  const position=event=>{
-   const width=Math.min(330,innerWidth-16);
-   const x=Math.max(8,Math.min(event.clientX-width/2,innerWidth-width-8));
-   const y=Math.max(8,Math.min(event.clientY+15,innerHeight-width-8));
-   preview.style.transform='translate('+x+'px,'+y+'px)';
+  let active=false, pinned=false, point=null;
+  trigger.setAttribute('role','button');trigger.tabIndex=0;
+  trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-controls',preview.id);
+  const hide=()=>{active=false;pinned=false;preview.style.display='none';preview.setAttribute('aria-hidden','true');trigger.setAttribute('aria-expanded','false');};
+  closeAll.push(hide);
+  const position=()=>{
+   const compact=!canHover.matches||pinned;
+   const size=compact?Math.min(220,innerWidth-32,innerHeight*.34):Math.min(330,innerWidth-16);
+   preview.style.setProperty('width',size+'px','important');preview.style.setProperty('height',size+'px','important');
+   const rect=trigger.getBoundingClientRect();
+   const x=compact?(innerWidth-size)/2:Math.max(8,Math.min(point.clientX-size/2,innerWidth-size-8));
+   const preferred=compact?rect.bottom+12:point.clientY+15;
+   const y=preferred+size<innerHeight-12?preferred:Math.max(86,(compact?rect.top-12:point.clientY-15)-size);
+   preview.style.transform=`translate(${x}px,${y}px)`;
+  };
+  const show=()=>{
+   if(!active||!image.complete||!image.naturalWidth)return;
+   const wasHidden=preview.style.display!=='block';
+   position();preview.style.display='block';preview.setAttribute('aria-hidden','false');trigger.setAttribute('aria-expanded','true');
+   if(wasHidden&&!motion.matches&&image.animate) image.animate([{opacity:0,transform:'scale(.96)'},{opacity:1,transform:'scale(1)'}],{duration:220,easing:'ease-out'});
+  };
+  const toggle=()=>{
+   const close=active&&pinned;closeAll.forEach(fn=>fn());if(close)return;
+   active=true;pinned=true;image.loading='eager';show();
   };
   trigger.addEventListener('pointerenter',event=>{
    if(!canHover.matches||event.pointerType!=='mouse')return;
-   active=true;position(event);image.loading='eager';show();
+   closeAll.forEach(fn=>fn());active=true;point=event;image.loading='eager';show();
   });
-  trigger.addEventListener('pointermove',position);
-  trigger.addEventListener('pointerleave',hide);
+  trigger.addEventListener('pointermove',event=>{point=event;if(active&&!pinned)position();});
+  trigger.addEventListener('pointerleave',()=>{if(!pinned)hide();});
+  trigger.addEventListener('click',toggle);
+  trigger.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle();}if(event.key==='Escape')hide();});
   image.addEventListener('load',show);image.addEventListener('error',hide);
-  canHover.addEventListener('change',hide);
-  window.addEventListener('scroll',hide,{passive:true});
+  window.addEventListener('scroll',hide,{passive:true});window.addEventListener('resize',hide,{passive:true});
+  document.addEventListener('click',event=>{if(!trigger.contains(event.target))hide();});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')hide();});
+ });
+ const badges=[...document.querySelectorAll('.role-badge')];
+ badges.forEach(badge=>{
+  badge.setAttribute('role','button');badge.tabIndex=0;badge.setAttribute('aria-pressed','false');
+  const toggle=()=>{const enable=!badge.classList.contains('is-active');badges.forEach(b=>{b.classList.remove('is-active');b.setAttribute('aria-pressed','false');});if(enable){badge.classList.add('is-active');badge.setAttribute('aria-pressed','true');}};
+  badge.addEventListener('click',toggle);
+  badge.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle();}});
  });
 })();
+
 const rotatingText = document.querySelector(".rotating-text");
 rotatingText &&
   (rotatingText.addEventListener("mouseover", () => {

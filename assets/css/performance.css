@@ -35,7 +35,7 @@ img[width][height] { height: auto; }
  outline:2px solid white; outline-offset:4px;
 }
 .hover-image { position:fixed; width:min(330px,calc(100vw - 16px)); height:auto; aspect-ratio:1; }
-@media (hover:none), (pointer:coarse) { .hover-image { display:none !important; } }
+
 
 
 /* Gentle artwork feedback; independent hover transforms preserve scroll reveals. */
@@ -111,16 +111,16 @@ body > header nav ul li a[aria-current="page"] { color:#fff; }
 @media(max-width:900px) { .masonry-container.graphics-gallery { columns:2; } }
 @media(max-width:540px) { .masonry-container.graphics-gallery { columns:1; } }
 
-/* Move two composited layers in opposite directions; images never resize. */
-.image-showcase .compare__mask { width:100%; clip-path:none; transform:translate3d(calc(var(--mask-width) - 100%),0,0); border:0; transition:none; }
-.image-showcase .compare__image-two { width:100%; height:100%; max-width:none; transform:translate3d(calc(100% - var(--mask-width)),0,0); }
-.image-showcase .compare__separator { left:0; margin-left:0; width:100%; background:none; box-shadow:none; transform:translate3d(var(--mask-width),0,0); transition:none; }
-.compare__separator::before { content:""; position:absolute; inset:0 auto 0 -1px; width:2px; background:rgba(255,255,255,.85); }
+/* A full-size clipped layer avoids resizing a large image on every input. */
+.image-showcase .compare__mask { width:100%; clip-path:inset(0 calc(100% - var(--mask-width)) 0 0); border:0; transition:none; }
+.image-showcase .compare__image-two { width:100%; height:100%; max-width:none; }
+.image-showcase .compare__separator { transition:none; }
 .compare__input { touch-action:pan-y; }
-.compare__icon { left:0; }
-.compare.is-dragging .compare__mask,
-.compare.is-dragging .compare__image-two,
-.compare.is-dragging .compare__separator { will-change:transform; }
+.compare__icon { left:50%; }
+@media(prefers-reduced-motion:no-preference) {
+ .compare:not(.is-dragging) .compare__mask { transition:clip-path .12s ease-out; }
+ .compare:not(.is-dragging) .compare__separator { transition:left .12s ease-out; }
+}
 
 /* Black navigation with a moving neon wash and a crisp luminous edge. */
 body > header {
@@ -319,18 +319,33 @@ html.mobile-galaxy #webgl-canvas { display:block!important; }
 }
 body > header nav ul li a[aria-current="page"] { font-weight:400; }
 
-/* Consistent neutral role icons, including browsers with sticky touch hover. */
-.role-badge, .role-badge:hover { color:#fff; background:rgba(255,255,255,.05); box-shadow:none; transform:none; }
-.role-badge::before { display:none; }
-.role-badge svg, .role-badge:hover svg { color:#d7ded9; opacity:1; transform:none; filter:none; transition:none; }
 
-/* Real text replaces the eight noisy thumbnail images. */
-.text-categories .thumbnail { background:none; border:0; outline:none; }
-.text-categories .thumbnail > a { display:flex; align-items:center; justify-content:center; min-height:180px; padding:20px 8px; color:#fff; background:none; }
-.text-categories .category-label { font-family:var(--font-heading); font-size:clamp(19px,2vw,28px); line-height:1.2; text-align:center; text-wrap:balance; }
-.text-categories .thumbnail > a:hover { color:#1ec24d; }
-.text-categories .thumbnail > a:focus-visible { outline:2px solid #1ec24d; outline-offset:-4px; }
-@media(max-width:600px) {
- .text-categories .thumbnail > a { min-height:122px; padding:16px 4px; }
- .text-categories .category-label { font-size:clamp(12px,3.2vw,18px); }
+/* The orbit is clipped independently so the mobile navigation can open normally. */
+body > header::before { display:none; }
+body > header, footer.site-footer { background:#040805; animation:none; isolation:isolate; }
+footer.site-footer { position:relative; }
+.surface-orbit { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:-1; border-radius:inherit; }
+.surface-orbit::before {
+ content:""; position:absolute; left:50%; top:50%; width:max(140%,700px); aspect-ratio:1;
+ background:url("../img/green-orbit.png") center/100% 100% no-repeat;
+ animation:green-orbit-turn 8s linear infinite; will-change:transform;
+}
+@keyframes green-orbit-turn { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+.hover-image { border-radius:16px; overflow:hidden; box-shadow:0 12px 40px #0009; }
+.hover-image img { animation:none; object-fit:cover; }
+.hover-text:focus-visible,.role-badge:focus-visible { outline:2px solid #1ec24d; outline-offset:5px; }
+.role-badge { cursor:pointer; }
+.role-badge,.role-badge:hover { transform:none; }
+.role-badge.is-active { background:rgba(30,194,77,.15); color:#1ec24d; border-color:#1ec24d; box-shadow:0 0 24px rgba(30,194,77,.28); }
+.role-badge.is-active svg { color:#1ec24d; opacity:1; filter:drop-shadow(0 0 5px #1ec24d88); transform:none; }
+@media(hover:hover) and (pointer:fine) {
+ .role-badge:hover { background:rgba(30,194,77,.15); color:#1ec24d; border-color:#1ec24d; box-shadow:0 0 24px rgba(30,194,77,.28); }
+ .role-badge:hover svg { color:#1ec24d; opacity:1; filter:drop-shadow(0 0 5px #1ec24d88); transform:none; }
+}
+@media(prefers-reduced-motion:reduce) { .surface-orbit::before { animation:none; } }
+
+@media(hover:none), (pointer:coarse) {
+ .role-badge:not(.is-active):hover { color:#fff; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.15); box-shadow:none; }
+ .role-badge:not(.is-active):hover svg { color:inherit; opacity:.7; transform:none; filter:none; }
+ .role-badge:not(.is-active):hover::before { opacity:0; }
 }
