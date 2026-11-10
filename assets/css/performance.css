@@ -43,11 +43,9 @@ img[width][height] { height: auto; }
  position:relative;
  outline:1px solid transparent;
  outline-offset:2px;
- transition:opacity .65s ease, transform .65s cubic-bezier(.22,1,.36,1),
-  translate .35s cubic-bezier(.22,1,.36,1), scale .35s cubic-bezier(.22,1,.36,1), outline-color .3s ease;
- transition-delay:var(--reveal-delay,0ms),var(--reveal-delay,0ms),0ms,0ms,0ms;
+ transition:translate .35s cubic-bezier(.22,1,.36,1), scale .35s cubic-bezier(.22,1,.36,1), outline-color .3s ease;
 }
-.reveal.reveal-pending { opacity:0; transform:translateY(24px); }
+.reveal.reveal-pending { opacity:1; transform:none; }
 .artwork-motion::before { display:none; }
 /* Preserve the original design colours and edges, including thumbnail text. */
 main .thumbnail:hover img { transform:none; filter:none; }
@@ -67,3 +65,9 @@ main .thumbnail:hover img { transform:none; filter:none; }
 @media print {
  .artwork-motion, .reveal.reveal-pending { opacity:1!important; transform:none!important; translate:none!important; scale:1!important; outline:none!important; }
 }
+
+/* Mixed image ratios stack without leaving empty grid rows. */
+.masonry-container { display:block; columns:3; column-gap:15px; }
+.masonry-container > .image-item { display:inline-block; vertical-align:top; width:100%; margin:0 0 15px; break-inside:avoid; box-sizing:border-box; }
+@media(max-width:900px) { .masonry-container { columns:2; } }
+@media(max-width:540px) { .masonry-container { columns:1; } }
