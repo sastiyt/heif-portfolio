@@ -73,7 +73,25 @@ main .thumbnail:hover img { transform:none; filter:none; }
 @media(max-width:540px) { .masonry-container { columns:1; } }
 
 /* Keep navigation readable over artwork while scrolling. */
-body > header { background:#000; -webkit-backdrop-filter:none; backdrop-filter:none; }
+body > header {
+ background:linear-gradient(110deg,#0b261d,#102f24 60%,#0a2119);
+ min-height:74px;
+ padding:18px 28px;
+ box-sizing:border-box;
+ border-bottom:1px solid rgba(177,220,196,.16);
+ box-shadow:0 6px 22px rgba(0,0,0,.18);
+ -webkit-backdrop-filter:none;
+ backdrop-filter:none;
+}
+body > header #anim-logo-h { margin:0 0 0 24px; }
+body > header nav ul li a { color:#cde0d5; }
+body > header nav ul li a:hover,
+body > header nav ul li a[aria-current="page"] { color:#fff; }
+@media(max-width:768px) {
+ body > header { min-height:68px; }
+ body > header #anim-logo-h { margin:0 0 0 16px; }
+ body > header nav > ul { background:#102b21; border-bottom:1px solid rgba(177,220,196,.16); }
+}
 
 /* Comparison cards have neutral controls and hover feedback without an outline. */
 .image-showcase .artwork-compare,
@@ -92,3 +110,9 @@ body > header { background:#000; -webkit-backdrop-filter:none; backdrop-filter:n
 .masonry-container.graphics-gallery > .image-item { display:inline-block; width:100%; margin:0 0 15px; vertical-align:top; break-inside:avoid; }
 @media(max-width:900px) { .masonry-container.graphics-gallery { columns:2; } }
 @media(max-width:540px) { .masonry-container.graphics-gallery { columns:1; } }
+
+/* Keep the reveal edge and its handle synchronized with gentle input easing. */
+@media(prefers-reduced-motion:no-preference) {
+ .compare__mask { transition:width .16s cubic-bezier(.2,.7,.2,1); }
+ .compare__separator { transition:left .16s cubic-bezier(.2,.7,.2,1); }
+}
