@@ -48,9 +48,9 @@
 <link rel="preload" href="assets/fonts-web/Halyard_Display_SemiBold.woff2" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.classList.add('brand-loading');setTimeout(function(){document.documentElement.classList.remove('brand-loading');},1800);</script>
 <link rel="stylesheet" href="assets/css/artwork-explorer.css?v=20261111-9">
-<link rel="stylesheet" href="assets/css/cosmic-entry.css?v=20261111-19">
+<link rel="stylesheet" href="assets/css/cosmic-entry.css?v=20261111-20">
 <script>try{if(!sessionStorage.getItem('heif-entered')&&!location.hash){document.documentElement.classList.add('cosmic-intro-open');window.heifIntroFailSafe=setTimeout(function(){document.documentElement.classList.remove('cosmic-intro-open');},6000);}}catch{}</script>
-<script src="assets/js/cosmic-entry.js?v=20261111-19" defer></script>
+<script src="assets/js/cosmic-entry.js?v=20261111-20" defer></script>
 </head>
 
 <body id="home-page">
@@ -69,14 +69,12 @@
   <!-- Preloader -->
   
   <canvas id="webgl-canvas"></canvas>
-  <section id="cosmic-entry" class="cosmic-entry" role="dialog" aria-modal="true" aria-label="Enter the world of HEIF" hidden>
-    <div class="cosmic-entry-top"><span>A DIFFERENT POINT OF VIEW</span><button type="button" class="cosmic-skip" data-skip>Skip intro</button></div>
+  <section id="cosmic-entry" class="cosmic-entry" role="dialog" aria-modal="true" aria-label="Enter the world of HEIF" tabindex="-1" hidden>
+    <button type="button" class="cosmic-skip" data-skip aria-label="Skip intro" title="Skip intro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m8 5 7 7-7 7M18 5v14"/></svg></button>
     <div class="cosmic-entry-core">
       <img class="cosmic-entry-logo" src="assets/img/heif-logo-still.png" width="600" height="92" alt="HEIF Artist">
-      <p>Design. Motion. Another dimension.</p>
       <button type="button" class="cosmic-enter" data-enter><span>Enter HEIF</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button>
     </div>
-    <div class="cosmic-entry-bottom"><span>YOUR NEXT CREATIVE CHAPTER</span><a href="space-credits.html" target="_blank" rel="noopener">Space credits ↗</a></div>
   </section>
   <div class="stars-layer">
     <div class="stars-extra"></div>
@@ -255,7 +253,7 @@
         </nav>
       </div>
       <div class="footer-base">
-        <p>© 2026 HEIF Artist. All rights reserved.</p>
+        <p>© 2026 HEIF Artist. All rights reserved. <a class="space-credit-link" href="space-credits.html">Space credits</a></p>
         <a class="footer-base-logo" href="index.html" aria-label="HEIF Artist Home"><picture class="brand-logo"><source media="(prefers-reduced-motion: reduce)" srcset="assets/img/heif-logo-still.png"><img width="600" height="92" src="assets/img/heif-logo-animated.gif" alt="HEIF Artist" loading="lazy" decoding="async"></picture></a>
         <a class="footer-top" href="#">Back to top <svg class="ui-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></a>
       </div>

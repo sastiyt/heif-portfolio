@@ -7,7 +7,7 @@
  const content=[...document.querySelectorAll('body > header,body > main,body > footer')];
  const oldFocus=document.activeElement;
  let finished=false,flying=false,timer;
- entry.hidden=false;content.forEach(el=>el.inert=true);enter.focus({preventScroll:true});
+ entry.hidden=false;content.forEach(el=>el.inert=true);entry.focus({preventScroll:true});
  const finish=()=>{
   if(finished)return;finished=true;clearTimeout(timer);
   try{sessionStorage.setItem('heif-entered','1');}catch{}
