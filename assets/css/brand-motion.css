@@ -74,3 +74,41 @@ body > header nav ul li a:has(.nav-label) { position:relative; }
 /* Shared footer identity: left aligned consistently across every page. */
 .footer-identity { display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; text-align:left; }
 .footer-identity .footer-profession { justify-content:flex-start; width:fit-content; padding:7px 0 7px 12px; border-left:2px solid #1ec24d; text-align:left; }
+
+/* Poster spotlight lives inside the reveal target, preserving masonry and artwork. */
+.poster-gallery .poster-spotlight-card,
+.poster-gallery .poster-spotlight-card.artwork-motion:hover,
+.poster-gallery .poster-spotlight-card.artwork-motion:focus-within {
+ overflow:visible; border:0; background:transparent; outline:none; translate:none; scale:1;
+}
+.poster-spotlight-surface {
+ overflow:hidden; border-radius:8px; transform-origin:center;
+ transition:opacity .3s ease,transform .38s cubic-bezier(.22,.61,.36,1);
+}
+.poster-spotlight-surface > img { display:block; width:100%; height:auto; border-radius:8px; }
+.poster-with-views .poster-spotlight-surface { background:#101813; border:1px solid #293b30; }
+.poster-with-views .poster-spotlight-surface > img { border-radius:0; }
+.poster-gallery .poster-spotlight-card:focus-visible .poster-spotlight-surface { outline:2px solid #b0f5c5; outline-offset:3px; }
+.poster-gallery.has-spotlight .poster-spotlight-card:not(.is-spotlit) .poster-spotlight-surface { opacity:.44; }
+.poster-gallery .is-spotlit { position:relative; z-index:2; }
+.poster-gallery .is-spotlit .poster-spotlight-surface { transform:translateY(-3px) scale(1.012); }
+@media(hover:hover) and (pointer:fine) {
+ .poster-gallery .is-spotlit .poster-spotlight-surface { transform:perspective(1000px) translateY(-5px) rotateX(var(--poster-rx,0deg)) rotateY(var(--poster-ry,0deg)); }
+}
+/* Native links retain their destinations; touch feedback needs no script or timer. */
+.site-footer .magnetic-button, .about-cta .magnetic-button {
+ translate:var(--magnet-x,0px) var(--magnet-y,0px);
+ transition:translate .24s cubic-bezier(.22,.61,.36,1),scale .18s ease,background-color .25s ease,color .25s ease;
+ touch-action:manipulation;
+}
+.site-footer .magnetic-button:hover, .about-cta .magnetic-button:hover { transform:none; }
+.site-footer .magnetic-button:active, .about-cta .magnetic-button:active { transform:none; scale:.96; }
+@media(prefers-reduced-motion:reduce) {
+ .poster-spotlight-surface, .poster-gallery .is-spotlit .poster-spotlight-surface { transition:none; transform:none; }
+ .poster-gallery.has-spotlight .poster-spotlight-surface { opacity:1; }
+ .site-footer .magnetic-button, .about-cta .magnetic-button { transition:none; translate:none; scale:1; }
+ .site-footer .magnetic-button:active, .about-cta .magnetic-button:active { scale:1; }
+}
+@media print {
+ .poster-gallery .poster-spotlight-surface { opacity:1!important; transform:none!important; }
+}
