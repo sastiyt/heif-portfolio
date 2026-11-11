@@ -16,7 +16,7 @@
   for(const name of ['ps','ae']){
    const img=new Image();img.decoding='async';
    img.onload=()=>{entryMarks[name]=img;draw();};
-   img.src='assets/img/space/entry-'+name+'.webp';
+   img.src='assets/img/space/entry-clean-'+name+'.webp';
   }
  };
  const introOpen=()=>document.documentElement.classList.contains('cosmic-intro-open');
@@ -129,6 +129,19 @@
     z:.25+random()*.75,r:.25+Math.pow(random(),3)*(mobile.matches?1.65:2.15),layer:Math.floor(random()*3),phase:random()*Math.PI*2};
   });
  };
+ // Asymmetric entry anchors keep every object away from the central button.
+ // Small independent drifts preserve spacing instead of circling or converging.
+ const entryAnchors={
+  wide:{earth:[.84,.38],saturn:[.13,.61],mars:[.44,.84],neptune:[.37,.20],ps:[.19,.29],ae:[.73,.74]},
+  tall:{earth:[.78,.27],saturn:[.20,.64],mars:[.65,.85],neptune:[.29,.15],ps:[.17,.37],ae:[.77,.65]}
+ };
+ const entryPosition=(name,phase,px,py,still)=>{
+  const [ax,ay]=entryAnchors[height>width?'tall':'wide'][name];
+  return {
+   x:width*ax+(still?0:Math.sin(time*.21+phase)*Math.min(width*.018,12))+px*8,
+   y:height*ay+(still?0:Math.sin(time*.14+phase*.7)*Math.min(height*.016,10))+py*9
+  };
+ };
  const draw=()=>{
   ctx.clearRect(0,0,width,height);
   const still=reduced.matches;
@@ -171,12 +184,14 @@
   });
   for(const [index,p] of planets.entries()){
    const size=p.side*(1+depth*.30);
-   // Shared angular velocity preserves separation instead of letting planets converge.
-   const slot=inIntro?[0,3,2,5][index]:index;
-   const orbitAngle=-.6+slot*Math.PI/(inIntro?3:2)+(still?0:time*(inIntro?.065:mobile.matches?.058:.038)+travel*.13);
-   const x=width*.5+Math.cos(orbitAngle)*width*(inIntro&&mobile.matches?.30:.34)+px*(inIntro?8:18);
-   const y=height*.52+Math.sin(orbitAngle)*height*.32+py*(inIntro?9:14);
-   ctx.save();ctx.translate(x,y);ctx.rotate(p.kind==='earth'?-.12:Math.sin(orbitAngle)*.13);
+   // Keep the established main-site motion; the entry uses scattered float positions.
+   const orbitAngle=-.6+index*Math.PI/2+(still?0:time*(mobile.matches?.058:.038)+travel*.13);
+   const position=inIntro?entryPosition(p.kind,index*1.7,px,py,still):{
+    x:width*.5+Math.cos(orbitAngle)*width*.34+px*18,
+    y:height*.52+Math.sin(orbitAngle)*height*.32+py*14
+   };
+   const {x,y}=position;
+   ctx.save();ctx.translate(x,y);ctx.rotate(p.kind==='earth'?-.12:Math.sin(inIntro?(still?0:time*.15+index):orbitAngle)*.13);
    let visibility=1;
    for(const block of avoid){
     const gap=Math.hypot(x-block.x,y-block.y)-block.r-p.r*(1+depth*.3)*(p.rings?1.8:1);
@@ -191,17 +206,14 @@
     ctx.arc(x+Math.cos(moonAngle)*moonOrbit,y+Math.sin(moonAngle)*moonOrbit,p.r*.10,0,Math.PI*2);ctx.fill();
    }
   }
-  // Entry-only tool marks share the orbital speed and occupy their own slots.
-  // Cached small images avoid extra 3D renderers or animation loops on phones.
+  // Cached tool renders share the same canvas without loading 3D models on phones.
   if(inIntro){
-   for(const [name,slot] of [['ps',1],['ae',4]]){
+   for(const [name,phase] of [['ps',7],['ae',9]]){
     const img=entryMarks[name];if(!img)continue;
-    const angle=-.6+slot*Math.PI/3+(still?0:time*.065+travel*.13);
-    const x=width*.5+Math.cos(angle)*width*(mobile.matches?.30:.34)+px*8;
-    const y=height*.52+Math.sin(angle)*height*.32+py*9;
-    const size=Math.min(mobile.matches?52:82,width*.14,height*.13);
-    ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(angle)*.09);
-    ctx.globalAlpha=.86;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore();
+    const {x,y}=entryPosition(name,phase,px,py,still);
+    const size=Math.min(mobile.matches?60:94,width*.16,height*.15);
+    ctx.save();ctx.translate(x,y);ctx.rotate(still?0:Math.sin(time*.18+phase)*.06);
+    ctx.globalAlpha=.96;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore();
    }
   }
   ctx.restore();
