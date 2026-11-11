@@ -20,7 +20,7 @@
   <link rel="icon" type="image/png" href="assets/img/logow.png" />
   <link rel="apple-touch-icon" href="assets/img/logow.png" />
 
-  <link rel="stylesheet" href="assets/css/css.css?v=20261108-1" />
+  <link rel="stylesheet" href="assets/css/css.css?v=20261111-22" />
   <link rel="stylesheet" href="assets/css/cursor.css" />
   
   
@@ -37,7 +37,7 @@
   <script src="assets/js/scroll-animations.js?v=20261111-14" defer></script>
   
 <link rel="stylesheet" href="assets/css/performance.css?v=20261111-19">
-  <script src="assets/js/optional-effects.js?v=20261111-21" defer></script>
+  <script src="assets/js/optional-effects.js?v=20261111-22" defer></script>
   <link rel="canonical" href="https://heif.work/">
   <meta property="og:url" content="https://heif.work/">
   <link rel="stylesheet" href="assets/css/print.css?v=20261108-1" media="print">
@@ -48,9 +48,9 @@
 <link rel="preload" href="assets/fonts-web/Halyard_Display_SemiBold.woff2" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.classList.add('brand-loading');setTimeout(function(){document.documentElement.classList.remove('brand-loading');},1800);</script>
 <link rel="stylesheet" href="assets/css/artwork-explorer.css?v=20261111-9">
-<link rel="stylesheet" href="assets/css/cosmic-entry.css?v=20261111-20">
+<link rel="stylesheet" href="assets/css/cosmic-entry.css?v=20261111-22">
 <script>try{if(!sessionStorage.getItem('heif-entered')&&!location.hash){document.documentElement.classList.add('cosmic-intro-open');window.heifIntroFailSafe=setTimeout(function(){document.documentElement.classList.remove('cosmic-intro-open');},6000);}}catch{}</script>
-<script src="assets/js/cosmic-entry.js?v=20261111-20" defer></script>
+<script src="assets/js/cosmic-entry.js?v=20261111-22" defer></script>
 </head>
 
 <body id="home-page">
@@ -70,10 +70,8 @@
   
   <canvas id="webgl-canvas"></canvas>
   <section id="cosmic-entry" class="cosmic-entry" role="dialog" aria-modal="true" aria-label="Enter the world of HEIF" tabindex="-1" hidden>
-    <button type="button" class="cosmic-skip" data-skip aria-label="Skip intro" title="Skip intro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m8 5 7 7-7 7M18 5v14"/></svg></button>
     <div class="cosmic-entry-core">
-      <img class="cosmic-entry-logo" src="assets/img/heif-logo-still.png" width="600" height="92" alt="HEIF Artist">
-      <button type="button" class="cosmic-enter" data-enter><span>Enter HEIF</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button>
+      <button type="button" class="cosmic-enter" data-enter aria-label="Enter HEIF"><span class="cosmic-enter-label">ENTER</span><span class="cosmic-enter-name">HEIF</span></button>
     </div>
   </section>
   <div class="stars-layer">

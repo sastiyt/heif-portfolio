@@ -3,7 +3,7 @@
  const root=document.documentElement,entry=document.getElementById('cosmic-entry');
  if(!entry||!root.classList.contains('cosmic-intro-open'))return;
  clearTimeout(window.heifIntroFailSafe);
- const enter=entry.querySelector('[data-enter]'),skip=entry.querySelector('[data-skip]');
+ const enter=entry.querySelector('[data-enter]');
  const content=[...document.querySelectorAll('body > header,body > main,body > footer')];
  const oldFocus=document.activeElement;
  let finished=false,flying=false,timer;
@@ -30,6 +30,6 @@
    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   }
  };
- enter.addEventListener('click',begin);skip.addEventListener('click',finish);entry.addEventListener('keydown',keys);
+ enter.addEventListener('click',begin);entry.addEventListener('keydown',keys);
  window.addEventListener('pageshow',e=>{if(e.persisted)finish();});
 })();

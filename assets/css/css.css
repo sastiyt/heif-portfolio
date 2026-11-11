@@ -854,24 +854,10 @@ body {
     line-height: .8
 }
 
-#heif {
-    opacity: 30%
-}
-
-#hei {
-    opacity: 30%
-}
-
-#he {
-    opacity: 30%;
-    margin-left: 10PX
-}
-
-#h {
-    opacity: 30%;
-    margin-left: 20PX;
-    margin-bottom: 10PX
-}
+/* Solid grey keeps the galaxy behind the lettering, not inside it. */
+#heif, #hei, #he, #h { opacity:1; color:#777b78; }
+#he { margin-left:10px; }
+#h { margin-left:20px; margin-bottom:10px; }
 
 .hero1 h2 Span {
     font-size: 130px;

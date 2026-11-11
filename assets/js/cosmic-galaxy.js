@@ -11,27 +11,6 @@
  let planets=[],stars=[],rasterRatio=1,flight=0;
  const textures={};
  const obstacles=[...document.querySelectorAll('#hero-3d-model,#ae-3d-model')];
- // Cache document-space text bounds; scrolling only subtracts the current offset.
- // Planets stay behind empty space instead of competing with readable content.
- const protectedText=[...document.querySelectorAll('h1,h2,h3,p,.contact-info,.footer-identity,.contact-tags')].filter(el=>!el.closest('.image-item,.cosmic-entry'));
- let textBounds=[],textBoundsDirty=true;
- const refreshTextBounds=()=>{textBoundsDirty=true;};
- document.addEventListener('load',refreshTextBounds,true);
- document.fonts?.ready.then(refreshTextBounds);
- const measureText=()=>{
-  textBounds=[];
-  const seen=new Set(),range=document.createRange();
-  for(const el of protectedText){
-   const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
-   let node;
-   while((node=walker.nextNode())){
-    if(seen.has(node)||!node.textContent.trim())continue;
-    seen.add(node);range.selectNodeContents(node);
-    for(const b of range.getClientRects())if(b.width&&b.height)textBounds.push({left:b.left,right:b.right,top:b.top+scrollY,bottom:b.bottom+scrollY});
-   }
-  }
-  textBoundsDirty=false;
- };
  const loadMap=name=>new Promise((resolve,reject)=>{
   const img=new Image();img.onload=()=>{
    const tile=document.createElement('canvas');tile.width=img.naturalWidth;tile.height=img.naturalHeight;
@@ -174,9 +153,7 @@
     if(warp>.02){ctx.strokeStyle=ctx.fillStyle;ctx.lineWidth=star.r*.75;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(x-width/2)*warp*.16,y+(y-height/2)*warp*.16);ctx.stroke();}
    }
   }
-  if(textBoundsDirty)measureText();
   const inIntro=document.documentElement.classList.contains('cosmic-intro-open');
-  const safeText=inIntro?[]:textBounds.filter(b=>b.bottom-scrollY>-100&&b.top-scrollY<height+100);
   const avoid=inIntro?[]:obstacles.filter(el=>el.clientWidth&&el.querySelector('canvas')).map(el=>{
    const b=el.getBoundingClientRect();return {x:b.left+b.width*.5,y:b.top+b.height*.5,r:Math.min(b.width,b.height)*.27};
   });
@@ -190,13 +167,6 @@
    for(const block of avoid){
     const gap=Math.hypot(x-block.x,y-block.y)-block.r-p.r*(1+depth*.3)*(p.rings?1.8:1);
     visibility=Math.min(visibility,Math.max(0,Math.min(1,gap/65)));
-   }
-   for(const b of safeText){
-    const nearestX=Math.max(b.left,Math.min(x,b.right));
-    const nearestY=Math.max(b.top-scrollY,Math.min(y,b.bottom-scrollY));
-    const reach=p.r*(1+depth*.3)*(p.rings?1.8:p.kind==='earth'?1.7:1);
-    const gap=Math.hypot(x-nearestX,y-nearestY)-reach-12;
-    visibility=Math.min(visibility,Math.max(0,Math.min(1,gap/48)));
    }
    ctx.globalAlpha=(p.kind==='earth'?.96:.76)*visibility;
    ctx.drawImage(p.sprite,-size/2,-size/2,size,size);ctx.restore();
@@ -225,7 +195,6 @@
  const start=()=>{if(!frame&&!document.hidden&&!reduced.matches&&!dragging)frame=requestAnimationFrame(tick);};
  const pixelRatio=()=>Math.max(1,Math.min((devicePixelRatio||1)*(window.visualViewport?.scale||1),2.5,Math.sqrt(3500000/(width*height))));
  const resize=()=>{
-  refreshTextBounds();
   // Mobile browser chrome expands/collapses while scrolling. Keep one stable
   // backing surface instead of clearing/resizing the canvas on every toolbar tick.
   const nextWidth=document.documentElement.clientWidth;
