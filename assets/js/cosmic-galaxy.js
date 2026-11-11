@@ -160,12 +160,12 @@
   const inIntro=introOpen();
   const inputGain=inIntro?1.4:1;
   const depth=still?0:1-Math.exp(-Math.max(0,scroll)/height*.65);
-  const px=still?0:Math.max(-1.65,Math.min(1.65,pointer.x*inputGain+tilt.x*1.55));
-  const py=still?0:Math.max(-1.65,Math.min(1.65,pointer.y*inputGain+tilt.y*1.55));
+  const px=still?0:Math.max(-2.4,Math.min(2.4,pointer.x*inputGain+tilt.x*2.2));
+  const py=still?0:Math.max(-2.4,Math.min(2.4,pointer.y*inputGain+tilt.y*2.2));
   const travel=still?0:scroll/height;
   const warp=still?0:flight;
   const warpScale=1+warp*warp*7;
-  ctx.save();ctx.translate(width/2,height/2);ctx.rotate(still?0:tilt.x*.035);ctx.scale(warpScale,warpScale);ctx.translate(-width/2,-height/2);
+  ctx.save();ctx.translate(width/2,height/2);ctx.rotate(still?0:tilt.x*.09);ctx.scale(warpScale,warpScale);ctx.translate(-width/2,-height/2);
   // The cloud layer follows the same input at a slower depth than the stars.
   const dx=Math.sin(time*.09)*6+px*12,dy=Math.cos(time*.07)*5-py*9-Math.sin(travel*.6)*22;
   ctx.drawImage(sky,-30+dx,-30+dy,width+60,height+60);
@@ -237,12 +237,12 @@
   if(document.hidden||reduced.matches||dragging){last=0;return;}
   frame=requestAnimationFrame(tick);
   const sensor=window.heifTilt;
-  const responding=sensor?.active&&(Math.abs(sensor.x-tilt.x)+Math.abs(sensor.y-tilt.y)>.012);
-  if(last&&stamp-last<(responding?16:33))return;
+  // Keep a steady cadence while tilt is enabled; switching rates mid-gesture causes judder.
+  if(last&&stamp-last<(sensor?.active?16:33))return;
   const dt=last?Math.min(stamp-last,80):33;last=stamp;time+=dt/1000;
   if(flightStart)flight=Math.min(1,(stamp-flightStart)/1450);
   const ease=1-Math.exp(-dt/140);
-  const tiltEase=1-Math.exp(-dt/85);
+  const tiltEase=1-Math.exp(-dt/105);
   tilt.x+=((sensor?.active?sensor.x:0)-tilt.x)*tiltEase;
   tilt.y+=((sensor?.active?sensor.y:0)-tilt.y)*tiltEase;
   scroll+=(target-scroll)*ease;

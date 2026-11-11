@@ -5,6 +5,7 @@
  const Sensor=window.DeviceOrientationEvent;
  if(!coarse.matches||!Sensor||!window.isSecureContext)return;
  const state=window.heifTilt={x:0,y:0,active:false};
+ let previous=null,travelX=0,travelY=0;
  let origin=null,listening=false,enabled=false,pending=false,received=false,timeout=0;
  const button=document.createElement('button');button.type='button';button.className='cosmic-tilt-toggle';
  button.textContent='Enable tilt';button.setAttribute('aria-pressed','false');
@@ -15,19 +16,27 @@
  };
  const save=value=>{try{sessionStorage.setItem('heif-tilt',value);}catch{}};
  const preference=()=>{try{return sessionStorage.getItem('heif-tilt');}catch{return null;}};
- const reset=()=>{origin=null;state.x=state.y=0;state.active=false;};
+ const reset=()=>{origin=previous=null;travelX=travelY=0;state.x=state.y=0;state.active=false;};
  const angle=()=>Number(screen.orientation?.angle??window.orientation??0);
  const delta=(value,base,period)=>((value-base+period*1.5)%period)-period*.5;
  const clamp=value=>Math.max(-1,Math.min(1,value));
  const deadzone=value=>Math.abs(value)<.025?0:Math.sign(value)*(Math.abs(value)-.025)/.975;
  const read=e=>{
-  if(!enabled||document.hidden||reduced.matches||!Number.isFinite(e.beta)||!Number.isFinite(e.gamma))return;
+  if(!enabled||document.hidden||reduced.matches||!Number.isFinite(e.beta)||!Number.isFinite(e.gamma)||Math.abs(e.beta)>180||Math.abs(e.gamma)>90)return;
   received=true;clearTimeout(timeout);
   const rotation=angle();
-  if(!origin||origin.rotation!==rotation){origin={beta:e.beta,gamma:e.gamma,rotation};state.x=state.y=0;}
-  const dx=delta(e.gamma,origin.gamma,180),dy=delta(e.beta,origin.beta,360),r=rotation*Math.PI/180;
-  state.x=deadzone(clamp((dx*Math.cos(r)+dy*Math.sin(r))/22));
-  state.y=deadzone(clamp((dy*Math.cos(r)-dx*Math.sin(r))/24));
+  if(!origin||origin.rotation!==rotation){
+   origin={rotation};previous={beta:e.beta,gamma:e.gamma};travelX=travelY=0;state.x=state.y=0;
+  }
+  // Unwrap successive samples instead of wrapping against the initial grip.
+  // Euler angle flips near vertical must not fling the background across the screen.
+  const stepX=delta(e.gamma,previous.gamma,180),stepY=delta(e.beta,previous.beta,360);
+  previous={beta:e.beta,gamma:e.gamma};
+  if(Math.abs(stepX)>60||Math.abs(stepY)>75)return;
+  travelX+=stepX;travelY+=stepY;
+  const r=rotation*Math.PI/180;
+  state.x=deadzone(clamp((travelX*Math.cos(r)+travelY*Math.sin(r))/16));
+  state.y=deadzone(clamp((travelY*Math.cos(r)-travelX*Math.sin(r))/18));
   if(!state.active){
    button.textContent='Tilt on';button.setAttribute('aria-pressed','true');
    button.title='Turn off phone tilt movement';
