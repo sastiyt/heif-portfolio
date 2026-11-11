@@ -78,7 +78,7 @@
  if(world){let d,v;world.addEventListener('click',()=>{
   if(!d){
    d=modal('HEIF / IN MOTION');d.classList.add('world-dialog');
-   v=document.createElement('video');v.className='world-video';v.controls=false;v.playsInline=true;v.muted=true;v.preload='none';v.poster='assets/optimized/heif-world-grid-v6.webp';v.src='assets/VIDEO EDITING/heif-world-grid-v6.mp4';v.setAttribute('aria-label','15-second portrait montage of HEIF posters and VFX');
+   v=document.createElement('video');v.className='world-video';v.controls=false;v.playsInline=true;v.muted=true;v.preload='none';v.poster='assets/optimized/heif-world-grid-v7.webp';v.src='assets/VIDEO EDITING/heif-world-grid-v7.mp4';v.setAttribute('aria-label','15-second portrait montage of HEIF posters and VFX');
    const paths={play:'M8 5v14l11-7Z',pause:'M8 5v14M16 5v14',sound:'M11 5 6 9H3v6h3l5 4ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14',mute:'M11 5 6 9H3v6h3l5 4ZM16 9l6 6M22 9l-6 6'};
    function control(label,action){
     const b=document.createElement('button');b.type='button';b.className='world-control';b.addEventListener('click',action);
