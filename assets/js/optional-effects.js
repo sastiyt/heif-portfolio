@@ -8,7 +8,8 @@
  });
  const start = async () => {
   try {
-   await load('assets/js/cosmic-galaxy.js?v=20261111-27');
+   await Promise.all([load('assets/js/cosmic-galaxy.js?v=20261111-28'),
+    matchMedia('(pointer:coarse)').matches?load('assets/js/cosmic-tilt.js?v=20261111-28').catch(()=>{}):Promise.resolve()]);
    if (light) return;
    if(document.documentElement.classList.contains('cosmic-intro-open'))await new Promise(resolve=>window.addEventListener('heif:entered',resolve,{once:true}));
    await load('assets/vendor/three.min.js');

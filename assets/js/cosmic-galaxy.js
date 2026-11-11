@@ -8,6 +8,7 @@
  const mobile=matchMedia('(max-width:900px), (pointer:coarse)');
  const sky=document.createElement('canvas'), paint=sky.getContext('2d');
  const pointer={x:0,y:0,tx:0,ty:0,active:false};
+ const tilt={x:0,y:0};
  let planets=[],stars=[],rasterRatio=1,flight=0;
  const textures={};
  const entryMarks={};
@@ -159,11 +160,12 @@
   const inIntro=introOpen();
   const inputGain=inIntro?1.4:1;
   const depth=still?0:1-Math.exp(-Math.max(0,scroll)/height*.65);
-  const px=still?0:pointer.x*inputGain,py=still?0:pointer.y*inputGain;
+  const px=still?0:Math.max(-1.65,Math.min(1.65,pointer.x*inputGain+tilt.x*1.55));
+  const py=still?0:Math.max(-1.65,Math.min(1.65,pointer.y*inputGain+tilt.y*1.55));
   const travel=still?0:scroll/height;
   const warp=still?0:flight;
   const warpScale=1+warp*warp*7;
-  ctx.save();ctx.translate(width/2,height/2);ctx.scale(warpScale,warpScale);ctx.translate(-width/2,-height/2);
+  ctx.save();ctx.translate(width/2,height/2);ctx.rotate(still?0:tilt.x*.035);ctx.scale(warpScale,warpScale);ctx.translate(-width/2,-height/2);
   // The cloud layer follows the same input at a slower depth than the stars.
   const dx=Math.sin(time*.09)*6+px*12,dy=Math.cos(time*.07)*5-py*9-Math.sin(travel*.6)*22;
   ctx.drawImage(sky,-30+dx,-30+dy,width+60,height+60);
@@ -234,16 +236,21 @@
   frame=0;
   if(document.hidden||reduced.matches||dragging){last=0;return;}
   frame=requestAnimationFrame(tick);
-  if(last&&stamp-last<33)return;
+  const sensor=window.heifTilt;
+  const responding=sensor?.active&&(Math.abs(sensor.x-tilt.x)+Math.abs(sensor.y-tilt.y)>.012);
+  if(last&&stamp-last<(responding?16:33))return;
   const dt=last?Math.min(stamp-last,80):33;last=stamp;time+=dt/1000;
   if(flightStart)flight=Math.min(1,(stamp-flightStart)/1450);
   const ease=1-Math.exp(-dt/140);
+  const tiltEase=1-Math.exp(-dt/85);
+  tilt.x+=((sensor?.active?sensor.x:0)-tilt.x)*tiltEase;
+  tilt.y+=((sensor?.active?sensor.y:0)-tilt.y)*tiltEase;
   scroll+=(target-scroll)*ease;
   pointer.x+=(pointer.tx-pointer.x)*ease;pointer.y+=(pointer.ty-pointer.y)*ease;
   draw();
  };
  const start=()=>{if(!frame&&!document.hidden&&!reduced.matches&&!dragging)frame=requestAnimationFrame(tick);};
- const pixelRatio=()=>Math.max(1,Math.min((devicePixelRatio||1)*(window.visualViewport?.scale||1),2.5,Math.sqrt(3500000/(width*height))));
+ const pixelRatio=()=>Math.max(1,Math.min((devicePixelRatio||1)*(window.visualViewport?.scale||1),mobile.matches?2:2.5,Math.sqrt((mobile.matches?2200000:3500000)/(width*height))));
  const resize=()=>{
   // Mobile browser chrome expands/collapses while scrolling. Keep one stable
   // backing surface instead of clearing/resizing the canvas on every toolbar tick.
@@ -261,6 +268,9 @@
  };
  canvas.setAttribute('aria-hidden','true');document.documentElement.classList.add('cosmic-galaxy');
  let resizeTimer;
+ const orientationResize=()=>{tilt.x=tilt.y=0;clearTimeout(resizeTimer);requestAnimationFrame(resize);};
+ addEventListener('orientationchange',orientationResize,{passive:true});
+ screen.orientation?.addEventListener('change',orientationResize);
  addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(resize,180);},{passive:true});
  window.visualViewport?.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(resize,180);},{passive:true});
  addEventListener('scroll',()=>{target=scrollY;start();},{passive:true});
@@ -279,7 +289,7 @@
  addEventListener('blur',centrePointer);
 
  document.addEventListener('visibilitychange',()=>{
-  last=0;
+  last=0;tilt.x=tilt.y=0;
   if(document.hidden){cancelAnimationFrame(frame);frame=0;}
   else{dragging=false;start();}
  });
