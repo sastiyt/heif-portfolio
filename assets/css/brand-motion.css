@@ -112,26 +112,3 @@ body > header nav ul li a:has(.nav-label) { position:relative; }
 @media print {
  .poster-gallery .poster-spotlight-surface { opacity:1!important; transform:none!important; }
 }
-
-/* A signature in the caption area leaves every pixel of the artwork uncovered. */
-.poster-signature { display:flex; justify-content:flex-end; padding:2px 14px 12px; }
-.heif-stamp {
- display:inline-flex; align-items:center; gap:5px; padding:5px 7px;
- border:1px solid #1ec24d66; border-radius:3px; color:#a9bbae;
- font-size:9px; font-weight:500; line-height:1; letter-spacing:.08em;
- white-space:nowrap; transform:rotate(-3deg); transform-origin:70% 60%;
-}
-.heif-stamp strong { color:#1ec24d; font-weight:700; letter-spacing:.1em; }
-@media(prefers-reduced-motion:no-preference) {
- .heif-stamp.stamp-arrived { animation:heif-stamp-arrive .65s cubic-bezier(.22,.61,.36,1) both; }
-}
-@keyframes heif-stamp-arrive {
- 0% { opacity:0; transform:translateY(4px) rotate(-10deg) scale(1.14); }
- 65% { opacity:1; transform:translateY(0) rotate(-2deg) scale(.97); }
- 100% { opacity:1; transform:translateY(0) rotate(-3deg) scale(1); }
-}
-@media(max-width:600px) {
- .poster-signature { padding:0 8px 10px; }
- .heif-stamp { font-size:8px; padding:5px 6px; gap:4px; letter-spacing:.05em; }
-}
-@media print { .heif-stamp.stamp-arrived { animation:none; } }
