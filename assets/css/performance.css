@@ -378,3 +378,10 @@ main .thumbnail a:focus-visible { outline:2px solid #fff; outline-offset:-3px; }
  .image-showcase .masonry-container.graphics-gallery.stable-masonry { grid-template-columns:minmax(0,1fr); }
  .stable-masonry > .gallery-column { gap:10px; }
 }
+
+/* Hover-only brand colour for category artwork; no persistent tint on touch screens. */
+@media (hover:hover) and (pointer:fine) {
+  main .thumbnail a:hover > img[src*="category-"] {
+    filter:url("#category-green-tint");
+  }
+}

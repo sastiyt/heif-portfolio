@@ -36,7 +36,7 @@
 
   <script src="assets/js/scroll-animations.js?v=20261111-14" defer></script>
   
-<link rel="stylesheet" href="assets/css/performance.css?v=20261111-13">
+<link rel="stylesheet" href="assets/css/performance.css?v=20261111-15">
   <script src="assets/js/optional-effects.js?v=20261111-12" defer></script>
   <link rel="canonical" href="https://heif.work/">
   <meta property="og:url" content="https://heif.work/">
@@ -51,6 +51,14 @@
 </head>
 
 <body id="home-page">
+  <!-- Recolour baked-in category lettering while keeping its original shape and dark background. -->
+  <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;pointer-events:none">
+    <defs>
+      <filter id="category-green-tint" color-interpolation-filters="sRGB">
+        <feColorMatrix type="matrix" values="0.117647 0 0 0 0  0.760784 0 0 0 0  0.301961 0 0 0 0  0 0 0 1 0" />
+      </filter>
+    </defs>
+  </svg>
 <div class="brand-loader" id="brand-loader" aria-hidden="true"><picture><source media="(prefers-reduced-motion: reduce)" srcset="assets/img/heif-logo-still.png"><img src="assets/img/heif-logo-animated.gif" alt="" width="600" height="92" decoding="async" fetchpriority="high"></picture></div>
   <!-- Skip Link for Accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
