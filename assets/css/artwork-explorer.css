@@ -10,7 +10,13 @@
 .explorer-button:active{transform:scale(.96)}
 .explorer-button:focus-visible{outline:2px solid #b8ffd0;outline-offset:4px}
 .explorer-hint{flex-basis:100%;text-align:center;color:#a8b8ac;font-size:13px;margin:0;min-height:1.5em}
-.world-entry{margin-top:24px;position:relative;z-index:2}.world-entry small{font-size:11px;opacity:.7;font-weight:400}
+.world-entry{margin-top:20px;position:relative;z-index:2}
+.world-entry .explorer-button{min-height:38px;padding:5px 12px 5px 5px;gap:9px;border:1px solid #ffffff28;border-radius:24px;background:#101b15;color:#f2f7f3;font-size:12px;font-weight:500;box-shadow:none;letter-spacing:.01em}
+.world-entry .world-play-icon{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#1ec24d;color:#061009}
+.world-entry .world-play-icon svg{width:17px;height:17px}
+.world-entry small{font-size:10px;font-weight:500;color:#a1b3a6;margin-left:2px;padding-left:9px;border-left:1px solid #ffffff24}
+.world-entry .explorer-button:hover{background:#182c20;color:#fff;border-color:#1ec24d80;box-shadow:none;transform:translateY(-1px)}
+.world-entry .explorer-button:hover svg{transform:translateX(1px)}
 .art-dialog{box-sizing:border-box;position:fixed;inset:0;margin:auto;border:1px solid #304637;border-radius:16px;background:#0b110d;color:#f3f7f4;padding:18px;width:min(720px,calc(100vw - 24px));max-height:94dvh;overflow:auto;overscroll-behavior:contain}
 .art-dialog::backdrop{background:rgba(0,0,0,.88)}
 .art-dialog-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:14px}
@@ -29,5 +35,5 @@
 .world-caption .world-sound{font-size:11px;min-height:36px;padding:8px 10px;white-space:nowrap;border-radius:6px}
 html.art-modal-open{overflow:hidden}
 @media(max-width:767px),(hover:none) and (pointer:coarse){.explorer-lens-button{display:none!important}.art-dialog .explorer-lens-button{display:none!important}}
-@media(max-width:600px){.art-dialog{padding:12px}.art-stage>img{max-height:59dvh}.world-entry .explorer-button{font-size:13px}.explorer-tools{gap:8px}.explorer-hint{font-size:12px}.explorer-surprise-button{min-width:180px}.world-dialog .world-caption{font-size:9px}}
+@media(max-width:600px){.art-dialog{padding:12px}.art-stage>img{max-height:59dvh}.world-entry .explorer-button{min-height:40px;font-size:12px}.explorer-tools{gap:8px}.explorer-hint{font-size:12px}.explorer-surprise-button{min-width:180px}.world-dialog .world-caption{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.explorer-button,.art-lens{transition:none!important}}

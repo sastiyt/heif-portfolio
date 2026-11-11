@@ -76,7 +76,7 @@
  }
  const world=document.querySelector('[data-play-world]');
  if(world){let d,v;world.addEventListener('click',()=>{
-  if(!d){d=modal('HEIF / IN MOTION');d.classList.add('world-dialog');v=document.createElement('video');v.className='world-video';v.controls=true;v.playsInline=true;v.muted=true;v.preload='none';v.poster='assets/optimized/heif-world-grid-v4.webp';v.src='assets/VIDEO EDITING/heif-world-grid-v4.mp4';v.setAttribute('aria-label','15-second portrait montage of HEIF posters and VFX');
+  if(!d){d=modal('HEIF / IN MOTION');d.classList.add('world-dialog');v=document.createElement('video');v.className='world-video';v.controls=true;v.playsInline=true;v.muted=true;v.preload='none';v.poster='assets/optimized/heif-world-grid-v5.webp';v.src='assets/VIDEO EDITING/heif-world-grid-v5.mp4';v.setAttribute('aria-label','15-second portrait montage of HEIF posters and VFX');
    const sound=button('Sound off',()=>{v.muted=!v.muted;});sound.classList.add('world-sound');sound.setAttribute('aria-label','Enable montage beat');sound.setAttribute('aria-pressed','false');v.addEventListener('volumechange',()=>{sound.textContent=v.muted?'Sound off':'Sound on';sound.setAttribute('aria-pressed',String(!v.muted));sound.setAttribute('aria-label',v.muted?'Enable montage beat':'Mute montage beat');});
    const caption=document.createElement('div');caption.className='world-caption';const text=document.createElement('span');text.textContent='15 SEC / POSTERS + VFX';caption.append(text,sound);d.append(v,caption);d.addEventListener('close',()=>v.pause());document.addEventListener('visibilitychange',()=>{if(document.hidden)v.pause();});}
   open(d);v.currentTime=0;v.play().catch(()=>{});
