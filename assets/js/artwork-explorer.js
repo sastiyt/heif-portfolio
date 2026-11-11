@@ -19,7 +19,7 @@
  function button(text,fn){const b=document.createElement('button');b.type='button';b.className='explorer-button';b.textContent=text;b.addEventListener('click',fn);return b;}
  function decorate(b,kind,label){
   const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.6');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
-  const path=document.createElementNS(ns,'path');path.setAttribute('d',kind==='lens'?'M16 16l5 5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0M10 6v8M6 10h8':'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2M8 8h.01M16 8h.01M12 12h.01M8 16h.01M16 16h.01');svg.append(path);
+  const path=document.createElementNS(ns,'path');path.setAttribute('d',kind==='lens'?'M16 16l5 5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0M10 6v8M6 10h8':'M3 6h2c5 0 9 12 14 12h2M17 14l4 4-4 4M3 18h2c2.5 0 4.5-3 7-6s4.5-6 7-6h2M17 2l4 4-4 4');svg.append(path);
   b.textContent='';const span=document.createElement('span');span.textContent=label;b.append(svg,span);b.classList.add(kind==='lens'?'explorer-lens-button':'explorer-surprise-button');
  }
  if(gallery){
@@ -27,7 +27,7 @@
   let current=-1,busy=false,lensOn=false,lensMode=false,stage,img,lens,status,title,lensButton,next,rect,frame=0,point={x:.5,y:.5};
   const tools=document.createElement('div');tools.className='explorer-tools';
   const hint=document.createElement('p');hint.className='explorer-hint';hint.textContent='Find your next favourite.';
-  const surprise=button('Surprise me',()=>showRandom());decorate(surprise,'dice','Surprise me');
+  const surprise=button('Surprise me',()=>showRandom());decorate(surprise,'shuffle','Surprise me');
   const mode=button('HEIF Lens',()=>{lensMode=!lensMode;mode.setAttribute('aria-pressed',String(lensMode));hint.textContent=lensMode?'Choose a poster to explore its details.':'A little discovery. A closer look.';});mode.setAttribute('aria-pressed','false');
   decorate(mode,'lens','HEIF Lens');tools.append(surprise,mode,hint);gallery.before(tools);
   function paintLens(){
@@ -48,7 +48,7 @@
    img=document.createElement('img');img.decoding='async';lens=document.createElement('div');lens.className='art-lens';lens.setAttribute('aria-hidden','true');stage.append(img,lens);
    const actions=document.createElement('div');actions.className='explorer-tools';
    lensButton=button('HEIF Lens · 2.25×',()=>setLens(!lensOn));lensButton.setAttribute('aria-pressed','false');decorate(lensButton,'lens','HEIF Lens · 2.25×');
-   next=button('Surprise me again',()=>showRandom());decorate(next,'dice','Surprise me again');actions.append(lensButton,next);
+   next=button('Surprise me again',()=>showRandom());decorate(next,'shuffle','Surprise me again');actions.append(lensButton,next);
    status=document.createElement('p');status.className='art-status';status.setAttribute('role','status');dialog.append(stage,actions,status);
    let dragging=false;
    const move=e=>{if(!lensOn)return;rect=stage.getBoundingClientRect();point={x:Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width)),y:Math.max(0,Math.min(1,(e.clientY-rect.top)/rect.height))};schedule();};

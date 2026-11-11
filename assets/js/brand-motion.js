@@ -31,7 +31,7 @@
  const fine = matchMedia('(hover: hover) and (pointer: fine)');
  const resets = [];
  const clamp = (value, limit) => Math.max(-limit, Math.min(limit, value));
- document.querySelectorAll('.poster-gallery').forEach(gallery => {
+ document.querySelectorAll('.poster-gallery, [data-artwork-spotlight]').forEach(gallery => {
   const cards = [...gallery.querySelectorAll('.image-item')];
   let selected = null, frame = 0, rect = null, point = null, touch = null, source = '';
   cards.forEach(card => {
@@ -43,7 +43,7 @@
    card.classList.add('poster-spotlight-card');
    card.tabIndex = 0;
    card.setAttribute('role', 'button');
-   card.setAttribute('aria-label', `Spotlight: ${card.querySelector('img')?.alt || 'poster artwork'}`);
+   card.setAttribute('aria-label', `Spotlight: ${card.querySelector('img')?.alt || 'artwork'}`);
    card.setAttribute('aria-pressed', 'false');
   });
   const reset = () => {

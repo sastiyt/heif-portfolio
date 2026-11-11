@@ -59,7 +59,7 @@
     if(document.hidden)return;
     observer.unobserve(el);
     if(motion.matches||rect.bottom<=0){finish(el);return;}
-    const delay=Math.min(Math.max(0,nextStart-now),480);nextStart=now+delay+(mobile.matches?160:100);
+    const delay=Math.min(Math.max(0,nextStart-now),480);nextStart=now+delay+(mobile.matches?(Number(el.closest('[data-reveal-stagger]')?.dataset.revealStagger)||160):100);
     try{
      const animation=active.get(el);
      if(animation){animation.effect.updateTiming({delay});animation.play();}
@@ -81,7 +81,10 @@
    }catch(_){finish(el);}
   });
   const finishAll=()=>{[...active.keys()].forEach(finish);};
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)finishAll();});
+  document.addEventListener('visibilitychange',()=>{
+   if(document.hidden){active.forEach((animation,el)=>{if(animation.playState==='running')finish(el);});}
+   else{active.forEach((animation,el)=>{if(animation.playState==='paused'){observer.unobserve(el);observer.observe(el);}});}
+  });
   window.addEventListener('pageshow',event=>{if(event.persisted)finishAll();});
   document.addEventListener('focusin',event=>{const card=event.target.closest('.image-item,.thumbnail,.video-item');if(card)finish(card);});
   window.addEventListener('beforeprint',finishAll);
