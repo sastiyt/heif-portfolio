@@ -8,12 +8,13 @@ html.cosmic-intro-open,html.cosmic-intro-open body { overflow:hidden; }
 .cosmic-entry { position:fixed; inset:0; z-index:100002; color:#f1f5f2; display:grid; place-items:center; padding:24px; box-sizing:border-box; isolation:isolate; background:transparent; transition:opacity .65s ease; outline:none; }
 .cosmic-entry button { font-family:'Josefin Sans',sans-serif; cursor:pointer; }
 .cosmic-entry-core { text-align:center; border:0; transition:opacity .4s ease,transform .8s cubic-bezier(.2,.7,.2,1); }
-.cosmic-enter { display:inline-flex; gap:12px; align-items:center; justify-content:center; min-height:48px; padding:10px 8px; border:0; background:transparent; color:#eef3ef; border-radius:4px; animation:cosmic-button-float 3.6s ease-in-out infinite; transition:scale .25s ease; }
-.cosmic-enter-label { font-size:10px; letter-spacing:.28em; font-weight:500; }
-.cosmic-enter-name { display:inline-block; font-family:var(--font-heading); font-size:34px; font-style:normal; line-height:1; letter-spacing:-1px; color:#1ec24d; transform:none; transition:color .3s ease,transform .3s ease; }
-.cosmic-enter:hover .cosmic-enter-name { color:#f1f5f2; transform:translateX(3px); }
-.cosmic-enter:active { scale:.96; }
-@keyframes cosmic-button-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-4px); } }
+.cosmic-enter { display:inline-flex; gap:7px; align-items:center; justify-content:center; min-height:46px; padding:0 22px; border:1px solid rgba(229,239,233,.45); background:#080f0c; color:#eef3ef; border-radius:6px; box-shadow:none; text-shadow:none; transition:background .25s ease,border-color .25s ease,transform .25s ease; }
+.cosmic-enter-label { font-size:12px; letter-spacing:.06em; font-weight:500; }
+.cosmic-enter-name { display:inline-block; font-family:'Josefin Sans',sans-serif; font-size:15px; font-style:normal; font-weight:700; line-height:1; letter-spacing:.02em; color:#1ec24d; transform:none; }
+.cosmic-enter::after { content:''; width:6px; height:6px; border-top:1px solid currentColor; border-right:1px solid currentColor; transform:rotate(45deg); margin-left:9px; transition:translate .25s ease; }
+.cosmic-enter:hover { background:#102218; border-color:#1ec24d; transform:translateY(-2px); }
+.cosmic-enter:hover::after { translate:2px 0; }
+.cosmic-enter:active { transform:translateY(0) scale(.97); }
 .cosmic-entry button:focus-visible { outline:2px solid #1ec24d; outline-offset:4px; }
 .cosmic-entry.is-flying .cosmic-entry-core { opacity:0; transform:scale(1.2); }
 .cosmic-entry.is-flying .cosmic-enter { animation-play-state:paused; }
@@ -26,7 +27,5 @@ html.cosmic-intro-open,html.cosmic-intro-open body { overflow:hidden; }
 
 /* Gestures move the entry scene without scrolling the hidden page. */
 .cosmic-entry { touch-action:none; user-select:none; -webkit-user-select:none; }
-.cosmic-enter { text-shadow:0 2px 18px #000; }
 .cosmic-entry.is-flying .cosmic-entry-core { transition:opacity .24s ease,transform .4s ease; transform:scale(1.04); }
 .cosmic-entry-particles { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-@media(max-width:480px) { .cosmic-enter-name { font-size:32px; } }

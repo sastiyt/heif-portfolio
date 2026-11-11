@@ -11,12 +11,6 @@
  let planets=[],stars=[],rasterRatio=1,flight=0;
  const textures={};
  const introOpen=()=>document.documentElement.classList.contains('cosmic-intro-open');
- let introImage=null,introReady=false;
- // Download this reference backdrop only for the entry, never gallery pages.
- if(introOpen()){
-  introImage=new Image();introImage.onload=()=>{introReady=true;draw();};
-  introImage.src='assets/img/space/entry-galaxy.webp';
- }
  const obstacles=[...document.querySelectorAll('#hero-3d-model,#ae-3d-model')];
  const loadMap=name=>new Promise((resolve,reject)=>{
   const img=new Image();img.onload=()=>{
@@ -130,7 +124,7 @@
   ctx.clearRect(0,0,width,height);
   const still=reduced.matches;
   const inIntro=introOpen();
-  const inputGain=inIntro?2.6:1;
+  const inputGain=inIntro?1.4:1;
   const depth=still?0:1-Math.exp(-Math.max(0,scroll)/height*.65);
   const px=still?0:pointer.x*inputGain,py=still?0:pointer.y*inputGain;
   const travel=still?0:scroll/height;
@@ -139,23 +133,14 @@
   ctx.save();ctx.translate(width/2,height/2);ctx.scale(warpScale,warpScale);ctx.translate(-width/2,-height/2);
   // The cloud layer follows the same input at a slower depth than the stars.
   const dx=Math.sin(time*.09)*6+px*12,dy=Math.cos(time*.07)*5-py*9-Math.sin(travel*.6)*22;
-  if(inIntro&&introReady){
-   const cover=Math.max(width/introImage.width,height/introImage.height)*1.18;
-   const iw=introImage.width*cover,ih=introImage.height*cover;
-   ctx.save();ctx.globalAlpha=.64;
-   ctx.drawImage(introImage,(width-iw)/2+dx,(height-ih)/2+dy,iw,ih);
-   ctx.restore();
-   const shade=ctx.createRadialGradient(width*.5,height*.5,0,width*.5,height*.5,Math.max(width,height)*.72);
-   shade.addColorStop(0,'rgba(1,6,12,.46)');shade.addColorStop(.65,'rgba(1,6,12,.12)');shade.addColorStop(1,'rgba(1,6,12,.48)');
-   ctx.fillStyle=shade;ctx.fillRect(0,0,width,height);
-  }else ctx.drawImage(sky,-30+dx,-30+dy,width+60,height+60);
+  ctx.drawImage(sky,-30+dx,-30+dy,width+60,height+60);
   if(inIntro){
    ctx.save();ctx.translate(width*.5+px*9,height*.52+py*7);
-   ctx.strokeStyle='rgba(157,214,224,.2)';ctx.lineWidth=.7;
+   ctx.strokeStyle='rgba(240,245,244,.18)';ctx.lineWidth=.7;
    for(let ring=0;ring<3;ring++){
     ctx.beginPath();ctx.ellipse(0,0,width*(.27+ring*.055),height*(.24+ring*.045),0,0,Math.PI*2);ctx.stroke();
    }
-   ctx.rotate(still?0:time*.05);ctx.setLineDash([2,12]);ctx.strokeStyle='rgba(178,227,230,.16)';
+   ctx.rotate(still?0:time*.05);ctx.setLineDash([2,12]);ctx.strokeStyle='rgba(240,245,244,.12)';
    ctx.beginPath();ctx.ellipse(0,0,width*.43,height*.37,0,0,Math.PI*2);ctx.stroke();ctx.restore();
   }
   const spin=still?0:time*(mobile.matches?.055:.03)+travel*(mobile.matches?.22:.16);
@@ -243,7 +228,7 @@
  window.visualViewport?.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(resize,180);},{passive:true});
  addEventListener('scroll',()=>{target=scrollY;start();},{passive:true});
  addEventListener('heif:warp',()=>{if(!reduced.matches){flightStart=performance.now();start();}});
- addEventListener('heif:entered',()=>{flightStart=flight=0;pointer.x=pointer.y=pointer.tx=pointer.ty=0;pointer.active=false;introImage=null;introReady=false;resize();draw();});
+ addEventListener('heif:entered',()=>{flightStart=flight=0;pointer.x=pointer.y=pointer.tx=pointer.ty=0;pointer.active=false;resize();draw();});
  // Read input only; a single capped animation loop handles all rendering.
  addEventListener('pointermove',e=>{
   if(reduced.matches||(!introOpen()&&(e.pointerType!=='mouse'||mobile.matches)))return;

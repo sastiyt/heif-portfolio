@@ -8,7 +8,7 @@
  });
  const start = async () => {
   try {
-   await load('assets/js/cosmic-galaxy.js?v=20261111-23');
+   await load('assets/js/cosmic-galaxy.js?v=20261111-24');
    if (light) return;
    if(document.documentElement.classList.contains('cosmic-intro-open'))await new Promise(resolve=>window.addEventListener('heif:entered',resolve,{once:true}));
    await load('assets/vendor/three.min.js');
