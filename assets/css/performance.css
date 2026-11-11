@@ -374,5 +374,7 @@ main .thumbnail a:focus-visible { outline:2px solid #fff; outline-offset:-3px; }
 }
 @media(max-width:600px) {
  .image-showcase .masonry-container.stable-masonry { gap:10px; }
+ .image-showcase .masonry-container.graphics-gallery { columns:1; }
+ .image-showcase .masonry-container.graphics-gallery.stable-masonry { grid-template-columns:minmax(0,1fr); }
  .stable-masonry > .gallery-column { gap:10px; }
 }

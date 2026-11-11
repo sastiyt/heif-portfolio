@@ -75,7 +75,7 @@ main#main-content.contact-studio {
 .contact-context span { display:block; margin-bottom:14px; font-size:10px; color:#1ec24d; }
 @media(max-width:680px) {
  main#main-content.contact-studio { gap:32px; }
- .contact-context { grid-template-columns:1fr 1fr; gap:26px 20px; padding-top:24px; }
+ .contact-context { grid-template-columns:1fr; gap:26px; padding-top:24px; text-align:left; }
  .contact-context > div:first-child { grid-column:1/-1; }
  .contact-context p { font-size:13px; }
 }
