@@ -10,6 +10,13 @@
  const pointer={x:0,y:0,tx:0,ty:0,active:false};
  let planets=[],stars=[],rasterRatio=1,flight=0;
  const textures={};
+ const introOpen=()=>document.documentElement.classList.contains('cosmic-intro-open');
+ let introImage=null,introReady=false;
+ // Download this reference backdrop only for the entry, never gallery pages.
+ if(introOpen()){
+  introImage=new Image();introImage.onload=()=>{introReady=true;draw();};
+  introImage.src='assets/img/space/entry-galaxy.webp';
+ }
  const obstacles=[...document.querySelectorAll('#hero-3d-model,#ae-3d-model')];
  const loadMap=name=>new Promise((resolve,reject)=>{
   const img=new Image();img.onload=()=>{
@@ -106,10 +113,10 @@
   paint.restore();
   // Cache each planet separately so scroll zoom never repaints its surface.
   planets=[
-   {kind:'earth',r:Math.min(width*.087,66),rings:false,z:1.2,phase:-.85,speed:.045,orbit:1},
-   {kind:'saturn',r:Math.min(width*.05,36),rings:true,z:.8,phase:2.8,speed:.032,orbit:1.05},
-   {kind:'mars',r:Math.min(width*.029,19),rings:false,z:.6,phase:1.1,speed:.059,orbit:.92},
-   {kind:'neptune',r:Math.min(width*.036,24),rings:false,z:.7,phase:4,speed:.026,orbit:.83}
+   {kind:'earth',r:Math.min(width*.087,height*.09,66),rings:false,z:1.2,phase:-.85,speed:.045,orbit:1},
+   {kind:'saturn',r:Math.min(width*.05,height*.05,36),rings:true,z:.8,phase:2.8,speed:.032,orbit:1.05},
+   {kind:'mars',r:Math.min(width*.029,height*.03,19),rings:false,z:.6,phase:1.1,speed:.059,orbit:.92},
+   {kind:'neptune',r:Math.min(width*.036,height*.035,24),rings:false,z:.7,phase:4,speed:.026,orbit:.83}
   ].map(p=>{p.sprite=document.createElement('canvas');p.side=Math.ceil(p.r*4.6);paintSprite(p);return p;});
   // Overscan the orbital field so rotation cannot leave empty corners.
   const radius=Math.hypot(width,height)*.63;
@@ -122,17 +129,37 @@
  const draw=()=>{
   ctx.clearRect(0,0,width,height);
   const still=reduced.matches;
+  const inIntro=introOpen();
+  const inputGain=inIntro?2.6:1;
   const depth=still?0:1-Math.exp(-Math.max(0,scroll)/height*.65);
-  const px=still?0:pointer.x,py=still?0:pointer.y;
+  const px=still?0:pointer.x*inputGain,py=still?0:pointer.y*inputGain;
   const travel=still?0:scroll/height;
   const warp=still?0:flight;
   const warpScale=1+warp*warp*7;
   ctx.save();ctx.translate(width/2,height/2);ctx.scale(warpScale,warpScale);ctx.translate(-width/2,-height/2);
   // The cloud layer follows the same input at a slower depth than the stars.
   const dx=Math.sin(time*.09)*6+px*12,dy=Math.cos(time*.07)*5-py*9-Math.sin(travel*.6)*22;
-  ctx.drawImage(sky,-30+dx,-30+dy,width+60,height+60);
+  if(inIntro&&introReady){
+   const cover=Math.max(width/introImage.width,height/introImage.height)*1.18;
+   const iw=introImage.width*cover,ih=introImage.height*cover;
+   ctx.save();ctx.globalAlpha=.64;
+   ctx.drawImage(introImage,(width-iw)/2+dx,(height-ih)/2+dy,iw,ih);
+   ctx.restore();
+   const shade=ctx.createRadialGradient(width*.5,height*.5,0,width*.5,height*.5,Math.max(width,height)*.72);
+   shade.addColorStop(0,'rgba(1,6,12,.46)');shade.addColorStop(.65,'rgba(1,6,12,.12)');shade.addColorStop(1,'rgba(1,6,12,.48)');
+   ctx.fillStyle=shade;ctx.fillRect(0,0,width,height);
+  }else ctx.drawImage(sky,-30+dx,-30+dy,width+60,height+60);
+  if(inIntro){
+   ctx.save();ctx.translate(width*.5+px*9,height*.52+py*7);
+   ctx.strokeStyle='rgba(157,214,224,.2)';ctx.lineWidth=.7;
+   for(let ring=0;ring<3;ring++){
+    ctx.beginPath();ctx.ellipse(0,0,width*(.27+ring*.055),height*(.24+ring*.045),0,0,Math.PI*2);ctx.stroke();
+   }
+   ctx.rotate(still?0:time*.05);ctx.setLineDash([2,12]);ctx.strokeStyle='rgba(178,227,230,.16)';
+   ctx.beginPath();ctx.ellipse(0,0,width*.43,height*.37,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+  }
   const spin=still?0:time*(mobile.matches?.055:.03)+travel*(mobile.matches?.22:.16);
-  const mouseX=(px+1)*width/2,mouseY=(py+1)*height/2;
+  const mouseX=(pointer.x+1)*width/2,mouseY=(pointer.y+1)*height/2;
   for(let layer=0;layer<3;layer++){
    const angle=spin*(.5+layer*.35),cos=Math.cos(angle),sin=Math.sin(angle);
    for(const star of stars){
@@ -140,7 +167,7 @@
     const zoom=1+depth*.16*star.z;
     let x=width/2+(star.x*cos-star.y*sin)*zoom+px*(12+star.z*30);
     let y=height/2+(star.x*sin+star.y*cos)*zoom+py*(10+star.z*23)-Math.sin(travel*.6)*star.z*42;
-    if(pointer.active&&!still&&!mobile.matches){
+    if(pointer.active&&!still&&(inIntro||!mobile.matches)){
      const vx=x-mouseX,vy=y-mouseY,distance=Math.hypot(vx,vy);
      if(distance>0&&distance<135){
       const force=(1-distance/135)**2*22*star.z;
@@ -153,15 +180,16 @@
     if(warp>.02){ctx.strokeStyle=ctx.fillStyle;ctx.lineWidth=star.r*.75;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(x-width/2)*warp*.16,y+(y-height/2)*warp*.16);ctx.stroke();}
    }
   }
-  const inIntro=document.documentElement.classList.contains('cosmic-intro-open');
+
   const avoid=inIntro?[]:obstacles.filter(el=>el.clientWidth&&el.querySelector('canvas')).map(el=>{
    const b=el.getBoundingClientRect();return {x:b.left+b.width*.5,y:b.top+b.height*.5,r:Math.min(b.width,b.height)*.27};
   });
-  for(const p of planets){
+  for(const [index,p] of planets.entries()){
    const size=p.side*(1+depth*.30);
-   const orbitAngle=p.phase+(still?0:time*p.speed*(mobile.matches?1.65:1)+travel*.13);
-   const x=width*.5+Math.cos(orbitAngle)*width*.37*p.orbit+px*24*p.z;
-   const y=height*.52+Math.sin(orbitAngle)*height*.34*p.orbit+py*18*p.z;
+   // Shared angular velocity preserves separation instead of letting planets converge.
+   const orbitAngle=-.6+index*Math.PI/2+(still?0:time*(inIntro?.065:mobile.matches?.058:.038)+travel*.13);
+   const x=width*.5+Math.cos(orbitAngle)*width*(inIntro&&mobile.matches?.30:.34)+px*(inIntro?8:18);
+   const y=height*.52+Math.sin(orbitAngle)*height*.32+py*(inIntro?9:14);
    ctx.save();ctx.translate(x,y);ctx.rotate(p.kind==='earth'?-.12:Math.sin(orbitAngle)*.13);
    let visibility=1;
    for(const block of avoid){
@@ -198,7 +226,7 @@
   // Mobile browser chrome expands/collapses while scrolling. Keep one stable
   // backing surface instead of clearing/resizing the canvas on every toolbar tick.
   const nextWidth=document.documentElement.clientWidth;
-  const nextHeight=mobile.matches?(width===nextWidth&&height>=innerHeight?height:innerHeight+120):innerHeight;
+  const nextHeight=mobile.matches&&!introOpen()?(width===nextWidth&&height>=innerHeight?height:innerHeight+120):innerHeight;
   const sceneChanged=width!==nextWidth||height!==nextHeight;
   width=nextWidth;height=nextHeight;
   const ratio=pixelRatio();
@@ -215,15 +243,17 @@
  window.visualViewport?.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(resize,180);},{passive:true});
  addEventListener('scroll',()=>{target=scrollY;start();},{passive:true});
  addEventListener('heif:warp',()=>{if(!reduced.matches){flightStart=performance.now();start();}});
- addEventListener('heif:entered',()=>{flightStart=flight=0;draw();});
+ addEventListener('heif:entered',()=>{flightStart=flight=0;pointer.x=pointer.y=pointer.tx=pointer.ty=0;pointer.active=false;introImage=null;introReady=false;resize();draw();});
  // Read input only; a single capped animation loop handles all rendering.
  addEventListener('pointermove',e=>{
-  if(e.pointerType!=='mouse'||mobile.matches||reduced.matches)return;
+  if(reduced.matches||(!introOpen()&&(e.pointerType!=='mouse'||mobile.matches)))return;
   pointer.tx=Math.max(-1,Math.min(1,e.clientX/width*2-1));
   pointer.ty=Math.max(-1,Math.min(1,e.clientY/height*2-1));pointer.active=true;start();
  },{passive:true});
  const centrePointer=()=>{pointer.tx=pointer.ty=0;pointer.active=false;};
  document.documentElement.addEventListener('pointerleave',centrePointer,{passive:true});
+ addEventListener('pointerup',e=>{if(e.pointerType!=='mouse'&&introOpen())centrePointer();},{passive:true});
+ addEventListener('pointercancel',centrePointer,{passive:true});
  addEventListener('blur',centrePointer);
 
  document.addEventListener('visibilitychange',()=>{
