@@ -10,6 +10,15 @@
  const pointer={x:0,y:0,tx:0,ty:0,active:false};
  let planets=[],stars=[],rasterRatio=1,flight=0;
  const textures={};
+ const entryMarks={};
+ const loadEntryMarks=()=>{
+  if(!introOpen())return;
+  for(const name of ['ps','ae']){
+   const img=new Image();img.decoding='async';
+   img.onload=()=>{entryMarks[name]=img;draw();};
+   img.src='assets/img/space/entry-'+name+'.webp';
+  }
+ };
  const introOpen=()=>document.documentElement.classList.contains('cosmic-intro-open');
  const obstacles=[...document.querySelectorAll('#hero-3d-model,#ae-3d-model')];
  const loadMap=name=>new Promise((resolve,reject)=>{
@@ -134,15 +143,6 @@
   // The cloud layer follows the same input at a slower depth than the stars.
   const dx=Math.sin(time*.09)*6+px*12,dy=Math.cos(time*.07)*5-py*9-Math.sin(travel*.6)*22;
   ctx.drawImage(sky,-30+dx,-30+dy,width+60,height+60);
-  if(inIntro){
-   ctx.save();ctx.translate(width*.5+px*9,height*.52+py*7);
-   ctx.strokeStyle='rgba(240,245,244,.18)';ctx.lineWidth=.7;
-   for(let ring=0;ring<3;ring++){
-    ctx.beginPath();ctx.ellipse(0,0,width*(.27+ring*.055),height*(.24+ring*.045),0,0,Math.PI*2);ctx.stroke();
-   }
-   ctx.rotate(still?0:time*.05);ctx.setLineDash([2,12]);ctx.strokeStyle='rgba(240,245,244,.12)';
-   ctx.beginPath();ctx.ellipse(0,0,width*.43,height*.37,0,0,Math.PI*2);ctx.stroke();ctx.restore();
-  }
   const spin=still?0:time*(mobile.matches?.055:.03)+travel*(mobile.matches?.22:.16);
   const mouseX=(pointer.x+1)*width/2,mouseY=(pointer.y+1)*height/2;
   for(let layer=0;layer<3;layer++){
@@ -172,7 +172,8 @@
   for(const [index,p] of planets.entries()){
    const size=p.side*(1+depth*.30);
    // Shared angular velocity preserves separation instead of letting planets converge.
-   const orbitAngle=-.6+index*Math.PI/2+(still?0:time*(inIntro?.065:mobile.matches?.058:.038)+travel*.13);
+   const slot=inIntro?[0,3,2,5][index]:index;
+   const orbitAngle=-.6+slot*Math.PI/(inIntro?3:2)+(still?0:time*(inIntro?.065:mobile.matches?.058:.038)+travel*.13);
    const x=width*.5+Math.cos(orbitAngle)*width*(inIntro&&mobile.matches?.30:.34)+px*(inIntro?8:18);
    const y=height*.52+Math.sin(orbitAngle)*height*.32+py*(inIntro?9:14);
    ctx.save();ctx.translate(x,y);ctx.rotate(p.kind==='earth'?-.12:Math.sin(orbitAngle)*.13);
@@ -188,6 +189,19 @@
     const moonOrbit=p.r*(1+depth*.24)*1.6;
     ctx.fillStyle=`rgba(161,175,183,${.65*visibility})`;ctx.beginPath();
     ctx.arc(x+Math.cos(moonAngle)*moonOrbit,y+Math.sin(moonAngle)*moonOrbit,p.r*.10,0,Math.PI*2);ctx.fill();
+   }
+  }
+  // Entry-only tool marks share the orbital speed and occupy their own slots.
+  // Cached small images avoid extra 3D renderers or animation loops on phones.
+  if(inIntro){
+   for(const [name,slot] of [['ps',1],['ae',4]]){
+    const img=entryMarks[name];if(!img)continue;
+    const angle=-.6+slot*Math.PI/3+(still?0:time*.065+travel*.13);
+    const x=width*.5+Math.cos(angle)*width*(mobile.matches?.30:.34)+px*8;
+    const y=height*.52+Math.sin(angle)*height*.32+py*9;
+    const size=Math.min(mobile.matches?52:82,width*.14,height*.13);
+    ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(angle)*.09);
+    ctx.globalAlpha=.86;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore();
    }
   }
   ctx.restore();
@@ -254,4 +268,5 @@
  document.addEventListener('lostpointercapture',resume,{passive:true});
  resize();
  loadTextures();
+ loadEntryMarks();
 })();
