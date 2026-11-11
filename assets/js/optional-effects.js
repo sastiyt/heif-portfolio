@@ -17,8 +17,8 @@
    await load('assets/vendor/GLTFLoader.js');
    await load('assets/vendor/gsap.min.js');
    await load('assets/vendor/ScrollTrigger.min.js');
-   await load('assets/js/hero-3d.js');
-   await load('assets/js/ae-3d.js');
+   await load('assets/js/hero-3d.js?v=20261111-12');
+   await load('assets/js/ae-3d.js?v=20261111-12');
    await load('assets/js/hero1-3d.js');
   } catch { /* Portfolio navigation and content remain usable if effects fail. */ }
  };
