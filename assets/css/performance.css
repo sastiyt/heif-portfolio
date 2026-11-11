@@ -397,3 +397,6 @@ main .thumbnail:hover a > img.category-hover-colour {
 /* One lightweight cosmic scene replaces the old layered star renderers. */
 html.cosmic-galaxy #webgl-canvas { display:block!important; }
 html.cosmic-galaxy .stars-layer { display:none; }
+
+/* Explicit canvas dimensions preserve spherical planets during mobile pinch zoom. */
+html.cosmic-galaxy #webgl-canvas { max-width:none!important; max-height:none!important; }

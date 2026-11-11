@@ -8,7 +8,47 @@
  const mobile=matchMedia('(max-width:900px), (pointer:coarse)');
  const sky=document.createElement('canvas'), paint=sky.getContext('2d');
  const pointer={x:0,y:0,tx:0,ty:0,active:false};
- let planets=[],stars=[];
+ let planets=[],stars=[],rasterRatio=1,flight=0;
+ const textures={};
+ const obstacles=[...document.querySelectorAll('#hero-3d-model,#ae-3d-model')];
+ const loadMap=name=>new Promise((resolve,reject)=>{
+  const img=new Image();img.onload=()=>{
+   const tile=document.createElement('canvas');tile.width=img.naturalWidth;tile.height=img.naturalHeight;
+   const c=tile.getContext('2d',{willReadFrequently:true});c.drawImage(img,0,0);
+   resolve({data:c.getImageData(0,0,tile.width,tile.height).data,w:tile.width,h:tile.height});
+  };img.onerror=reject;img.src='assets/img/space/'+name+'.webp';
+ });
+ const project=(map,cloud,kind)=>{
+  const size=kind==='earth'?384:192,half=size/2;
+  const surface=document.createElement('canvas');surface.width=surface.height=size;
+  const c=surface.getContext('2d'),out=c.createImageData(size,size);
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+   const nx=(x+.5-half)/half,ny=(y+.5-half)/half,rr=nx*nx+ny*ny;
+   if(rr>=1)continue;
+   const nz=Math.sqrt(1-rr),u=((Math.atan2(nx,nz)/Math.PI/2+.52)%1+1)%1,v=.5+Math.asin(ny)/Math.PI;
+   const at=(Math.min(map.h-1,Math.floor(v*map.h))*map.w+Math.floor(u*map.w))*4;
+   const dest=(y*size+x)*4,light=.12+.88*Math.max(0,-nx*.45-ny*.35+nz*.82);
+   let clouds=0;
+   if(cloud){const ci=(Math.min(cloud.h-1,Math.floor(v*cloud.h))*cloud.w+Math.floor(u*cloud.w))*4;clouds=Math.pow(cloud.data[ci]/255,1.3)*.85;}
+   for(let channel=0;channel<3;channel++){
+    const value=map.data[at+channel]*(1-clouds)+242*clouds;
+    const rim=kind==='earth'?Math.pow(1-nz,4)*[14,42,75][channel]:0;
+    out.data[dest+channel]=Math.min(255,value*light+rim);
+   }
+   out.data[dest+3]=Math.min(255,(1-Math.sqrt(rr))*half*255);
+  }
+  c.putImageData(out,0,0);return surface;
+ };
+ const loadTextures=async()=>{
+  const tasks=[['earth','earth_daymap'],['saturn','saturn'],['mars','mars'],['neptune','neptune']];
+  await Promise.all(tasks.map(async([kind,name])=>{
+   try{
+    const [map,cloud]=await Promise.all([loadMap(name),kind==='earth'?loadMap('earth_clouds'):null]);
+    textures[kind]=project(map,cloud,kind);
+    const p=planets.find(p=>p.kind===kind);if(p)paintSprite(p);draw();
+   }catch{/* The shaded sphere remains usable when a texture cannot load. */}
+  }));
+ };
  let width=0,height=0,frame=0,last=0,time=0,scroll=scrollY,target=scrollY,dragging=false;
  let seed=7419;
  const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
@@ -30,45 +70,22 @@
   const colours=kind==='earth'?['#5699bb','#164c79']:kind==='mars'?['#b27855','#623c2a']:kind==='neptune'?['#577ca1','#263b66']:['#827b63','#3a4637'];
   sphere.addColorStop(0,colours[0]);sphere.addColorStop(.38,colours[1]);sphere.addColorStop(.78,'#050c0c');sphere.addColorStop(1,'#020505');
   paint.fillStyle=sphere;paint.fillRect(-r,-r,2*r,2*r);
-  if(kind==='earth'){
-   // Continental silhouettes, clouds and a night-side shadow stay cached in a sprite.
-   const land=[
-    [[-.85,-.5],[-.63,-.77],[-.3,-.8],[-.12,-.59],[-.25,-.38],[-.44,-.32],[-.38,-.1],[-.52,.02],[-.68,-.2]],
-    [[-.4,.03],[-.15,.12],[-.05,.35],[-.2,.61],[-.31,.8],[-.39,.48],[-.51,.22]],
-    [[.02,-.55],[.25,-.74],[.62,-.61],[.86,-.3],[.54,-.12],[.29,-.24],[.17,-.07],[.02,-.24]],
-    [[.03,-.13],[.3,-.08],[.42,.17],[.26,.48],[.09,.43],[-.02,.19]],
-    [[.6,.45],[.85,.37],[.89,.62],[.68,.69]]
-   ];
-   land.forEach((path,i)=>{
-    paint.beginPath();
-    const tail=path[path.length-1];paint.moveTo((tail[0]+path[0][0])*r/2,(tail[1]+path[0][1])*r/2);
-    path.forEach(([xx,yy],j)=>{const next=path[(j+1)%path.length];paint.quadraticCurveTo(xx*r,yy*r,(xx+next[0])*r/2,(yy+next[1])*r/2);});
-    paint.closePath();paint.fillStyle=i%2?'#577958':'#66886a';paint.fill();
-   });
-   for(let i=0;i<95;i++){
-    const xx=(random()*2-1)*r,yy=Math.sin(xx/r*2.8+i%4)*r*.64+(random()-.5)*r*.13;
-    glow(paint,xx,yy,r*(.045+random()*.085),'223,239,244',.10+random()*.15);
-   }
-   const night=paint.createLinearGradient(-r,0,r,0);
-   night.addColorStop(0,'rgba(0,4,12,0)');night.addColorStop(.45,'rgba(0,4,12,.05)');night.addColorStop(1,'rgba(0,4,12,.88)');
-   paint.fillStyle=night;paint.fillRect(-r,-r,r*2,r*2);
-  }else{
-   for(let i=0;i<100;i++){
-    const yy=(random()*2-1)*r;
-    paint.fillStyle=`rgba(183,186,167,${random()*.07})`;
-    paint.fillRect(-r,yy,2*r,random()*r*.04+.4);
-   }
-  }
+  if(textures[kind])paint.drawImage(textures[kind],-r,-r,r*2,r*2);
   paint.restore();
   paint.strokeStyle='rgba(142,189,176,.3)';paint.lineWidth=.65;
   paint.beginPath();paint.arc(0,0,r,Math.PI*.85,Math.PI*1.6);paint.stroke();
   if(rings){paint.strokeStyle='rgba(153,171,149,.3)';paint.lineWidth=r*.10;paint.beginPath();paint.ellipse(0,0,r*1.8,r*.45,0,0,Math.PI);paint.stroke();}
   paint.restore();
  };
+ const paintSprite=p=>{
+  const ratio=3;p.sprite.width=p.sprite.height=Math.ceil(p.side*ratio);
+  const surface=p.sprite.getContext('2d');surface.scale(ratio,ratio);
+  planet(surface,p.side/2,p.side/2,p.r,p.rings,p.kind);
+ };
  const build=()=>{
   seed=7419;
   // Low-resolution nebula is painted once per resize, never regenerated per frame.
-  const ratio=Math.min(devicePixelRatio||1,mobile.matches?1:1.25);
+  const ratio=1;
   sky.width=Math.round(width*ratio);sky.height=Math.round(height*ratio);
   paint.setTransform(ratio,0,0,ratio,0,0);paint.clearRect(0,0,width,height);
   const spread=Math.max(width,height);
@@ -93,13 +110,7 @@
    {kind:'saturn',r:Math.min(width*.05,36),rings:true,z:.8,phase:2.8,speed:.032,orbit:1.05},
    {kind:'mars',r:Math.min(width*.029,19),rings:false,z:.6,phase:1.1,speed:.059,orbit:.92},
    {kind:'neptune',r:Math.min(width*.036,24),rings:false,z:.7,phase:4,speed:.026,orbit:.83}
-  ].map(p=>{
-   const sprite=document.createElement('canvas'), side=Math.ceil(p.r*4.6);
-   sprite.width=Math.ceil(side*ratio);sprite.height=Math.ceil(side*ratio);
-   const surface=sprite.getContext('2d');surface.scale(ratio,ratio);
-   planet(surface,side/2,side/2,p.r,p.rings,p.kind);
-   return {...p,sprite,side};
-  });
+  ].map(p=>{p.sprite=document.createElement('canvas');p.side=Math.ceil(p.r*4.6);paintSprite(p);return p;});
   // Overscan the orbital field so rotation cannot leave empty corners.
   const radius=Math.hypot(width,height)*.63;
   stars=Array.from({length:mobile.matches?300:640},()=>{
@@ -114,18 +125,21 @@
   const depth=still?0:1-Math.exp(-Math.max(0,scroll)/height*.65);
   const px=still?0:pointer.x,py=still?0:pointer.y;
   const travel=still?0:scroll/height;
+  const warp=still?0:flight;
+  const warpScale=1+warp*warp*7;
+  ctx.save();ctx.translate(width/2,height/2);ctx.scale(warpScale,warpScale);ctx.translate(-width/2,-height/2);
   // The cloud layer follows the same input at a slower depth than the stars.
-  const dx=Math.sin(time*.09)*6+px*12,dy=Math.cos(time*.07)*5-py*9-Math.sin(travel*.35)*8;
+  const dx=Math.sin(time*.09)*6+px*12,dy=Math.cos(time*.07)*5-py*9-Math.sin(travel*.6)*22;
   ctx.drawImage(sky,-30+dx,-30+dy,width+60,height+60);
-  const spin=still?0:time*(mobile.matches?.055:.03)+travel*(mobile.matches?.11:.065);
+  const spin=still?0:time*(mobile.matches?.055:.03)+travel*(mobile.matches?.22:.16);
   const mouseX=(px+1)*width/2,mouseY=(py+1)*height/2;
   for(let layer=0;layer<3;layer++){
    const angle=spin*(.5+layer*.35),cos=Math.cos(angle),sin=Math.sin(angle);
    for(const star of stars){
     if(star.layer!==layer)continue;
-    const zoom=1+depth*.07*star.z;
+    const zoom=1+depth*.16*star.z;
     let x=width/2+(star.x*cos-star.y*sin)*zoom+px*(12+star.z*30);
-    let y=height/2+(star.x*sin+star.y*cos)*zoom+py*(10+star.z*23)-Math.sin(travel*.4)*star.z*20;
+    let y=height/2+(star.x*sin+star.y*cos)*zoom+py*(10+star.z*23)-Math.sin(travel*.6)*star.z*42;
     if(pointer.active&&!still&&!mobile.matches){
      const vx=x-mouseX,vy=y-mouseY,distance=Math.hypot(vx,vy);
      if(distance>0&&distance<135){
@@ -136,52 +150,71 @@
     if(x<-3||x>width+3||y<-3||y>height+3)continue;
     ctx.fillStyle=`rgba(221,240,231,${.18+star.z*.36+Math.sin(time*.8+star.phase)*.08})`;
     ctx.beginPath();ctx.arc(x,y,star.r,0,Math.PI*2);ctx.fill();
+    if(warp>.02){ctx.strokeStyle=ctx.fillStyle;ctx.lineWidth=star.r*.75;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(x-width/2)*warp*.16,y+(y-height/2)*warp*.16);ctx.stroke();}
    }
   }
+  const avoid=document.documentElement.classList.contains('cosmic-intro-open')?[]:obstacles.filter(el=>el.clientWidth&&el.querySelector('canvas')).map(el=>{
+   const b=el.getBoundingClientRect();return {x:b.left+b.width*.5,y:b.top+b.height*.5,r:Math.min(b.width,b.height)*.27};
+  });
   for(const p of planets){
-   const size=p.side*(1+depth*.24);
-   const orbitAngle=p.phase+(still?0:time*p.speed*(mobile.matches?1.65:1)+travel*.055);
+   const size=p.side*(1+depth*.30);
+   const orbitAngle=p.phase+(still?0:time*p.speed*(mobile.matches?1.65:1)+travel*.13);
    const x=width*.5+Math.cos(orbitAngle)*width*.37*p.orbit+px*24*p.z;
    const y=height*.52+Math.sin(orbitAngle)*height*.34*p.orbit+py*18*p.z;
    ctx.save();ctx.translate(x,y);ctx.rotate(p.kind==='earth'?-.12:Math.sin(orbitAngle)*.13);
-   ctx.globalAlpha=p.kind==='earth'?.86:.66;
+   let visibility=1;
+   for(const block of avoid){
+    const gap=Math.hypot(x-block.x,y-block.y)-block.r-p.r*(1+depth*.3)*(p.rings?1.8:1);
+    visibility=Math.min(visibility,Math.max(0,Math.min(1,gap/65)));
+   }
+   ctx.globalAlpha=(p.kind==='earth'?.96:.76)*visibility;
    ctx.drawImage(p.sprite,-size/2,-size/2,size,size);ctx.restore();
    if(p.kind==='earth'){
     const moonAngle=still?1:time*.24;
     const moonOrbit=p.r*(1+depth*.24)*1.6;
-    ctx.fillStyle='rgba(161,175,183,.65)';ctx.beginPath();
+    ctx.fillStyle=`rgba(161,175,183,${.65*visibility})`;ctx.beginPath();
     ctx.arc(x+Math.cos(moonAngle)*moonOrbit,y+Math.sin(moonAngle)*moonOrbit,p.r*.10,0,Math.PI*2);ctx.fill();
    }
   }
+  ctx.restore();
  };
+ let flightStart=0;
  const tick=stamp=>{
   frame=0;
   if(document.hidden||reduced.matches||dragging){last=0;return;}
   frame=requestAnimationFrame(tick);
   if(last&&stamp-last<33)return;
   const dt=last?Math.min(stamp-last,80):33;last=stamp;time+=dt/1000;
+  if(flightStart)flight=Math.min(1,(stamp-flightStart)/1450);
   const ease=1-Math.exp(-dt/140);
   scroll+=(target-scroll)*ease;
   pointer.x+=(pointer.tx-pointer.x)*ease;pointer.y+=(pointer.ty-pointer.y)*ease;
   draw();
  };
  const start=()=>{if(!frame&&!document.hidden&&!reduced.matches&&!dragging)frame=requestAnimationFrame(tick);};
+ const pixelRatio=()=>Math.max(1,Math.min((devicePixelRatio||1)*(window.visualViewport?.scale||1),2.5,Math.sqrt(3500000/(width*height))));
  const resize=()=>{
   // Mobile browser chrome expands/collapses while scrolling. Keep one stable
   // backing surface instead of clearing/resizing the canvas on every toolbar tick.
-  const nextWidth=innerWidth;
+  const nextWidth=document.documentElement.clientWidth;
   const nextHeight=mobile.matches?(width===nextWidth&&height>=innerHeight?height:innerHeight+120):innerHeight;
-  if(width===nextWidth&&height===nextHeight)return;
+  const sceneChanged=width!==nextWidth||height!==nextHeight;
   width=nextWidth;height=nextHeight;
+  const ratio=pixelRatio();
+  if(!sceneChanged&&Math.abs(ratio-rasterRatio)<.08)return;
+  rasterRatio=ratio;
+  canvas.style.width=width+'px';
   canvas.style.height=height+'px';
-  const ratio=Math.min(devicePixelRatio||1,mobile.matches?1:1.25);
   canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);
-  ctx.setTransform(ratio,0,0,ratio,0,0);build();draw();start();
+  ctx.setTransform(ratio,0,0,ratio,0,0);if(sceneChanged)build();draw();start();
  };
  canvas.setAttribute('aria-hidden','true');document.documentElement.classList.add('cosmic-galaxy');
  let resizeTimer;
  addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(resize,180);},{passive:true});
+ window.visualViewport?.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(resize,180);},{passive:true});
  addEventListener('scroll',()=>{target=scrollY;start();},{passive:true});
+ addEventListener('heif:warp',()=>{if(!reduced.matches){flightStart=performance.now();start();}});
+ addEventListener('heif:entered',()=>{flightStart=flight=0;draw();});
  // Read input only; a single capped animation loop handles all rendering.
  addEventListener('pointermove',e=>{
   if(e.pointerType!=='mouse'||mobile.matches||reduced.matches)return;
@@ -204,4 +237,5 @@
  document.addEventListener('pointerup',resume,{passive:true});document.addEventListener('pointercancel',resume,{passive:true});
  document.addEventListener('lostpointercapture',resume,{passive:true});
  resize();
+ loadTextures();
 })();

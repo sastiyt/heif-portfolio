@@ -8,8 +8,9 @@
  });
  const start = async () => {
   try {
-   await load('assets/js/cosmic-galaxy.js?v=20261111-18');
+   await load('assets/js/cosmic-galaxy.js?v=20261111-19');
    if (light) return;
+   if(document.documentElement.classList.contains('cosmic-intro-open'))await new Promise(resolve=>window.addEventListener('heif:entered',resolve,{once:true}));
    await load('assets/vendor/three.min.js');
    if (!document.getElementById('hero-3d-model')) return;
    await load('assets/vendor/GLTFLoader.js');
@@ -21,8 +22,9 @@
   } catch { /* Portfolio navigation and content remain usable if effects fail. */ }
  };
  const schedule=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{
-  if ('requestIdleCallback' in window) requestIdleCallback(start,{timeout:2500});
+  if(document.documentElement.classList.contains('cosmic-intro-open')) start();
+  else if ('requestIdleCallback' in window) requestIdleCallback(start,{timeout:2500});
   else setTimeout(start,300);
  }));
- document.readyState==='complete'?schedule():window.addEventListener('load',schedule,{once:true});
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();
 })();
