@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro. | Interactive Biology</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Manrope:wght@200;400;600&display=swap" rel="stylesheet">
+
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #0a0a0c;
+            --text-main: #e0e0e0;
+            --text-muted: #888899;
+            --accent: #d4ff58;
+            --virus-1: #68a018;
+            --virus-2: #c1a110;
+            --virus-3: #a12828;
+            --virus-4: #108e75;
+            --virus-5: #2f4356;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Noise Overlay for Texture --- */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* --- Typography --- */
+        h1, h2, h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            max-width: 45ch;
+        }
+
+        /* --- Header --- */
+        header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            padding: 30px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            mix-blend-mode: difference;
+        }
+
+        .logo {
+            font-family: 'Manrope', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #fff;
+        }
+
+        .menu-btn {
+            width: 40px; height: 20px;
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .menu-btn span {
+            display: block; width: 100%; height: 1px; background: #fff;
+            transition: 0.3s;
+        }
+        .menu-btn:hover span:nth-child(2) { width: 70%; margin-left: auto; }
+
+        /* --- 3D Canvas & Viruses --- */
+        .canvas-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 0;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .virus {
+            position: absolute;
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            will-change: transform, top, left;
+        }
+
+        /* Advanced CSS Gradients for 3D Sphere Look */
+        .v-main {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle at 30% 30%, #a3d95e 0%, #4a7a0f 40%, #1a2e06 100%);
+            box-shadow: inset -30px -30px 60px rgba(0,0,0,0.7), 0 20px 50px rgba(0,0,0,0.5);
+            top: 20%; left: 20%;
+            /* Spikes effect using repeating gradients */
+            background-image: 
+                radial-gradient(circle at 30% 30%, #a3d95e 0%, #4a7a0f 40%, #1a2e06 100%),
+                repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 48px, rgba(0,0,0,0.2) 49px, rgba(0,0,0,0.2) 50px);
+        }
+
+        .v-blur {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle at 30% 30%, #fff263 0%, #c1a110 50%, #3e3402 100%);
+            filter: blur(25px);
+            opacity: 0.6;
+            top: 60%; left: 10%;
+        }
+
+        .v-red {
+            width: 450px; height: 450px;
+            background: radial-gradient(circle at 30% 30%, #ff8a8a 0%, #a12828 40%, #2b0505 100%);
+            box-shadow: inset -40px -40px 80px rgba(0,0,0,0.8);
+            top: 110vh; left: 65%;
+        }
+
+        .v-green {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle at 30% 30%, #4cf0cf 0%, #108e75 50%, #032a22 100%);
+            box-shadow: inset -20px -20px 50px rgba(0,0,0,0.6);
+            top: 110vh; left: -10%;
+        }
+
+        .v-complex {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle at 30% 30%, #8fb3d6 0%, #2f4356 50%, #080b0e 100%);
+            box-shadow: inset -50px -50px 100px rgba(0,0,0,0.9);
+            top: 110vh; left: 75%;
+        }
+
+        /* --- Scroll Content --- */
+        .scroll-content {
+            position: relative;
+            z-index: 2;
+            padding-bottom: 20vh;
+        }
+
+        section {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 10vw;
+            position: relative;
+        }
+
+        .text-block {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        /* Initial state for first section */
+        .sec-1 .text-block { opacity: 1; transform: translateY(0); }
+
+        /* Layout variations */
+        .sec-1 { justify-content: flex-end; }
+        .sec-1 .text-block { margin-right: 5vw; max-width: 500px; }
+
+        .sec-2 { justify-content: flex-start; }
+        .sec-2 .text-block { margin-left: 5vw; max-width: 600px; }
+
+        .sec-3 { justify-content: center; text-align: center; }
+        .sec-3 .text-block { max-width: 500px; margin: 0 auto; }
+        .sec-3 h2 { font-size: 3.5rem; margin-bottom: 30px; }
+
+        .sec-4 { justify-content: flex-end; }
+        .sec-4 .text-block { margin-right: 10vw; }
+
+        .sec-5 { 
+            justify-content: space-between; 
+            align-items: flex-end;
+            padding-bottom: 10vh;
+        }
+        .sec-5 .col { width: 40%; }
+        .sec-5 h2 { font-size: 5rem; color: var(--accent); margin-bottom: 10px; }
+        .sec-5 .temp { font-family: 'Manrope'; font-size: 1.2rem; color: #fff; margin-bottom: 20px; display: block;}
+
+        /* --- UI Elements --- */
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 12px;
+            text-decoration: none;
+            transition: 0.3s;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .btn:hover { background: #fff; color: #000; }
+
+        .btn-primary {
+            background: var(--accent);
+            border: none;
+            color: #000;
+            font-weight: 700;
+        }
+        .btn-primary:hover { background: #fff; }
+
+        .progress-bar {
+            position: fixed;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 200px;
+            width: 1px;
+            background: rgba(255,255,255,0.1);
+            z-index: 100;
+        }
+        .progress-indicator {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 0%;
+            background: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header { padding: 20px; }
+            section { padding: 0 5vw; justify-content: center !important; text-align: center; }
+            .text-block { margin: 0 !important; max-width: 100% !important; }
+            .sec-5 { flex-direction: column; align-items: center; gap: 40px; }
+            .sec-5 .col { width: 100%; }
+            .sec-5 h2 { font-size: 3rem; }
+            .virus { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Grain Overlay -->
+    <div class="noise-overlay"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">MICRO.</div>
+        <div class="menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+        <div class="progress-indicator"></div>
+    </div>
+
+    <!-- Background Canvas -->
+    <div class="canvas-container">
+        <div class="virus v-main" data-speed="0.2"></div>
+        <div class="virus v-blur" data-speed="0.5"></div>
+        <div class="virus v-red" data-speed="0.3"></div>
+        <div class="virus v-green" data-speed="0.4"></div>
+        <div class="virus v-complex" data-speed="0.1"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="scroll-content">
+        
+        <section class="sec-1">
+            <div class="text-block">
+                <h1>The Invisible World</h1>
+                <p>Beneath the surface of our reality lies a universe teeming with life. Microscopic organisms dictate the rhythm of our existence, unseen yet omnipresent.</p>
+                <a href="#" class="btn">Explore Microcosm</a>
+            </div>
+        </section>
+
+        <section class="sec-2">
+            <div class="text-block">
+                <h2>Cellular Architecture</h2>
+                <p>Every organism is a masterpiece of engineering. From the lipid bilayer to the complex protein structures, nature's design is efficient, resilient, and endlessly fascinating.</p>
+                <p>Observe how the simplest forms create the most complex behaviors through emergent properties.</p>
+                <button class="btn btn-primary">Analyze Structure</button>
+            </div>
+        </section>
+
+        <section class="sec-3">
+            <div class="text-block">
+                <h2>Symbiosis & Conflict</h2>
+                <p>Life is a constant negotiation. Some entities work in harmony to sustain the host, while others invade, replicate, and transform the environment around them.</p>
+            </div>
+        </section>
+
+        <section class="sec-4">
+            <div class="text-block">
+                <h2>Mutation Vectors</h2>
+                <p>Change is the only constant. Genetic drift and environmental pressure force rapid adaptation. What survives today may be obsolete tomorrow.</p>
+                <a href="#" class="btn">View Data</a>
+            </div>
+        </section>
+
+        <section class="sec-5">
+            <div class="col text-block">
+                <h2>Rhinovirus</h2>
+                <span class="temp">33°C — 35°C</span>
+                <p>The most common viral infectious agent in humans. A master of disguise, evolving constantly to bypass our immune defenses.</p>
+            </div>
+            <div class="col text-block">
+                <p>Symptoms include sore throat, runny nose, nasal congestion, sneezing and coughing; sometimes accompanied by muscle aches, fatigue, malaise, headache, muscle weakness, or loss of appetite.</p>
+                <p>Fever and extreme exhaustion are more usual in influenza, distinguishing the common cold from more severe respiratory infections.</p>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 1. Progress Bar Logic
+        gsap.to(".progress-indicator", {
+            height: "100%",
+            scrollTrigger: {
+                trigger: "body",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: true
+            }
+        });
+
+        // 2. Mouse Parallax Effect (Subtle depth)
+        document.addEventListener("mousemove", (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 20;
+            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+            
+            gsap.to(".virus", {
+                x: x,
+                y: y,
+                duration: 2,
+                ease: "power2.out",
+                stagger: 0.1 // Different speeds for depth
+            });
+        });
+
+        // 3. Idle Floating Animation (Breathing effect)
+        const viruses = document.querySelectorAll('.virus');
+        viruses.forEach((v, i) => {
+            gsap.to(v, {
+                y: "+=20",
+                rotation: "+=5",
+                duration: 2 + (i * 0.5),
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+        });
+
+        // 4. Main Scroll Timeline
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".scroll-content",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1.5 // Heavy smoothness
+            }
+        });
+
+        // --- SECTION 1 TO 2 ---
+        tl.to(".sec-1 .text-block", { y: -100, opacity: 0, duration: 1 }, 0)
+          .to(".v-main", { 
+              top: "-20%", 
+              left: "60%", 
+              scale: 0.4, 
+              rotation: 45,
+              duration: 2 
+          }, 0)
+          .to(".v-blur", { top: "-30%", scale: 1.2, duration: 2 }, 0)
+          .to(".v-red", { top: "40%", left: "60%", duration: 2, ease: "power2.inOut" }, 0)
+          .to(".sec-2 .text-block", { y: 0, opacity: 1, duration: 1 }, 0.5);
+
+        // --- SECTION 2 TO 3 ---
+        tl.to(".sec-2 .text-block", { y: -100, opacity: 0, duration: 1 }, 1)
+          .to(".v-main", { top: "-100%", duration: 1 }, 1)
+          .to(".v-red", { top: "-20%", left: "80%", scale: 0.6, rotation: -90, duration: 2 }, 1)
+          .to(".v-green", { top: "30%", left: "20%", scale: 1.5, duration: 2 }, 1)
+          .to(".v-complex", { top: "60%", left: "60%", duration: 2 }, 1)
+          .to(".sec-3 .text-block", { y: 0, opacity: 1, duration: 1 }, 1.5);
+
+        // --- SECTION 3 TO 4 ---
+        tl.to(".sec-3 .text-block", { y: -100, opacity: 0, duration: 1 }, 2)
+          .to(".v-red", { top: "-150%", duration: 1 }, 2)
+          .to(".v-green", { top: "-10%", left: "-10%", scale: 0.8, rotation: 180, duration: 2 }, 2)
+          .to(".v-complex", { top: "20%", left: "50%", scale: 2, duration: 2 }, 2)
+          .to(".sec-4 .text-block", { y: 0, opacity: 1, duration: 1 }, 2.5);
+
+        // --- SECTION 4 TO 5 ---
+        tl.to(".sec-4 .text-block", { y: -100, opacity: 0, duration: 1 }, 3)
+          .to(".v-green", { top: "-100%", duration: 1 }, 3)
+          .to(".v-complex", { top: "10%", left: "30%", scale: 2.5, rotation: 360, duration: 2 }, 3)
+          .to(".sec-5 .text-block", { y: 0, opacity: 1, stagger: 0.2, duration: 1 }, 3.5);
+
+    </script>
+</body>
+</html>

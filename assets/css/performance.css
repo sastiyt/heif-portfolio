@@ -177,14 +177,8 @@ body > main { padding-top:clamp(30px,4vw,58px); }
 /* Fit the available page width, including browsers with a visible scrollbar. */
 html, body { min-width:0; }
 
-/* Prepare only off-screen cards, before their first reveal. No visible-to-hidden jump. */
-.reveal.visible.scroll-reveal-ready { opacity:0; transform:translateY(24px); transition:none; }
-@media(prefers-reduced-motion:reduce) {
- .reveal.visible.scroll-reveal-ready { opacity:1; transform:none; }
-}
-@media print {
- .reveal.visible.scroll-reveal-ready { opacity:1!important; transform:none!important; }
-}
+/* Old cached reveal classes must never leave content hidden. */
+.reveal.visible.scroll-reveal-ready { opacity:1; transform:none; }
 
 /* Navigation feedback is colour-only; keyboard focus stays clearly visible. */
 body > header nav ul li a::after { display:none; }
@@ -366,3 +360,19 @@ main .thumbnail a:focus-visible { outline:2px solid #fff; outline-offset:-3px; }
 @keyframes footer-bold-float { 0%,100%{transform:rotate(-5deg) translateY(0)} 50%{transform:rotate(-3deg) translateY(-3px)} }
 @keyframes footer-button-shine { 0%,64%{transform:translateX(-140%)} 90%,100%{transform:translateX(140%)} }
 @keyframes footer-arrow-nudge { 0%,65%,100%{transform:translate(0,0)} 78%{transform:translate(3px,-3px)} }
+
+/* Stable columns avoid fragmented image layers in Safari during scroll reveals. */
+.image-showcase .masonry-container.stable-masonry {
+ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); columns:auto;
+ gap:15px; align-items:start;
+}
+.stable-masonry > .gallery-column { display:flex; flex-direction:column; gap:15px; min-width:0; }
+.stable-masonry > .gallery-column > .image-item { display:block; flex:none; width:100%; max-width:100%; margin:0!important; box-sizing:border-box; }
+.stable-masonry img { display:block; width:100%; height:auto; }
+@media(max-width:900px) {
+ .image-showcase .masonry-container.stable-masonry { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:600px) {
+ .image-showcase .masonry-container.stable-masonry { gap:10px; }
+ .stable-masonry > .gallery-column { gap:10px; }
+}

@@ -1,9 +1,12 @@
 (() => {
  'use strict';
  const clearLoader=()=>document.documentElement.classList.remove('brand-loading');
- // Runs after the HTML is parsed; optional images and video never hold the loader.
- requestAnimationFrame(()=>requestAnimationFrame(clearLoader));
- window.addEventListener('pageshow',clearLoader);
+ // Stabilize the first text paint without waiting for gallery images or videos.
+ const fonts=['400 16px "Josefin Sans"','400 32px "Phonk Contrast"'];
+ if(document.getElementById('hero-heading')) fonts.push('300 48px "Halyard Display"','600 48px "Halyard Display"');
+ const ready=document.fonts?Promise.all(fonts.map(font=>document.fonts.load(font))).catch(()=>{}):Promise.resolve();
+ Promise.race([ready,new Promise(resolve=>setTimeout(resolve,1100))]).then(()=>requestAnimationFrame(clearLoader));
+ window.addEventListener('pageshow',event=>{if(event.persisted)clearLoader();});
  document.addEventListener('click',event=>{
   if(event.defaultPrevented || event.button!==0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   const link=event.target.closest('a[href]');

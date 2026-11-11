@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro. Interactive Scroll</title>
+
+    <!-- Google Fonts for typography matching -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- GSAP & ScrollTrigger CDNs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcfcfc;
+            color: #333;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: #4a4a4a;
+        }
+
+        /* Header / Nav */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 40px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none; /* Let clicks pass through empty areas */
+        }
+
+        .menu-icon {
+            width: 30px;
+            height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .menu-icon span {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background-color: #333;
+        }
+        .menu-icon span:nth-child(2) { width: 70%; }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ea5a5a;
+            pointer-events: auto;
+        }
+
+        /* Fixed 3D Canvas Container */
+        .canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Placeholders for Viruses - CSS 3D Spheres */
+        .virus {
+            position: absolute;
+            border-radius: 50%;
+            transform-origin: center center;
+        }
+
+        /* 1. Main Green/Yellow Virus */
+        .v-main {
+            width: 350px;
+            height: 350px;
+            top: 25%;
+            left: 20%;
+            background: radial-gradient(circle at 30% 30%, #e0f55b 0%, #68a018 30%, #153805 90%);
+            box-shadow: inset -20px -20px 40px rgba(0,0,0,0.5), 20px 20px 40px rgba(0,0,0,0.1);
+        }
+
+        /* 2. Foreground Blurred Yellow Virus */
+        .v-blur {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            left: 10%;
+            background: radial-gradient(circle at 30% 30%, #fff263 0%, #c1a110 50%, #544402 100%);
+            filter: blur(12px);
+            z-index: 5;
+        }
+
+        /* 3. Red Spiky Virus */
+        .v-red {
+            width: 400px;
+            height: 400px;
+            top: 100vh; /* Starts off-screen */
+            left: 60%;
+            background: radial-gradient(circle at 30% 30%, #f67272 0%, #a12828 40%, #3e0707 90%);
+            box-shadow: inset -30px -30px 50px rgba(0,0,0,0.6), 30px 30px 50px rgba(0,0,0,0.2);
+        }
+
+        /* 4. Small Green Bottom Virus */
+        .v-green {
+            width: 250px;
+            height: 250px;
+            top: 100vh; /* Starts off-screen */
+            left: -10%;
+            background: radial-gradient(circle at 35% 35%, #4cf0cf 0%, #108e75 50%, #032a22 100%);
+            box-shadow: inset -15px -15px 30px rgba(0,0,0,0.5), 15px 15px 30px rgba(0,0,0,0.1);
+        }
+
+        /* 5. Complex Geometric Virus */
+        .v-complex {
+            width: 350px;
+            height: 350px;
+            top: 100vh; /* Starts off-screen */
+            left: 70%;
+            background: radial-gradient(circle at 30% 30%, #6385a6 0%, #2f4356 40%, #10161d 90%);
+            box-shadow: inset -25px -25px 40px rgba(0,0,0,0.6), 20px 20px 40px rgba(0,0,0,0.2);
+        }
+
+        /* Scroll Content container */
+        .scroll-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Individual Sections */
+        section {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            padding: 0 10vw;
+            position: relative;
+        }
+
+        /* Typography & Layout within sections */
+        .text-block {
+            max-width: 400px;
+            opacity: 0; /* Handled by GSAP except first sec */
+            transform: translateY(30px);
+        }
+
+        .sec-1 .text-block {
+            opacity: 1;
+            transform: translateY(0);
+            margin-left: 55vw;
+        }
+
+        .sec-2 .text-block {
+            max-width: 600px;
+        }
+
+        .sec-3 .text-block {
+            margin-left: 50vw;
+            max-width: 400px;
+        }
+
+        .sec-4 .text-block {
+            margin-bottom: 20vh;
+        }
+
+        .sec-5 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sec-5 .text-left { max-width: 250px; }
+        .sec-5 .text-right { max-width: 350px; font-size: 13px; line-height: 1.8; color: #666; }
+
+        h1 { font-size: 48px; margin-bottom: 20px; }
+        h2 { font-size: 42px; margin-bottom: 25px; }
+        p { font-size: 14px; line-height: 1.8; color: #777; margin-bottom: 15px; }
+        
+        .cols {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 30px;
+            background-color: #3b71ca;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover { background-color: #2b569e; }
+        .btn-enter { background-color: #261689; border-radius: 0; padding: 15px 40px; }
+        
+        .link-text {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #999;
+            text-decoration: none;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="logo">Micro.</div>
+    </header>
+
+    <!-- 3D Background Elements Canvas -->
+    <div class="canvas-container">
+        <div class="virus v-main"></div>
+        <div class="virus v-blur"></div>
+        <div class="virus v-red"></div>
+        <div class="virus v-green"></div>
+        <div class="virus v-complex"></div>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="scroll-content">
+        <!-- Section 1 -->
+        <section class="sec-1">
+            <div class="text-block">
+                <h1>Magna Amet</h1>
+                <p>Tellus integer feugiat scelerisque varius morbi enim nunc. Arcu dictum varius duis at. Mattis nunc sed blandit libero volutpat sed cras ornare arcu. Urna cursus eget nunc scelerisque viverra. Gravida in fermentum et sollicitudin ac orci. Interdum velit laoreet id donec ultrices tincidunt arcu non.</p>
+            </div>
+        </section>
+
+        <!-- Section 2 -->
+        <section class="sec-2">
+            <div class="text-block">
+                <h2>Faucibus</h2>
+                <div class="cols">
+                    <p>Cras tincidunt lobortis feugiat vivamus at augue eget arcu dictum. Donec ultrices tincidunt arcu non sodales neque sodales ut etiam. Praesent elementum facilisis leo vel fringilla est. Adipiscing elit ut aliquam.</p>
+                    <p>Nisl rhoncus mattis rhoncus urna neque viverra justo nec. Commodo nulla facilisi nullam vehicula ipsum a. Interdum velit laoreet id donec ultrices tincidunt arcu non.</p>
+                </div>
+                <button class="btn">Learn More</button>
+            </div>
+        </section>
+
+        <!-- Section 3 -->
+        <section class="sec-3">
+            <div class="text-block">
+                <h2>Commodo Luctes facilisi crass nullam et cursus gravida</h2>
+                <p style="margin: 20px 0;">Commodo nulla facilisi nullam vehicula ipsum a. Euismod elementum nisi quis eleifend quam adipiscing vitae proin.</p>
+                <button class="btn btn-enter">ENTER</button>
+            </div>
+        </section>
+
+        <!-- Section 4 -->
+        <section class="sec-4">
+            <div class="text-block">
+                <h2>Varius vel pharetra</h2>
+                <p>Aliquam nibh cras pulvinar?</p>
+                <p style="font-size: 12px; margin-top: 20px;">Cras tincidunt lobortis feugiat vivamus at augue eget arcu dictum. Donec ultrices tincidunt arcu non sodales. Elementum facilisis leo vel fringilla est. Adipiscing elit ut aliquam purus sit amet luctus venenatis.</p>
+                <br>
+                <a href="#" class="link-text">CONTINUE LEARNING</a>
+            </div>
+        </section>
+
+        <!-- Section 5 -->
+        <section class="sec-5">
+            <div class="text-block text-left">
+                <h2>Cold Virus</h2>
+                <p>33 - 35 °C</p>
+                <p>91 - 95 °F</p>
+            </div>
+            <div class="text-block text-right">
+                <p>The Rhinovirus is the most common viral infectious agent in humans and is the predominant cause of the common cold. Rhinoviruses are spread worldwide and are the primary cause of the common cold.</p>
+                <p>Symptoms include sore throat, runny nose, nasal congestion, sneezing and coughing; sometimes accompanied by muscle aches, fatigue, malaise, headache, muscle weakness, or loss of appetite. Fever and extreme exhaustion are more usual in influenza.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Animation Logic -->
+    <script>
+        // Register GSAP ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Create a main timeline linked to the scroll of the entire page
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".scroll-content",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1 // Smooth scrubbing effect, 1 second lag
+            }
+        });
+
+        // -------------------------------------------------------------
+        // ANIMATION: SECTION 1 -> SECTION 2
+        // -------------------------------------------------------------
+        tl.to(".sec-1 .text-block", { y: -100, opacity: 0, duration: 1 }, 0)
+          
+          // Main virus shrinks and moves to top center
+          .to(".v-main", { top: "-10%", left: "40%", scale: 0.6, duration: 1 }, 0)
+          
+          // Blur virus parallax up very fast
+          .to(".v-blur", { top: "-50%", duration: 1 }, 0)
+          
+          // Red virus enters from bottom right to center right
+          .to(".v-red", { top: "35%", left: "55%", duration: 1, ease: "power1.inOut" }, 0)
+          
+          // Small green virus peaks from bottom left
+          .to(".v-green", { top: "75%", left: "10%", duration: 1 }, 0)
+          
+          // Section 2 text fades in
+          .to(".sec-2 .text-block", { y: 0, opacity: 1, duration: 0.5 }, 0.5);
+
+        // -------------------------------------------------------------
+        // ANIMATION: SECTION 2 -> SECTION 3
+        // -------------------------------------------------------------
+        tl.to(".sec-2 .text-block", { y: -100, opacity: 0, duration: 1 }, 1)
+          
+          // Main virus leaves screen top
+          .to(".v-main", { top: "-50%", duration: 1 }, 1)
+          
+          // Red virus moves top right and partially out
+          .to(".v-red", { top: "-10%", left: "70%", scale: 0.8, duration: 1 }, 1)
+          
+          // Green virus moves to center left and grows
+          .to(".v-green", { top: "25%", left: "15%", scale: 1.6, duration: 1 }, 1)
+          
+          // Complex virus enters from bottom right
+          .to(".v-complex", { top: "60%", left: "60%", duration: 1 }, 1)
+          
+          // Section 3 text fades in
+          .to(".sec-3 .text-block", { y: 0, opacity: 1, duration: 0.5 }, 1.5);
+
+        // -------------------------------------------------------------
+        // ANIMATION: SECTION 3 -> SECTION 4
+        // -------------------------------------------------------------
+        tl.to(".sec-3 .text-block", { y: -100, opacity: 0, duration: 1 }, 2)
+          
+          // Red virus leaves completely
+          .to(".v-red", { top: "-100%", duration: 1 }, 2)
+          
+          // Green virus moves to top left, shrinks slightly
+          .to(".v-green", { top: "-10%", left: "-5%", scale: 0.8, duration: 1 }, 2)
+          
+          // Complex virus becomes the massive center piece
+          .to(".v-complex", { top: "15%", left: "50%", scale: 2.2, duration: 1 }, 2)
+          
+          // Section 4 text fades in
+          .to(".sec-4 .text-block", { y: 0, opacity: 1, duration: 0.5 }, 2.5);
+
+        // -------------------------------------------------------------
+        // ANIMATION: SECTION 4 -> SECTION 5
+        // -------------------------------------------------------------
+        tl.to(".sec-4 .text-block", { y: -100, opacity: 0, duration: 1 }, 3)
+          
+          // Complex virus shifts to dead center
+          .to(".v-complex", { top: "25%", left: "35%", scale: 2.3, duration: 1 }, 3)
+          
+          // Section 5 text (Left and Right) fades in
+          .to(".sec-5 .text-left", { y: 0, opacity: 1, duration: 0.5 }, 3.5)
+          .to(".sec-5 .text-right", { y: 0, opacity: 1, duration: 0.5 }, 3.5);
+
+    </script>
+</body>
+</html>

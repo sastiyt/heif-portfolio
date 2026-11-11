@@ -11,6 +11,7 @@
  let width=0,height=0,frame=0,last=0,time=0,scroll=window.scrollY,target=scroll,dragging=false;
  const stars=Array.from({length:64},() => ({x:Math.random(),y:Math.random(),depth:.25+Math.random()*.75,r:.4+Math.random()*.75,phase:Math.random()*6.28}));
  const resize=() => {
+  if(width===innerWidth && height===innerHeight)return;
   width=innerWidth; height=innerHeight;
   const ratio=Math.min(devicePixelRatio || 1,1.5);
   canvas.width=Math.round(width*ratio); canvas.height=Math.round(height*ratio);
@@ -34,7 +35,8 @@
  };
  const start=() => { if (!frame && !document.hidden && !motion.matches && !dragging) frame=requestAnimationFrame(tick); };
  window.addEventListener('scroll',() => {target=window.scrollY;start();},{passive:true});
- window.addEventListener('resize',resize,{passive:true});
+ let resizeTimer;
+ window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(resize,160);},{passive:true});
  document.addEventListener('visibilitychange',start);
  motion.addEventListener('change',() => {document.documentElement.classList.toggle('mobile-galaxy',!motion.matches);start();});
  document.addEventListener('pointerdown',event => {if(event.target.closest('.compare')) dragging=true;},{passive:true});

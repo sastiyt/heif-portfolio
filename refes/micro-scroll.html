@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Micro. — Virology Interactive</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Unbounded:wght@200;400;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<style>
+:root {
+  --cream: #f5f0e8;
+  --ink: #1a1410;
+  --rust: #c44b2b;
+  --gold: #d4a843;
+  --sage: #3d5a3e;
+  --steel: #2d3d50;
+  --muted: #8a7f74;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: auto; }
+
+body {
+  font-family: 'DM Mono', monospace;
+  background-color: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ─────────────────────────────────── */
+#cursor {
+  position: fixed;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--rust);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width .2s, height .2s, background .2s;
+  mix-blend-mode: multiply;
+}
+#cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--rust);
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  opacity: .5;
+  transition: transform .12s ease-out, opacity .2s;
+}
+body:hover #cursor { opacity: 1; }
+
+/* ── GRAIN OVERLAY ─────────────────────────────────── */
+.grain {
+  position: fixed;
+  inset: -200%;
+  width: 400%; height: 400%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 200;
+  opacity: .55;
+  animation: grain 1.2s steps(2) infinite;
+}
+@keyframes grain {
+  0%,100%{transform:translate(0,0)}10%{transform:translate(-2%,-3%)}20%{transform:translate(3%,2%)}30%{transform:translate(-1%,4%)}40%{transform:translate(4%,-1%)}50%{transform:translate(-3%,3%)}60%{transform:translate(2%,-4%)}70%{transform:translate(-4%,1%)}80%{transform:translate(1%,-2%)}90%{transform:translate(3%,3%)}
+}
+
+/* ── HEADER ────────────────────────────────────────── */
+header {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  padding: 36px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.logo {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -.02em;
+  color: var(--rust);
+  pointer-events: auto;
+}
+
+nav {
+  display: flex;
+  gap: 36px;
+  pointer-events: auto;
+}
+nav a {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .3s;
+}
+nav a:hover { color: var(--ink); }
+
+/* Progress bar */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--rust);
+  z-index: 300;
+  width: 0%;
+  transition: width .05s;
+}
+
+/* Section labels */
+.section-label {
+  position: fixed;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+}
+.section-label span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+  transition: background .3s, border-color .3s;
+  cursor: pointer;
+}
+.section-label span.active {
+  background: var(--rust);
+  border-color: var(--rust);
+}
+
+/* ── VIRUS CANVAS ──────────────────────────────────── */
+.canvas-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Base virus styles */
+.virus {
+  position: absolute;
+  border-radius: 50%;
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* Spike ring using SVG filter + pseudo */
+.virus::before,
+.virus::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+/* v-main — sage green */
+.v-main {
+  width: 420px; height: 420px;
+  top: 22%; left: 14%;
+  background:
+    radial-gradient(circle at 28% 28%, #d6f072 0%, #7ab520 25%, #3a6b0a 60%, #0e2200 100%);
+  box-shadow:
+    inset -30px -30px 60px rgba(0,0,0,.55),
+    inset 10px 10px 30px rgba(255,255,255,.1),
+    40px 40px 80px rgba(60,100,0,.15);
+}
+.v-main::before {
+  inset: -18px;
+  background: radial-gradient(circle at 50% 50%, transparent 48%, rgba(120,180,20,.18) 50%, transparent 52%),
+    repeating-conic-gradient(rgba(150,200,20,.13) 0deg 6deg, transparent 6deg 12deg);
+  border-radius: 50%;
+  filter: blur(3px);
+}
+
+/* v-blur — amber haze */
+.v-blur {
+  width: 340px; height: 340px;
+  top: 48%; left: 8%;
+  background: radial-gradient(circle at 30% 28%, #ffe97a 0%, #c9960e 45%, #5a3e00 100%);
+  filter: blur(22px);
+  z-index: 5;
+  opacity: .85;
+}
+
+/* v-red — crimson */
+.v-red {
+  width: 480px; height: 480px;
+  top: 110vh; left: 55%;
+  background:
+    radial-gradient(circle at 28% 28%, #ff8a7a 0%, #b83020 38%, #3e0a05 90%);
+  box-shadow:
+    inset -35px -35px 65px rgba(0,0,0,.6),
+    inset 12px 12px 30px rgba(255,120,80,.15),
+    50px 50px 100px rgba(180,40,20,.2);
+}
+.v-red::before {
+  inset: -22px;
+  background: repeating-conic-gradient(rgba(220,60,30,.15) 0deg 5deg, transparent 5deg 10deg);
+  border-radius: 50%;
+  filter: blur(4px);
+}
+
+/* v-green — teal */
+.v-green {
+  width: 300px; height: 300px;
+  top: 110vh; left: -12%;
+  background: radial-gradient(circle at 32% 32%, #5dfad8 0%, #0e9e80 45%, #032a20 100%);
+  box-shadow:
+    inset -20px -20px 40px rgba(0,0,0,.5),
+    inset 8px 8px 20px rgba(100,250,200,.15),
+    25px 25px 55px rgba(10,120,90,.15);
+}
+
+/* v-complex — slate blue */
+.v-complex {
+  width: 420px; height: 420px;
+  top: 110vh; left: 65%;
+  background:
+    radial-gradient(circle at 30% 30%, #7fa4c8 0%, #304d6a 38%, #0c1822 90%);
+  box-shadow:
+    inset -30px -30px 55px rgba(0,0,0,.65),
+    inset 12px 12px 28px rgba(100,160,220,.1),
+    40px 40px 80px rgba(20,50,80,.2);
+}
+.v-complex::before {
+  inset: -25px;
+  background: repeating-conic-gradient(rgba(80,130,190,.12) 0deg 7.2deg, transparent 7.2deg 14.4deg);
+  border-radius: 50%;
+  filter: blur(5px);
+}
+
+/* Floating spikes on viruses */
+.spike-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 100%; height: 100%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ── SCROLL CONTENT ────────────────────────────────── */
+.scroll-content {
+  position: relative;
+  z-index: 2;
+}
+
+section {
+  height: 100vh; width: 100vw;
+  display: flex;
+  align-items: center;
+  padding: 0 10vw;
+  position: relative;
+}
+
+/* ── TEXT BLOCKS ───────────────────────────────────── */
+.text-block {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+/* Section 1 */
+.sec-1 .text-block {
+  opacity: 1;
+  transform: none;
+  margin-left: 50vw;
+  max-width: 440px;
+}
+
+.sec-1 h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 76px;
+  font-weight: 300;
+  line-height: .95;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin-bottom: 28px;
+}
+.sec-1 h1 em {
+  font-style: italic;
+  color: var(--rust);
+}
+.sec-1 p {
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 320px;
+}
+
+.scroll-hint {
+  margin-top: 48px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.scroll-hint-line {
+  width: 40px;
+  height: 1px;
+  background: var(--muted);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+  0%,100%{transform:scaleX(1);opacity:.5}50%{transform:scaleX(1.4);opacity:1}
+}
+
+/* Section 2 */
+.sec-2 .text-block { max-width: 560px; }
+.sec-2 h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 38px;
+  font-weight: 200;
+  letter-spacing: -.03em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 32px;
+}
+.sec-2 .cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+.sec-2 p {
+  font-size: 11px;
+  line-height: 1.85;
+  color: var(--muted);
+}
+
+/* Section 3 */
+.sec-3 .text-block {
+  margin-left: 52vw;
+  max-width: 400px;
+}
+.sec-3 h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+.sec-3 p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: var(--muted);
+  margin-bottom: 36px;
+}
+
+/* Section 4 */
+.sec-4 { align-items: flex-end; padding-bottom: 15vh; }
+.sec-4 .text-block { max-width: 380px; }
+.sec-4 h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 58px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.sec-4 .meta {
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 20px;
+}
+.sec-4 p {
+  font-size: 11px;
+  line-height: 1.85;
+  color: var(--muted);
+}
+
+/* Section 5 */
+.sec-5 {
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14vw;
+}
+.sec-5 .text-left { max-width: 260px; }
+.sec-5 .text-right { max-width: 360px; }
+.sec-5 h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 46px;
+  font-weight: 700;
+  line-height: .95;
+  letter-spacing: -.04em;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+.temp-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+}
+.temp-display span {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .1em;
+}
+.temp-display .big-temp {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 80px;
+  font-weight: 300;
+  color: var(--rust);
+  line-height: .9;
+  letter-spacing: -.03em;
+}
+.sec-5 .text-right p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.sec-5 .divider {
+  width: 30px; height: 1px;
+  background: var(--rust);
+  margin-bottom: 20px;
+  opacity: .5;
+}
+
+/* ── BUTTONS ───────────────────────────────────────── */
+.btn {
+  display: inline-block;
+  padding: 13px 36px;
+  background: var(--ink);
+  color: var(--cream);
+  border: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+  transition: color .3s;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--rust);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .35s cubic-bezier(.7,0,.3,1);
+}
+.btn:hover::after { transform: scaleX(1); }
+.btn span { position: relative; z-index: 1; }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+}
+.btn-outline::after { background: var(--ink); }
+.btn-outline:hover { color: var(--cream); }
+
+.link-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  transition: color .3s, gap .3s;
+}
+.link-text::after {
+  content: '→';
+  font-size: 12px;
+  transition: transform .3s;
+}
+.link-text:hover { color: var(--rust); gap: 20px; }
+.link-text:hover::after { transform: translateX(4px); }
+
+/* ── INTRO LOADER ──────────────────────────────────── */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+}
+#loader .l-logo {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: -.03em;
+}
+#loader .l-logo span { color: var(--rust); }
+#loader .l-bar {
+  width: 120px; height: 1px;
+  background: rgba(255,255,255,.15);
+  overflow: hidden;
+}
+#loader .l-fill {
+  height: 100%;
+  background: var(--rust);
+  width: 0%;
+}
+#loader .l-label {
+  font-size: 9px;
+  letter-spacing: .25em;
+  color: rgba(255,255,255,.3);
+  text-transform: uppercase;
+}
+
+/* ── FLOATING PARTICLES ────────────────────────────── */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: float linear infinite;
+}
+@keyframes float {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="l-logo">Micro<span>.</span></div>
+  <div class="l-bar"><div class="l-fill" id="lFill"></div></div>
+  <div class="l-label">Initializing virology</div>
+</div>
+
+<!-- Grain -->
+<div class="grain"></div>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Progress bar -->
+<div id="progress"></div>
+
+<!-- Section dots -->
+<nav class="section-label" id="secDots">
+  <span class="active" data-sec="0"></span>
+  <span data-sec="1"></span>
+  <span data-sec="2"></span>
+  <span data-sec="3"></span>
+  <span data-sec="4"></span>
+</nav>
+
+<!-- Header -->
+<header>
+  <div class="logo">Micro.</div>
+  <nav>
+    <a href="#">Organisms</a>
+    <a href="#">Research</a>
+    <a href="#">Index</a>
+  </nav>
+</header>
+
+<!-- Virus canvas -->
+<div class="canvas-container">
+  <div class="virus v-main"></div>
+  <div class="virus v-blur"></div>
+  <div class="virus v-red"></div>
+  <div class="virus v-green"></div>
+  <div class="virus v-complex"></div>
+
+  <!-- SVG spike overlays rendered per virus -->
+  <svg class="spike-ring" id="spikes-main" style="position:absolute;top:22%;left:14%;width:420px;height:420px;overflow:visible;pointer-events:none;"></svg>
+  <svg class="spike-ring" id="spikes-red"  style="position:absolute;top:110vh;left:55%;width:480px;height:480px;overflow:visible;pointer-events:none;"></svg>
+  <svg class="spike-ring" id="spikes-complex" style="position:absolute;top:110vh;left:65%;width:420px;height:420px;overflow:visible;pointer-events:none;"></svg>
+</div>
+
+<!-- Scroll content -->
+<div class="scroll-content">
+
+  <!-- ── Section 1 ── -->
+  <section class="sec-1">
+    <div class="text-block">
+      <h1>The<br><em>Invisible</em><br>World</h1>
+      <p>Virology at the intersection of science and wonder. Exploring the micro-organisms that have shaped human history — invisible, inevitable, extraordinary.</p>
+      <div class="scroll-hint">
+        <div class="scroll-hint-line"></div>
+        Scroll to explore
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Section 2 ── -->
+  <section class="sec-2">
+    <div class="text-block">
+      <h2>Structure &amp; Complexity</h2>
+      <div class="cols">
+        <p>A virus is a submicroscopic infectious agent that replicates only inside the living cells of an organism. Viruses infect all life forms, from animals and plants to microorganisms.</p>
+        <p>First identified in the late 19th century, viruses were initially defined as non-filterable infectious agents. Their structural complexity rivals that of the most intricate natural forms.</p>
+      </div>
+      <button class="btn"><span>Explore Structures</span></button>
+    </div>
+  </section>
+
+  <!-- ── Section 3 ── -->
+  <section class="sec-3">
+    <div class="text-block">
+      <h2>Form follows<br>function.</h2>
+      <p>Every spike, every protein layer, every geometric facet exists for a precise biological purpose. The architecture of a virus is an evolutionary masterwork of lethal efficiency.</p>
+      <button class="btn btn-outline"><span>Enter the archive</span></button>
+    </div>
+  </section>
+
+  <!-- ── Section 4 ── -->
+  <section class="sec-4">
+    <div class="text-block">
+      <div class="meta">Coronaviridae — 001</div>
+      <h2>Varius vel<br>pharetra</h2>
+      <p>The coronavirus surface is studded with glycoprotein spikes that bind to ACE2 receptors on host cells. These crown-like protrusions, for which the family is named, are the primary mechanism of entry and infection.</p>
+      <br><br>
+      <a href="#" class="link-text">Continue learning</a>
+    </div>
+  </section>
+
+  <!-- ── Section 5 ── -->
+  <section class="sec-5">
+    <div class="text-block text-left">
+      <h2>Cold<br>Virus</h2>
+      <div class="temp-display">
+        <div class="big-temp">33°</div>
+        <span>Celsius optimal replication</span>
+        <span style="margin-top:6px">91 – 95 °F</span>
+      </div>
+    </div>
+    <div class="text-block text-right">
+      <div class="divider"></div>
+      <p>The <em>Rhinovirus</em> is the most common viral infectious agent in humans and the predominant cause of the common cold. Spread worldwide, it thrives at temperatures slightly below core body temperature — which is why nasal passages, cooler by a few degrees, are its preferred habitat.</p>
+      <p>Symptoms include sore throat, runny nose, nasal congestion, sneezing and coughing — sometimes accompanied by muscle aches, fatigue, malaise, or headache. Fever and extreme exhaustion are more characteristic of influenza.</p>
+      <a href="#" class="link-text">Read the full entry</a>
+    </div>
+  </section>
+
+</div><!-- /.scroll-content -->
+
+<script>
+// ── CURSOR ──────────────────────────────────────────
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animCursor() {
+  rx += (mx - rx) * .12;
+  ry += (my - ry) * .12;
+  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+})();
+document.querySelectorAll('a, button, .section-label span').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cur.style.width = '20px'; cur.style.height = '20px'; cur.style.background = 'var(--rust)';
+    ring.style.opacity = '0';
+  });
+  el.addEventListener('mouseleave', () => {
+    cur.style.width = '12px'; cur.style.height = '12px';
+    ring.style.opacity = '.5';
+  });
+});
+
+// ── SVG SPIKES ───────────────────────────────────────
+function drawSpikes(svgId, r, count, spikeLen, color) {
+  const svg = document.getElementById(svgId);
+  const cx = r, cy = r;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2;
+    const x1 = cx + Math.cos(angle) * r;
+    const y1 = cy + Math.sin(angle) * r;
+    const x2 = cx + Math.cos(angle) * (r + spikeLen);
+    const y2 = cy + Math.sin(angle) * (r + spikeLen);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', '2.5');
+    line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('opacity', '0.45');
+    svg.appendChild(line);
+    // Bulb at tip
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', x2); circle.setAttribute('cy', y2);
+    circle.setAttribute('r', '4.5');
+    circle.setAttribute('fill', color);
+    circle.setAttribute('opacity', '0.35');
+    svg.appendChild(circle);
+  }
+}
+drawSpikes('spikes-main', 210, 22, 32, '#8fc820');
+drawSpikes('spikes-red', 240, 28, 38, '#e05040');
+drawSpikes('spikes-complex', 210, 18, 28, '#6090c0');
+
+// ── LOADER ───────────────────────────────────────────
+const loader = document.getElementById('loader');
+const lFill = document.getElementById('lFill');
+gsap.to(lFill, { width: '100%', duration: 1.6, ease: 'power2.inOut', onComplete: () => {
+  gsap.to(loader, { opacity: 0, duration: .6, delay: .2, onComplete: () => loader.remove() });
+}});
+
+// ── PROGRESS BAR ─────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+});
+
+// ── SECTION DOTS ─────────────────────────────────────
+const dots = document.querySelectorAll('.section-label span');
+const sections = document.querySelectorAll('section');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      const idx = [...sections].indexOf(e.target);
+      dots.forEach(d => d.classList.remove('active'));
+      if(dots[idx]) dots[idx].classList.add('active');
+    }
+  });
+}, { threshold: 0.5 });
+sections.forEach(s => obs.observe(s));
+dots.forEach((d, i) => {
+  d.addEventListener('click', () => sections[i].scrollIntoView({ behavior: 'smooth' }));
+});
+
+// ── GSAP SCROLL ANIMATIONS ───────────────────────────
+gsap.registerPlugin(ScrollTrigger);
+
+const tl = gsap.timeline({
+  scrollTrigger: {
+    trigger: ".scroll-content",
+    start: "top top",
+    end: "bottom bottom",
+    scrub: 1.2
+  }
+});
+
+// Sync spike SVGs with their virus counterparts
+ScrollTrigger.create({
+  trigger: ".scroll-content",
+  start: "top top",
+  end: "bottom bottom",
+  scrub: 1.2,
+  onUpdate: self => {
+    // keep spike rings in sync
+    const rm = document.querySelector('.v-main').getBoundingClientRect();
+    const svg1 = document.getElementById('spikes-main');
+    svg1.style.top = (parseFloat(getComputedStyle(document.querySelector('.v-main')).top)) + 'px';
+  }
+});
+
+// ─ SEC 1 → SEC 2
+tl.to(".sec-1 .text-block", { y: -80, opacity: 0, duration: 1 }, 0)
+  .to(".v-main", { top: "-5%", left: "42%", scale: 0.55, duration: 1 }, 0)
+  .to("#spikes-main", { top: "-5%", left: "42%", scale: 0.55, duration: 1 }, 0)
+  .to(".v-blur", { top: "-55%", opacity: 0, duration: 1 }, 0)
+  .to(".v-red", { top: "30%", left: "52%", duration: 1, ease: "power2.inOut" }, 0)
+  .to("#spikes-red", { top: "30%", left: "52%", duration: 1 }, 0)
+  .to(".v-green", { top: "72%", left: "8%", duration: 1 }, 0)
+  .to(".sec-2 .text-block", { y: 0, opacity: 1, duration: 0.6 }, 0.5);
+
+// ─ SEC 2 → SEC 3
+tl.to(".sec-2 .text-block", { y: -80, opacity: 0, duration: 1 }, 1)
+  .to(".v-main", { top: "-60%", duration: 1 }, 1)
+  .to("#spikes-main", { top: "-60%", duration: 1 }, 1)
+  .to(".v-red", { top: "-8%", left: "68%", scale: 0.75, duration: 1 }, 1)
+  .to("#spikes-red", { top: "-8%", left: "68%", scale: 0.75, duration: 1 }, 1)
+  .to(".v-green", { top: "22%", left: "12%", scale: 1.5, duration: 1 }, 1)
+  .to(".v-complex", { top: "55%", left: "58%", duration: 1 }, 1)
+  .to("#spikes-complex", { top: "55%", left: "58%", duration: 1 }, 1)
+  .to(".sec-3 .text-block", { y: 0, opacity: 1, duration: 0.6 }, 1.5);
+
+// ─ SEC 3 → SEC 4
+tl.to(".sec-3 .text-block", { y: -80, opacity: 0, duration: 1 }, 2)
+  .to(".v-red", { top: "-110%", duration: 1 }, 2)
+  .to(".v-green", { top: "-8%", left: "-6%", scale: 0.75, duration: 1 }, 2)
+  .to(".v-complex", { top: "12%", left: "48%", scale: 2.0, duration: 1 }, 2)
+  .to("#spikes-complex", { top: "12%", left: "48%", scale: 2.0, duration: 1 }, 2)
+  .to(".sec-4 .text-block", { y: 0, opacity: 1, duration: 0.6 }, 2.5);
+
+// ─ SEC 4 → SEC 5
+tl.to(".sec-4 .text-block", { y: -80, opacity: 0, duration: 1 }, 3)
+  .to(".v-complex", { top: "20%", left: "30%", scale: 2.2, duration: 1 }, 3)
+  .to("#spikes-complex", { top: "20%", left: "30%", scale: 2.2, duration: 1 }, 3)
+  .to(".v-green", { top: "65%", left: "-15%", scale: 0.6, duration: 1 }, 3)
+  .to(".sec-5 .text-left", { y: 0, opacity: 1, duration: 0.6 }, 3.5)
+  .to(".sec-5 .text-right", { y: 0, opacity: 1, duration: 0.6, delay: 0.1 }, 3.5);
+
+// ── VIRUS IDLE ROTATION ───────────────────────────────
+gsap.to(".v-main", { rotation: 360, duration: 60, repeat: -1, ease: "none" });
+gsap.to(".v-red",  { rotation: -360, duration: 45, repeat: -1, ease: "none" });
+gsap.to(".v-complex", { rotation: 360, duration: 80, repeat: -1, ease: "none" });
+gsap.to(".v-green",   { rotation: -360, duration: 50, repeat: -1, ease: "none" });
+
+// ── PARALLAX MOUSE ────────────────────────────────────
+document.addEventListener('mousemove', e => {
+  const xPct = (e.clientX / window.innerWidth - 0.5);
+  const yPct = (e.clientY / window.innerHeight - 0.5);
+  gsap.to(".v-main", { x: xPct * 24, y: yPct * 18, duration: 1.5, ease: "power2.out", overwrite: 'auto' });
+  gsap.to(".v-red",  { x: xPct * -18, y: yPct * -14, duration: 1.8, ease: "power2.out", overwrite: 'auto' });
+  gsap.to(".v-complex", { x: xPct * 14, y: yPct * 20, duration: 2, ease: "power2.out", overwrite: 'auto' });
+});
+
+</script>
+</body>
+</html>

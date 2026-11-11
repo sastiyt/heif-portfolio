@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Tools Showcase</title>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Unbounded:wght@200;400;700&display=swap" rel="stylesheet">
+
+<!-- GSAP & ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<style>
+:root {
+  --bg-color: #050505;
+  --cream: #f5f0e8;
+  --ink: #1a1410;
+  --rust: #ff453a;
+  --gold: #d4a843;
+  --muted: #8a8a93;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body {
+  font-family: 'DM Mono', monospace;
+  background-color: var(--bg-color);
+  color: var(--cream);
+  overflow-x: hidden;
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── CUSTOM CURSOR ─────────────────────────────────── */
+#cursor {
+  position: fixed;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--cream);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width .2s, height .2s, background .2s;
+  mix-blend-mode: difference;
+}
+#cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.5);
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  opacity: .5;
+  transition: transform .12s ease-out, opacity .2s;
+}
+body:hover #cursor { opacity: 1; }
+
+/* ── GRAIN OVERLAY ─────────────────────────────────── */
+.grain {
+  position: fixed;
+  inset: -200%;
+  width: 400%; height: 400%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 200;
+  opacity: .8;
+  animation: grain 1.2s steps(2) infinite;
+}
+@keyframes grain {
+  0%,100%{transform:translate(0,0)}10%{transform:translate(-2%,-3%)}20%{transform:translate(3%,2%)}30%{transform:translate(-1%,4%)}40%{transform:translate(4%,-1%)}50%{transform:translate(-3%,3%)}60%{transform:translate(2%,-4%)}70%{transform:translate(-4%,1%)}80%{transform:translate(1%,-2%)}90%{transform:translate(3%,3%)}
+}
+
+/* ── HEADER ────────────────────────────────────────── */
+header {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  padding: 36px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.logo {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -.02em;
+  color: var(--cream);
+  pointer-events: auto;
+}
+
+/* Progress bar */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--cream);
+  z-index: 300;
+  width: 0%;
+  transition: width .05s;
+}
+
+/* Section labels */
+.section-label {
+  position: fixed;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+}
+.section-label span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+  transition: background .3s, border-color .3s;
+  cursor: pointer;
+}
+.section-label span.active {
+  background: var(--cream);
+  border-color: var(--cream);
+}
+
+/* ── 3D CANVAS ─────────────────────────────────────── */
+.canvas-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+  perspective: 1000px;
+}
+
+.icon-3d {
+  position: absolute;
+  transform-origin: center center;
+  will-change: transform, top, left, opacity;
+  transform-style: preserve-3d;
+}
+
+.icon-3d img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
+}
+
+/* Initial sizing and off-screen positions */
+#icon-ps  { width: 400px; top: 110vh; left: 60%; }
+#icon-ai  { width: 350px; top: -50%; left: 10%; }
+#icon-ae  { width: 380px; top: 110vh; left: -10%; }
+#icon-pr  { width: 420px; top: 110vh; left: 70%; }
+#icon-dr  { width: 380px; top: 40%; left: 110vw; }
+#icon-fcp { width: 450px; top: 110vh; left: 50%; }
+
+/* ── SCROLL CONTENT ────────────────────────────────── */
+.scroll-content {
+  position: relative;
+  z-index: 2;
+}
+
+section {
+  height: 100vh; width: 100vw;
+  display: flex;
+  align-items: center;
+  padding: 0 10vw;
+  position: relative;
+}
+
+.text-block {
+  opacity: 0;
+  transform: translateY(40px);
+  background: rgba(10, 10, 10, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.sec-intro .text-block { opacity: 1; transform: none; margin-left: 5vw; max-width: 500px; }
+.sec-ps .text-block { margin-left: 5vw; max-width: 500px; }
+.sec-ai .text-block { margin-left: auto; max-width: 500px; }
+.sec-ae .text-block { margin-left: 5vw; max-width: 500px; margin-top: 15vh; }
+.sec-pr .text-block { margin-left: auto; max-width: 500px; margin-bottom: 10vh; }
+.sec-dr .text-block { margin-left: 5vw; max-width: 500px; }
+.sec-fcp .text-block { margin: 0 auto; max-width: 600px; text-align: center; }
+
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 72px;
+  font-weight: 300;
+  line-height: .95;
+  letter-spacing: -.02em;
+  color: var(--cream);
+  margin-bottom: 24px;
+}
+h1 em { font-style: italic; color: var(--rust); }
+
+h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 42px;
+  font-weight: 200;
+  letter-spacing: -.03em;
+  line-height: 1.1;
+  color: var(--cream);
+  margin-bottom: 20px;
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.meta {
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: #fff;
+  opacity: 0.6;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.scroll-hint {
+  margin-top: 48px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.scroll-hint-line {
+  width: 40px; height: 1px;
+  background: var(--muted);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+  0%,100%{transform:scaleX(1);opacity:.5}50%{transform:scaleX(1.4);opacity:1}
+}
+
+/* ── BUTTONS ───────────────────────────────────────── */
+.btn {
+  display: inline-block;
+  padding: 13px 36px;
+  background: var(--cream);
+  color: var(--bg-color);
+  border: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+  transition: color .3s, transform .3s;
+  font-weight: bold;
+  margin-top: 10px;
+  text-decoration: none;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--rust);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .35s cubic-bezier(.7,0,.3,1);
+}
+.btn:hover::after { transform: scaleX(1); }
+.btn span { position: relative; z-index: 1; }
+.btn:hover { color: #fff; }
+
+/* ── INTRO LOADER ──────────────────────────────────── */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-color);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+}
+#loader .l-logo {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: -.03em;
+}
+#loader .l-bar {
+  width: 150px; height: 1px;
+  background: rgba(255,255,255,.15);
+  overflow: hidden;
+}
+#loader .l-fill {
+  height: 100%;
+  background: var(--cream);
+  width: 0%;
+}
+
+</style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="l-logo">CREATOR PRO</div>
+  <div class="l-bar"><div class="l-fill" id="lFill"></div></div>
+</div>
+
+<!-- Grain -->
+<div class="grain"></div>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Progress bar -->
+<div id="progress"></div>
+
+<!-- Section dots -->
+<nav class="section-label" id="secDots">
+  <span class="active" data-sec="0"></span>
+  <span data-sec="1"></span>
+  <span data-sec="2"></span>
+  <span data-sec="3"></span>
+  <span data-sec="4"></span>
+  <span data-sec="5"></span>
+  <span data-sec="6"></span>
+</nav>
+
+<!-- Header -->
+<header>
+  <div class="logo">Creator Pro.</div>
+</header>
+
+<!-- 3D Icons Canvas -->
+<div class="canvas-container">
+  <div class="icon-3d" id="icon-ps"><img src="assets/img/3d/ps.png" alt="Photoshop"></div>
+  <div class="icon-3d" id="icon-ai"><img src="assets/img/3d/ai.png" alt="Illustrator"></div>
+  <div class="icon-3d" id="icon-ae"><img src="assets/img/3d/ae.png" alt="After Effects"></div>
+  <div class="icon-3d" id="icon-pr"><img src="assets/img/3d/pr.png" alt="Premiere Pro"></div>
+  <div class="icon-3d" id="icon-dr"><img src="assets/img/3d/dr.png" alt="DaVinci Resolve"></div>
+  <div class="icon-3d" id="icon-fcp"><img src="assets/img/3d/fcp.png" alt="Final Cut Pro"></div>
+</div>
+
+<!-- Scroll Content -->
+<div class="scroll-content">
+
+  <!-- Intro -->
+  <section class="sec-intro">
+    <div class="text-block">
+      <h1>The<br><em>Creative</em><br>Arsenal</h1>
+      <p>A journey through the industry's most powerful creative applications. Visualized in stunning 3D dimensionality, these tools empower global artists to shape reality.</p>
+      <div class="scroll-hint">
+        <div class="scroll-hint-line"></div>
+        Scroll to interact
+      </div>
+    </div>
+  </section>
+
+  <!-- Photoshop -->
+  <section class="sec-ps">
+    <div class="text-block">
+      <span class="meta">Raster Editor — 001</span>
+      <h2>Photoshop</h2>
+      <p>The industry standard in digital imaging. Featuring advanced layer manipulation, deep masking capabilities, and unparalleled creative freedom. A blue crystalline structure reflecting infinite possibilities.</p>
+      <a href="#" class="btn"><span>Discover Layers</span></a>
+    </div>
+  </section>
+
+  <!-- Illustrator -->
+  <section class="sec-ai">
+    <div class="text-block">
+      <span class="meta">Vector Graphics — 002</span>
+      <h2>Illustrator</h2>
+      <p>Precision vector graphics. Powered by elegant bezier curves and perfectly sharp paths that scale infinitely. An amber beacon of pure vector geometry, surrounded by golden nodes of control.</p>
+      <a href="#" class="btn"><span>View Paths</span></a>
+    </div>
+  </section>
+
+  <!-- After Effects -->
+  <section class="sec-ae">
+    <div class="text-block">
+      <span class="meta">Motion Graphics — 003</span>
+      <h2>After Effects</h2>
+      <p>Cinematic visual effects and motion graphics design. This is where static layers come alive in multidimensional space. Surrounded by purple energy rings that warp reality and bend time.</p>
+      <a href="#" class="btn"><span>Animate Space</span></a>
+    </div>
+  </section>
+
+  <!-- Premiere Pro -->
+  <section class="sec-pr">
+    <div class="text-block">
+      <span class="meta">Non-Linear Editing — 004</span>
+      <h2>Premiere Pro</h2>
+      <p>The supreme timeline. Crafting raw footage into compelling narratives with seamless transitions. Glowing with the neon pink of digital filmstrips, rendering your vision block by block.</p>
+      <a href="#" class="btn"><span>Edit Timeline</span></a>
+    </div>
+  </section>
+
+  <!-- DaVinci Resolve -->
+  <section class="sec-dr">
+    <div class="text-block">
+      <span class="meta">Color Grading — 005</span>
+      <h2>DaVinci Resolve</h2>
+      <p>Hollywood's premier color grading and professional non-linear editing suite. Powered by an advanced node-based architecture. A spectrum of RGB chromatic brilliance suspended in pristine cinematic space.</p>
+      <a href="#" class="btn"><span>Grade Color</span></a>
+    </div>
+  </section>
+
+  <!-- Final Cut Pro -->
+  <section class="sec-fcp">
+    <div class="text-block">
+      <span class="meta">Magnetic Timeline — 006</span>
+      <h2>Final Cut Pro</h2>
+      <p>Magnetic timeline efficiency and blistering Apple Silicon performance. Designed for the modern Mac ecosystem. A golden clapperboard shattered by a rainbow lens, optimizing every frame for maximum impact.</p>
+      <a href="#" class="btn" style="background:#222; color:#fff;"><span>Render Project</span></a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// ── INTRO LOADER ──────────────────────────────────────────
+const lFill = document.getElementById('lFill');
+gsap.to(lFill, { width: '100%', duration: 1.5, ease: 'power2.inOut', onComplete: () => {
+  gsap.to('#loader', { opacity: 0, duration: 0.8, delay: 0.2, onComplete: () => document.getElementById('loader').remove() });
+}});
+
+// ── SCROLL PROGRESS ───────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+});
+
+// ── CUSTOM CURSOR ─────────────────────────────────────────
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = window.innerWidth / 2, my = window.innerHeight / 2, rx = mx, ry = my;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animCursor() {
+  rx += (mx - rx) * .12;
+  ry += (my - ry) * .12;
+  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+})();
+document.querySelectorAll('a, button, .section-label span').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cur.style.transform = 'translate(-50%, -50%) scale(1.5)';
+    ring.style.opacity = '0';
+  });
+  el.addEventListener('mouseleave', () => {
+    cur.style.transform = 'translate(-50%, -50%) scale(1)';
+    ring.style.opacity = '.5';
+  });
+});
+
+// ── SECTION DOTS ──────────────────────────────────────────
+const dots = document.querySelectorAll('.section-label span');
+const sections = document.querySelectorAll('section');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      const idx = [...sections].indexOf(e.target);
+      dots.forEach(d => d.classList.remove('active'));
+      if(dots[idx]) dots[idx].classList.add('active');
+    }
+  });
+}, { threshold: 0.5 });
+sections.forEach(s => obs.observe(s));
+dots.forEach((d, i) => {
+  d.addEventListener('click', () => sections[i].scrollIntoView({ behavior: 'smooth' }));
+});
+
+// ── PARALLAX FLOAT ENGINE ─────────────────────────────────
+const icons = document.querySelectorAll('.icon-3d');
+icons.forEach((icon, i) => {
+  // Idle floating
+  gsap.to(icon, {
+    y: '+=25',
+    rotationX: '+=4',
+    rotationY: '+=4',
+    duration: 3 + (i % 3),
+    repeat: -1,
+    yoyo: true,
+    ease: "sine.inOut"
+  });
+});
+
+document.addEventListener('mousemove', e => {
+  const xPct = (e.clientX / window.innerWidth - 0.5);
+  const yPct = (e.clientY / window.innerHeight - 0.5);
+  icons.forEach((icon, i) => {
+    const factor = (i % 2 === 0) ? -20 : 20;
+    gsap.to(icon, {
+      x: xPct * factor * 1.5,
+      y: yPct * factor * 1.5,
+      duration: 1.5,
+      ease: "power2.out",
+      overwrite: "auto"
+    });
+  });
+});
+
+// ── SCROLL ANIMATIONS (GSAP) ─────────────────────────────
+gsap.registerPlugin(ScrollTrigger);
+const tl = gsap.timeline({
+  scrollTrigger: {
+    trigger: ".scroll-content",
+    start: "top top",
+    end: "bottom bottom",
+    scrub: 1.2
+  }
+});
+
+// Init main state for icons
+// Setup the initial layout before scroll
+gsap.set("#icon-ps", { scale: 0.8, rotationZ: 15 });
+gsap.set("#icon-ai", { scale: 0.6, rotationZ: -15 });
+gsap.set("#icon-ae", { scale: 1.1, rotationZ: -5 });
+gsap.set("#icon-pr", { scale: 0.9, rotationZ: 10 });
+gsap.set("#icon-dr", { scale: 1.2, rotationZ: -10 });
+gsap.set("#icon-fcp", { scale: 0.8, rotationZ: 5 });
+
+// INTRO -> PS
+tl.to(".sec-intro .text-block", { y: -80, opacity: 0, duration: 1 }, 0)
+  // Bring PS in
+  .to("#icon-ps", { top: "15%", left: "50%", scale: 1.2, rotationZ: 0, duration: 1.2 }, 0)
+  .to(".sec-ps .text-block", { y: 0, opacity: 1, duration: 0.8 }, 0.5);
+
+// PS -> AI
+tl.to(".sec-ps .text-block", { y: -80, opacity: 0, duration: 1 }, 1.5)
+  // Move PS out
+  .to("#icon-ps", { top: "-50%", left: "40%", scale: 0.5, rotationZ: -20, duration: 1.2 }, 1.5)
+  // Bring AI in
+  .to("#icon-ai", { top: "20%", left: "15%", scale: 1.4, rotationZ: 5, duration: 1.2 }, 1.5)
+  .to(".sec-ai .text-block", { y: 0, opacity: 1, duration: 0.8 }, 2.0);
+
+// AI -> AE
+tl.to(".sec-ai .text-block", { y: -80, opacity: 0, duration: 1 }, 3.0)
+  // Move AI out
+  .to("#icon-ai", { top: "-30%", left: "-10%", scale: 0.4, rotationZ: -10, duration: 1.2 }, 3.0)
+  // Bring AE in
+  .to("#icon-ae", { top: "10%", left: "55%", scale: 1.3, rotationZ: -8, duration: 1.2 }, 3.0)
+  .to(".sec-ae .text-block", { y: 0, opacity: 1, duration: 0.8 }, 3.5);
+
+// AE -> PR
+tl.to(".sec-ae .text-block", { y: -80, opacity: 0, duration: 1 }, 4.5)
+  // Move AE out
+  .to("#icon-ae", { top: "80%", left: "80%", scale: 0.5, rotationZ: 20, duration: 1.2 }, 4.5)
+  // Bring PR in
+  .to("#icon-pr", { top: "30%", left: "15%", scale: 1.5, rotationZ: 5, duration: 1.2 }, 4.5)
+  .to(".sec-pr .text-block", { y: 0, opacity: 1, duration: 0.8 }, 5.0);
+
+// PR -> DR
+tl.to(".sec-pr .text-block", { y: -80, opacity: 0, duration: 1 }, 6.0)
+  // Move PR out
+  .to("#icon-pr", { top: "-20%", left: "20%", scale: 0.6, rotationZ: -15, duration: 1.2 }, 6.0)
+  // Bring DR in
+  .to("#icon-dr", { top: "25%", left: "55%", scale: 1.3, rotationZ: 0, duration: 1.2 }, 6.0)
+  .to(".sec-dr .text-block", { y: 0, opacity: 1, duration: 0.8 }, 6.5);
+
+// DR -> FCP
+tl.to(".sec-dr .text-block", { y: -80, opacity: 0, duration: 1 }, 7.5)
+  // Move DR out
+  .to("#icon-dr", { top: "110vh", left: "60%", scale: 0.8, rotationZ: 20, duration: 1.2 }, 7.5)
+  // Bring FCP in
+  .to("#icon-fcp", { top: "15%", left: "30%", scale: 1.6, rotationZ: -5, duration: 1.2 }, 7.5)
+  .to(".sec-fcp .text-block", { y: 0, opacity: 1, duration: 0.8 }, 8.0);
+
+</script>
+</body>
+</html>

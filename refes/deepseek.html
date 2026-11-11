@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Micro. • enhanced scroll narrative</title>
+
+  <!-- Google Fonts: refined serif/sans pairing -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- GSAP & ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #f3f5f7 0%, #fefefe 100%);
+      color: #1e1e2f;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #162b32;
+    }
+
+    /* ---- fixed canvas (3D virus garden) ---- */
+    .canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+      overflow: visible;
+      filter: drop-shadow(0 20px 30px rgba(0,20,10,0.15));
+      will-change: transform;
+    }
+
+    /* base virus style with organic inner structure */
+    .virus {
+      position: absolute;
+      border-radius: 50%;
+      transform-origin: center center;
+      will-change: transform, top, left, filter;
+      backface-visibility: hidden;
+      box-shadow: 
+        inset -25px -25px 40px rgba(0,0,0,0.3),
+        inset 15px 15px 30px rgba(255,255,255,0.4),
+        0 30px 40px -15px rgba(0,20,10,0.5);
+      transition: box-shadow 0.2s;
+    }
+
+    /* spiky appendages via pseudo-elements (non‑invasive, only for detail) */
+    .virus::before {
+      content: "";
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,240,0.25) 0%, transparent 60%);
+      filter: blur(3px);
+      z-index: -1;
+    }
+
+    .virus::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 110%;
+      height: 110%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.3) 0%, transparent 70%);
+      mix-blend-mode: overlay;
+      pointer-events: none;
+    }
+
+    /* individual virus personalities */
+    .v-main {
+      width: 380px; height: 380px;
+      top: 20%; left: 18%;
+      background: radial-gradient(circle at 30% 35%, #e9ff7a 5%, #5f8b2c 40%, #1f4a1a 90%);
+      box-shadow: 
+        inset -30px -30px 50px #1d3b12,
+        inset 20px 20px 40px #e2ffb0,
+        0 30px 45px -10px #2f4d2e;
+    }
+
+    .v-blur {
+      width: 340px; height: 340px;
+      top: 45%; left: 5%;
+      background: radial-gradient(circle at 40% 30%, #fffbb0, #d9b421 45%, #695017 90%);
+      filter: blur(16px) drop-shadow(0 0 10px rgba(255,215,0,0.3));
+      opacity: 0.9;
+      mix-blend-mode: soft-light;
+    }
+
+    .v-red {
+      width: 420px; height: 420px;
+      top: 100vh; left: 55%;
+      background: radial-gradient(circle at 35% 30%, #ff9494 0%, #b13030 45%, #4a1010 95%);
+      box-shadow: 
+        inset -35px -35px 60px #3f0f0f,
+        inset 20px 20px 40px #ffc2c2,
+        0 40px 55px -10px #a13030;
+    }
+
+    .v-green {
+      width: 280px; height: 280px;
+      top: 100vh; left: -5%;
+      background: radial-gradient(circle at 30% 35%, #80f0d0, #177e63 50%, #033c2c 95%);
+      box-shadow: 
+        inset -20px -20px 40px #033c2c,
+        inset 18px 18px 30px #b0fff0,
+        0 30px 45px -10px #1b6b53;
+    }
+
+    .v-complex {
+      width: 400px; height: 400px;
+      top: 100vh; left: 70%;
+      background: radial-gradient(circle at 40% 25%, #9ac0d9, #315d7c 50%, #122b38 95%);
+      box-shadow: 
+        inset -30px -30px 50px #0f2938,
+        inset 25px 25px 45px #badeff,
+        0 40px 55px -10px #2a4b66;
+    }
+
+    /* floating animation (subtle, doesn’t interfere with GSAP transforms) */
+    @keyframes levitate {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(2deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
+    }
+    .canvas-container .virus {
+      animation: levitate 12s infinite ease-in-out;
+      animation-play-state: running;
+    }
+    /* pause levitate while scrolling to keep full control, then resume? we’ll keep subtle – GSAP will override transform but still affect? we remove levitate on scroll via JS? simpler: remove animation from class, GSAP handles motion */
+    /* I'll remove keyframe from final code to avoid conflict. Instead rely on GSAP for all dynamic movement. */
+
+    /* ---- header (elevated) ---- */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 30px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      mix-blend-mode: difference;
+      color: #f0f0f0;
+      pointer-events: none;
+    }
+    .menu-icon {
+      width: 32px;
+      height: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      pointer-events: auto;
+      cursor: pointer;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+    .menu-icon span {
+      display: block;
+      height: 2px;
+      width: 100%;
+      background: white;
+      transition: 0.3s;
+    }
+    .menu-icon:hover span:nth-child(2) {
+      width: 100%;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(130deg, #f6d5b3, #ffb6b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      pointer-events: auto;
+    }
+
+    /* ---- scroll content (elegant spacing) ---- */
+    .scroll-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    section {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      padding: 0 8vw;
+      position: relative;
+      will-change: contents;
+    }
+
+    .text-block {
+      max-width: 520px;
+      opacity: 0;
+      transform: translateY(40px);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(4px);
+      border-radius: 24px;
+      padding: 32px 40px;
+      border: 1px solid rgba(255,255,240,0.15);
+      box-shadow: 0 25px 40px -20px rgba(0,20,10,0.3);
+    }
+    .sec-1 .text-block {
+      opacity: 1;
+      transform: translateY(0);
+      margin-left: auto;
+      margin-right: 4vw;
+      background: rgba(255,255,245,0.25);
+      backdrop-filter: blur(8px);
+    }
+
+    .sec-2 .text-block { max-width: 700px; }
+    .sec-3 .text-block { margin-left: auto; max-width: 450px; }
+    .sec-4 .text-block { margin-bottom: 15vh; }
+    .sec-5 {
+      display: flex;
+      gap: 6vw;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sec-5 .text-left { max-width: 280px; backdrop-filter: blur(4px); }
+    .sec-5 .text-right { max-width: 400px; backdrop-filter: blur(4px); }
+
+    h1 { font-size: 56px; margin-bottom: 20px; line-height: 1.1; }
+    h2 { font-size: 48px; margin-bottom: 25px; line-height: 1.2; }
+    p { font-size: 15px; line-height: 1.8; color: #1f2a30; margin-bottom: 16px; font-weight: 300; }
+    .sec-5 p { color: #1e2e36; }
+
+    .cols {
+      display: flex;
+      gap: 30px;
+      margin-bottom: 25px;
+    }
+
+    .btn {
+      padding: 14px 34px;
+      background: #1e3d42;
+      border: none;
+      border-radius: 50px;
+      color: white;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 18px -8px #1e3d4260;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn:hover {
+      background: #0f2b2f;
+      transform: scale(0.98);
+    }
+    .btn-enter {
+      background: #0e2b2f;
+      border-radius: 40px;
+      padding: 16px 52px;
+      font-size: 18px;
+    }
+
+    .link-text {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: #5a6c72;
+      text-decoration: none;
+      border-bottom: 1px solid #a0b6bc;
+      padding-bottom: 5px;
+      transition: 0.25s;
+    }
+    .link-text:hover { color: #1f3a42; border-color: #1f3a42; }
+
+    /* responsive adjustments */
+    @media (max-width: 900px) {
+      .virus { transform-origin: center; }
+      .v-main { width: 250px; height: 250px; }
+      .v-red { width: 300px; height: 300px; }
+      .v-complex { width: 280px; height: 280px; }
+      .v-green { width: 200px; height: 200px; }
+      .v-blur { width: 220px; height: 220px; }
+      section { padding: 0 5vw; }
+      h1 { font-size: 44px; }
+      h2 { font-size: 38px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="menu-icon"><span></span><span></span><span></span></div>
+  <div class="logo">Micro.</div>
+</header>
+
+<div class="canvas-container">
+  <div class="virus v-main"></div>
+  <div class="virus v-blur"></div>
+  <div class="virus v-red"></div>
+  <div class="virus v-green"></div>
+  <div class="virus v-complex"></div>
+</div>
+
+<div class="scroll-content">
+  <!-- section 1 -->
+  <section class="sec-1">
+    <div class="text-block">
+      <h1>Magna Amet</h1>
+      <p>Tellus integer feugiat scelerisque varius morbi enim nunc. Arcu dictum varius duis at. Mattis nunc sed blandit libero volutpat sed cras ornare arcu. Urna cursus eget nunc scelerisque viverra. Gravida in fermentum et sollicitudin ac orci.</p>
+    </div>
+  </section>
+
+  <!-- section 2 -->
+  <section class="sec-2">
+    <div class="text-block">
+      <h2>Faucibus</h2>
+      <div class="cols">
+        <p>Cras tincidunt lobortis feugiat vivamus at augue eget arcu dictum. Donec ultrices tincidunt arcu non sodales neque sodales ut etiam. Praesent elementum facilisis leo vel fringilla est.</p>
+        <p>Nisl rhoncus mattis rhoncus urna neque viverra justo nec. Commodo nulla facilisi nullam vehicula ipsum a. Interdum velit laoreet id donec ultrices.</p>
+      </div>
+      <button class="btn">Learn More</button>
+    </div>
+  </section>
+
+  <!-- section 3 -->
+  <section class="sec-3">
+    <div class="text-block">
+      <h2>Commodo luctes facilisi crass nullam</h2>
+      <p style="margin: 20px 0;">Euismod elementum nisi quis eleifend quam adipiscing vitae proin. Commodo nulla facilisi nullam vehicula.</p>
+      <button class="btn btn-enter">ENTER</button>
+    </div>
+  </section>
+
+  <!-- section 4 -->
+  <section class="sec-4">
+    <div class="text-block">
+      <h2>Varius vel pharetra</h2>
+      <p>Aliquam nibh cras pulvinar? Cras tincidunt lobortis feugiat vivamus at augue eget arcu dictum.</p>
+      <p style="font-size: 13px; margin-top: 25px;">Elementum facilisis leo vel fringilla est. Adipiscing elit ut aliquam purus sit amet luctus venenatis.</p>
+      <br>
+      <a href="#" class="link-text">CONTINUE LEARNING →</a>
+    </div>
+  </section>
+
+  <!-- section 5 -->
+  <section class="sec-5">
+    <div class="text-block text-left">
+      <h2 style="font-size: 40px;">Cold Virus</h2>
+      <p>33–35 °C &nbsp; | &nbsp; 91–95 °F</p>
+      <p style="font-weight: 400; margin-top: 20px;">Rhinovirus family</p>
+    </div>
+    <div class="text-block text-right">
+      <p>The rhinovirus is the most common viral infectious agent in humans. Spread worldwide, it's the predominant cause of the common cold.</p>
+      <p>Symptoms include sore throat, runny nose, congestion, sneezing, coughing; sometimes muscle aches, fatigue, or headache. Fever and exhaustion are more typical of influenza.</p>
+    </div>
+  </section>
+</div>
+
+<!-- enriched GSAP timeline with rotation, scale, and refined easing -->
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // --- set initial positions for off-screen viruses (already in CSS, but ensure GSAP reads them)
+  // --- create master timeline with scrub
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: ".scroll-content",
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 1.2,        // smoother lag
+      invalidateOnRefresh: true,
+    },
+    defaults: { duration: 1, ease: "power2.inOut" }
+  });
+
+  // ----- PHASE 1 (section 1 → 2)  time 0 to 1
+  tl.to(".sec-1 .text-block", { y: -80, opacity: 0, ease: "power2.in" }, 0)
+    .to(".v-main", { top: "-12%", left: "42%", scale: 0.55, rotation: 15, duration: 1.2 }, 0)
+    .to(".v-blur", { top: "-45%", left: "15%", scale: 1.2, rotation: -10, filter: "blur(20px)" }, 0)
+    .to(".v-red", { top: "30%", left: "58%", scale: 1.1, rotation: 25 }, 0)
+    .to(".v-green", { top: "72%", left: "8%", scale: 1.3, rotation: -20 }, 0)
+    .to(".sec-2 .text-block", { y: 0, opacity: 1, duration: 0.8 }, 0.6)
+
+  // ----- PHASE 2 (section 2 → 3)  time 1 to 2
+  tl.to(".sec-2 .text-block", { y: -100, opacity: 0, duration: 0.9 }, 1.1)
+    .to(".v-main", { top: "-50%", left: "35%", scale: 0.4, rotation: 40 }, 1.1)
+    .to(".v-red", { top: "-12%", left: "72%", scale: 0.9, rotation: 60 }, 1.1)
+    .to(".v-green", { top: "20%", left: "18%", scale: 1.7, rotation: -35 }, 1.1)
+    .to(".v-complex", { top: "55%", left: "55%", scale: 1.3, rotation: 20 }, 1.1)
+    .to(".sec-3 .text-block", { y: 0, opacity: 1, duration: 0.9 }, 1.7)
+
+  // ----- PHASE 3 (section 3 → 4)  time 2 to 3
+  tl.to(".sec-3 .text-block", { y: -100, opacity: 0 }, 2.2)
+    .to(".v-red", { top: "-100%", left: "60%", scale: 0.3, rotation: 90 }, 2.2)
+    .to(".v-green", { top: "-15%", left: "-2%", scale: 0.9, rotation: -70 }, 2.2)
+    .to(".v-complex", { top: "12%", left: "48%", scale: 2.2, rotation: 45 }, 2.2)
+    .to(".v-main", { top: "70%", left: "20%", scale: 0.7, rotation: 120 }, 2.2)  // re-emerge
+    .to(".sec-4 .text-block", { y: 0, opacity: 1 }, 2.7)
+
+  // ----- PHASE 4 (section 4 → 5)  time 3 to 4
+  tl.to(".sec-4 .text-block", { y: -80, opacity: 0 }, 3.2)
+    .to(".v-complex", { top: "28%", left: "32%", scale: 2.6, rotation: 80, boxShadow: "inset -25px -25px 60px #0f2b38, inset 30px 30px 60px #c0e0ff, 0 45px 60px -12px #1f4a66" }, 3.2)
+    .to(".v-main", { top: "80%", left: "10%", scale: 0.5, opacity: 0.5 }, 3.2)
+    .to(".v-blur", { top: "10%", left: "80%", scale: 2, filter: "blur(30px)", opacity: 0.4 }, 3.2)
+    .to(".sec-5 .text-left", { y: 0, opacity: 1, duration: 0.8 }, 3.5)
+    .to(".sec-5 .text-right", { y: 0, opacity: 1, duration: 0.8 }, 3.6)
+
+  // additional small floting rotation for v-complex at end (not necessary but adds life)
+  // also rotate the blur virus continuously in subtle way - but we keep as is
+
+  // small tweak: add a gentle parallax to each virus individually? this timeline already covers.
+  // For extra richness, make the canvas container slightly rotate in 3D space? but leave as is.
+
+  // Force a refresh to recalculate start/end after fonts load
+  ScrollTrigger.refresh();
+</script>
+
+<!-- subtle micro‑interaction: update cursor or something? optional -->
+</body>
+</html>
