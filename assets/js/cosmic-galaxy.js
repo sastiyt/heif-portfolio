@@ -21,7 +21,6 @@
   }
  };
  const introOpen=()=>document.documentElement.classList.contains('cosmic-intro-open');
- const obstacles=[...document.querySelectorAll('#hero-3d-model,#ae-3d-model')];
  const loadMap=name=>new Promise((resolve,reject)=>{
   const img=new Image();img.onload=()=>{
    const tile=document.createElement('canvas');tile.width=img.naturalWidth;tile.height=img.naturalHeight;
@@ -54,12 +53,13 @@
   const tasks=[['earth','earth_daymap'],['saturn','saturn'],['mars','mars'],['neptune','neptune']];
   await Promise.all(tasks.map(async([kind,name])=>{
    try{
-    const [map,cloud]=await Promise.all([loadMap(name),kind==='earth'?loadMap('earth_clouds'):null]);
+    const [map,cloud]=await Promise.all([loadMap(name),kind==='earth'?loadMap('earth_clouds').catch(()=>null):null]);
     textures[kind]=project(map,cloud,kind);
     const p=planets.find(p=>p.kind===kind);if(p)paintSprite(p);draw();
    }catch{/* The shaded sphere remains usable when a texture cannot load. */}
   }));
  };
+ let contextLost=false;
  let width=0,height=0,frame=0,last=0,time=0,scroll=scrollY,target=scrollY,dragging=false;
  let seed=7419;
  const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
@@ -155,6 +155,7 @@
   };
  };
  const draw=()=>{
+  if(contextLost||!width||!height)return;
   ctx.clearRect(0,0,width,height);
   const still=reduced.matches;
   const inIntro=introOpen();
@@ -192,9 +193,6 @@
    }
   }
 
-  const avoid=inIntro?[]:obstacles.filter(el=>el.clientWidth&&el.querySelector('canvas')).map(el=>{
-   const b=el.getBoundingClientRect();return {x:b.left+b.width*.5,y:b.top+b.height*.5,r:Math.min(b.width,b.height)*.27};
-  });
   for(const [index,p] of planets.entries()){
    const size=p.side*(1+depth*.30);
    // Keep the established main-site motion; the entry uses scattered float positions.
@@ -205,17 +203,13 @@
    };
    const {x,y}=position;
    ctx.save();ctx.translate(x,y);ctx.rotate(inIntro?position.rotation:(p.kind==='earth'?-.12:Math.sin(orbitAngle)*.13));
-   let visibility=1;
-   for(const block of avoid){
-    const gap=Math.hypot(x-block.x,y-block.y)-block.r-p.r*(1+depth*.3)*(p.rings?1.8:1);
-    visibility=Math.min(visibility,Math.max(0,Math.min(1,gap/65)));
-   }
-   ctx.globalAlpha=(p.kind==='earth'?.96:.76)*visibility;
+   // Keep planet opacity stable throughout scrolling and tool-model overlap.
+   ctx.globalAlpha=1;
    ctx.drawImage(p.sprite,-size/2,-size/2,size,size);ctx.restore();
    if(p.kind==='earth'){
     const moonAngle=still?1:time*.24;
     const moonOrbit=p.r*(1+depth*.24)*1.6;
-    ctx.fillStyle=`rgba(161,175,183,${.65*visibility})`;ctx.beginPath();
+    ctx.fillStyle='rgba(161,175,183,.65)';ctx.beginPath();
     ctx.arc(x+Math.cos(moonAngle)*moonOrbit,y+Math.sin(moonAngle)*moonOrbit,p.r*.10,0,Math.PI*2);ctx.fill();
    }
   }
@@ -234,7 +228,7 @@
  let flightStart=0;
  const tick=stamp=>{
   frame=0;
-  if(document.hidden||reduced.matches||dragging){last=0;return;}
+  if(contextLost||document.hidden||reduced.matches||dragging){last=0;return;}
   frame=requestAnimationFrame(tick);
   const sensor=window.heifTilt;
   // Keep a steady cadence while tilt is enabled; switching rates mid-gesture causes judder.
@@ -249,12 +243,12 @@
   pointer.x+=(pointer.tx-pointer.x)*ease;pointer.y+=(pointer.ty-pointer.y)*ease;
   draw();
  };
- const start=()=>{if(!frame&&!document.hidden&&!reduced.matches&&!dragging)frame=requestAnimationFrame(tick);};
+ const start=()=>{if(!contextLost&&!frame&&!document.hidden&&!reduced.matches&&!dragging)frame=requestAnimationFrame(tick);};
  const pixelRatio=()=>Math.max(1,Math.min((devicePixelRatio||1)*(window.visualViewport?.scale||1),mobile.matches?2:2.5,Math.sqrt((mobile.matches?2200000:3500000)/(width*height))));
  const resize=()=>{
   // Mobile browser chrome expands/collapses while scrolling. Keep one stable
   // backing surface instead of clearing/resizing the canvas on every toolbar tick.
-  const nextWidth=document.documentElement.clientWidth;
+  const nextWidth=Math.max(1,document.documentElement.clientWidth);
   const nextHeight=mobile.matches&&!introOpen()?(width===nextWidth&&height>=innerHeight?height:innerHeight+120):innerHeight;
   const sceneChanged=width!==nextWidth||height!==nextHeight;
   width=nextWidth;height=nextHeight;
@@ -266,6 +260,8 @@
   canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);
   ctx.setTransform(ratio,0,0,ratio,0,0);if(sceneChanged)build();draw();start();
  };
+ canvas.addEventListener('contextlost',e=>{e.preventDefault();contextLost=true;cancelAnimationFrame(frame);frame=0;last=0;});
+ canvas.addEventListener('contextrestored',()=>{contextLost=false;width=height=0;resize();start();});
  canvas.setAttribute('aria-hidden','true');document.documentElement.classList.add('cosmic-galaxy');
  let resizeTimer;
  const orientationResize=()=>{tilt.x=tilt.y=0;clearTimeout(resizeTimer);requestAnimationFrame(resize);};
