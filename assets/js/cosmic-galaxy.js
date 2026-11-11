@@ -6,6 +6,7 @@
  if(!ctx)return;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  const mobile=matchMedia('(max-width:900px), (pointer:coarse)');
+ const touchDevice=matchMedia('(pointer:coarse)');
  const sky=document.createElement('canvas'), paint=sky.getContext('2d');
  const pointer={x:0,y:0,tx:0,ty:0,active:false};
  const tilt={x:0,y:0};
@@ -146,12 +147,13 @@
  }]));
  const entryPosition=(name,px,py,still)=>{
   const [ax,ay]=entryAnchors[height>width?'tall':'wide'][name],motion=entryMotion[name];
-  const t=still?0:time*motion.speed,phase=motion.phase;
+  const animate=!still&&!(introOpen()&&touchDevice.matches);
+  const t=animate?time*motion.speed:0,phase=motion.phase;
   const rx=Math.min(width*.042,52)*motion.spread,ry=Math.min(height*.04,34)*motion.spread;
   return {
    x:width*ax+(still?0:(Math.cos(t+phase)*.76+Math.sin(t*1.43+phase)*.24)*rx)+px*8,
    y:height*ay+(still?0:(Math.sin(t*.87+phase)*.78+Math.cos(t*1.31+phase)*.22)*ry)+py*9,
-   rotation:still?0:time*motion.spin*motion.direction
+   rotation:animate?time*motion.spin*motion.direction:0
   };
  };
  const draw=()=>{
@@ -159,7 +161,9 @@
   ctx.clearRect(0,0,width,height);
   const still=reduced.matches;
   const inIntro=introOpen();
-  const inputGain=inIntro?1.4:1;
+  const gyroOnly=inIntro&&touchDevice.matches;
+  const sceneTime=gyroOnly?0:time;
+  const inputGain=gyroOnly?0:inIntro?1.4:1;
   const depth=still?0:1-Math.exp(-Math.max(0,scroll)/height*.65);
   const px=still?0:Math.max(-2.4,Math.min(2.4,pointer.x*inputGain+tilt.x*2.2));
   const py=still?0:Math.max(-2.4,Math.min(2.4,pointer.y*inputGain+tilt.y*2.2));
@@ -168,9 +172,9 @@
   const warpScale=1+warp*warp*7;
   ctx.save();ctx.translate(width/2,height/2);ctx.rotate(still?0:tilt.x*.09);ctx.scale(warpScale,warpScale);ctx.translate(-width/2,-height/2);
   // The cloud layer follows the same input at a slower depth than the stars.
-  const dx=Math.sin(time*.09)*6+px*12,dy=Math.cos(time*.07)*5-py*9-Math.sin(travel*.6)*22;
+  const dx=Math.sin(sceneTime*.09)*6+px*12,dy=Math.cos(sceneTime*.07)*5-py*9-Math.sin(travel*.6)*22;
   ctx.drawImage(sky,-30+dx,-30+dy,width+60,height+60);
-  const spin=still?0:time*(mobile.matches?.055:.03)+travel*(mobile.matches?.22:.16);
+  const spin=still?0:sceneTime*(mobile.matches?.055:.03)+travel*(mobile.matches?.22:.16);
   const mouseX=(pointer.x+1)*width/2,mouseY=(pointer.y+1)*height/2;
   for(let layer=0;layer<3;layer++){
    const angle=spin*(.5+layer*.35),cos=Math.cos(angle),sin=Math.sin(angle);
@@ -179,7 +183,7 @@
     const zoom=1+depth*.16*star.z;
     let x=width/2+(star.x*cos-star.y*sin)*zoom+px*(12+star.z*30);
     let y=height/2+(star.x*sin+star.y*cos)*zoom+py*(10+star.z*23)-Math.sin(travel*.6)*star.z*42;
-    if(pointer.active&&!still&&(inIntro||!mobile.matches)){
+    if(pointer.active&&!still&&!gyroOnly&&(inIntro||!mobile.matches)){
      const vx=x-mouseX,vy=y-mouseY,distance=Math.hypot(vx,vy);
      if(distance>0&&distance<135){
       const force=(1-distance/135)**2*22*star.z;
@@ -187,7 +191,7 @@
      }
     }
     if(x<-3||x>width+3||y<-3||y>height+3)continue;
-    ctx.fillStyle=`rgba(221,240,231,${.18+star.z*.36+Math.sin(time*.8+star.phase)*.08})`;
+    ctx.fillStyle=`rgba(221,240,231,${.18+star.z*.36+Math.sin(sceneTime*.8+star.phase)*.08})`;
     ctx.beginPath();ctx.arc(x,y,star.r,0,Math.PI*2);ctx.fill();
     if(warp>.02){ctx.strokeStyle=ctx.fillStyle;ctx.lineWidth=star.r*.75;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(x-width/2)*warp*.16,y+(y-height/2)*warp*.16);ctx.stroke();}
    }
@@ -207,7 +211,7 @@
    ctx.globalAlpha=1;
    ctx.drawImage(p.sprite,-size/2,-size/2,size,size);ctx.restore();
    if(p.kind==='earth'){
-    const moonAngle=still?1:time*.24;
+    const moonAngle=still?1:sceneTime*.24;
     const moonOrbit=p.r*(1+depth*.24)*1.6;
     ctx.fillStyle='rgba(161,175,183,.65)';ctx.beginPath();
     ctx.arc(x+Math.cos(moonAngle)*moonOrbit,y+Math.sin(moonAngle)*moonOrbit,p.r*.10,0,Math.PI*2);ctx.fill();
@@ -274,7 +278,7 @@
  addEventListener('heif:entered',()=>{flightStart=flight=0;pointer.x=pointer.y=pointer.tx=pointer.ty=0;pointer.active=false;resize();draw();});
  // Read input only; a single capped animation loop handles all rendering.
  addEventListener('pointermove',e=>{
-  if(reduced.matches||(!introOpen()&&(e.pointerType!=='mouse'||mobile.matches)))return;
+  if((introOpen()&&touchDevice.matches)||reduced.matches||(!introOpen()&&(e.pointerType!=='mouse'||mobile.matches)))return;
   pointer.tx=Math.max(-1,Math.min(1,e.clientX/width*2-1));
   pointer.ty=Math.max(-1,Math.min(1,e.clientY/height*2-1));pointer.active=true;start();
  },{passive:true});
