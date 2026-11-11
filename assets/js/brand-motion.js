@@ -145,3 +145,22 @@
  reduced.addEventListener('change', resetAll);
  fine.addEventListener('change', resetAll);
 })();
+
+/* Each signature lands once, only when its caption enters the viewport. */
+(() => {
+ 'use strict';
+ const stamps = document.querySelectorAll('.heif-stamp');
+ const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+ if (!stamps.length || reduced.matches || !('IntersectionObserver' in window)) return;
+ const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+   if (!entry.isIntersecting) return;
+   entry.target.classList.add('stamp-arrived');
+   observer.unobserve(entry.target);
+  });
+ }, {threshold:.3});
+ stamps.forEach(stamp => observer.observe(stamp));
+ reduced.addEventListener('change', () => {
+  if (reduced.matches) observer.disconnect();
+ });
+})();
