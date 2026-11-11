@@ -9,7 +9,7 @@
  const start = async () => {
   try {
    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-   if (light) { await load('assets/js/mobile-galaxy.js?v=20261110-3'); return; }
+   if (light) { await load('assets/js/mobile-galaxy.js?v=20261111-1'); return; }
    await load('assets/vendor/three.min.js');
    // Decorative stars do not need a scroll-animation framework.
    await load('assets/js/particles-effect.js');

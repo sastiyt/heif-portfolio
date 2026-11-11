@@ -1,6 +1,7 @@
 (() => {
  'use strict';
  const motion=matchMedia('(prefers-reduced-motion: reduce)');
+ const mobileViewport=matchMedia('(max-width: 900px), (pointer: coarse)');
  const canvas=document.getElementById('webgl-canvas');
  if (!canvas || motion.matches) return;
  const ctx=canvas.getContext('2d',{alpha:true});
@@ -22,10 +23,11 @@
   if (last && stamp-last<32) return; // 30 fps decoration leaves room for input/reveals.
   const dt=last?Math.min(stamp-last,64):32; last=stamp; time+=dt*.001;
   scroll+=(target-scroll)*(1-Math.exp(-dt/110));
+  const speed=mobileViewport.matches?2:1;
   ctx.clearRect(0,0,width,height);
   stars.forEach(star => {
-   const y=((star.y*height-time*(1+star.depth*2)-scroll*star.depth*.08)%height+height)%height;
-   const x=star.x*width+Math.sin(time*.05+star.phase)*3;
+   const y=((star.y*height-time*speed*(1+star.depth*2)-scroll*star.depth*.08*speed)%height+height)%height;
+   const x=star.x*width+Math.sin(time*.05*speed+star.phase)*3;
    ctx.globalAlpha=.16+star.depth*.2+(Math.sin(time*.6+star.phase)+1)*.035;
    ctx.fillStyle='#e0f3e5';ctx.beginPath();ctx.arc(x,y,star.r,0,Math.PI*2);ctx.fill();
   });
