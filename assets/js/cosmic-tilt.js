@@ -16,6 +16,8 @@
  };
  const save=value=>{try{sessionStorage.setItem('heif-tilt',value);}catch{}};
  const preference=()=>{try{return sessionStorage.getItem('heif-tilt');}catch{return null;}};
+ let prompt=null;
+ const dismissPrompt=()=>{if(prompt){prompt.close();prompt.remove();prompt=null;}};
  const reset=()=>{origin=previous=null;travelX=travelY=0;state.x=state.y=0;state.active=false;};
  const angle=()=>Number(screen.orientation?.angle??window.orientation??0);
  const delta=(value,base,period)=>((value-base+period*1.5)%period)-period*.5;
@@ -53,27 +55,39 @@
   if(!listening){addEventListener('deviceorientation',read,{passive:true});listening=true;}
   button.textContent='Tilt phone';button.setAttribute('aria-pressed','false');
   clearTimeout(timeout);timeout=setTimeout(()=>{
-   if(!received){stop();button.textContent='Try tilt';button.title='Motion data unavailable. Automatic movement is still on.';}
+   if(!received){stop();button.textContent='Try tilt';button.title='Motion data unavailable. You can continue exploring the site.';}
   },5000);
  };
- button.addEventListener('click',async()=>{
+ const activate=async(force=false)=>{
   if(pending)return;
-  if(enabled){stop();save('off');return;}
+  if(enabled&&!force){stop();save('off');return;}
   pending=true;button.disabled=true;
   try{
    if(typeof Sensor.requestPermission==='function'){
     // Call directly in the tap handler: iOS requires a user gesture.
     const permission=await Sensor.requestPermission();
-    if(permission!=='granted'){button.textContent='Tilt blocked';button.title='Allow motion access in your browser to enable tilt.';return;}
+    if(permission!=='granted'){save('off');button.textContent='Tilt blocked';button.title='Allow motion access in your browser to enable tilt.';return;}
    }
    save('on');start();
-  }catch{button.textContent='Try tilt';button.title='Motion access unavailable. Automatic movement is still on.';}
-  finally{pending=false;button.disabled=false;}
- });
+  }catch{button.textContent='Try tilt';button.title='Motion access unavailable. You can continue exploring the site.';}
+  finally{pending=false;button.disabled=false;dismissPrompt();}
+ };
+ button.addEventListener('click',()=>activate());
+ const offerTilt=()=>{
+  if(prompt)return;
+  prompt=document.createElement('dialog');prompt.className='cosmic-tilt-prompt';
+  prompt.setAttribute('aria-labelledby','tilt-prompt-title');
+  prompt.innerHTML='<span class="tilt-prompt-label">A DIFFERENT POINT OF VIEW</span><h2 id="tilt-prompt-title">Move your phone.<br><span>Move your world.</span></h2><p>Enable tilt to move the stars and planets with your phone.</p><div class="tilt-prompt-actions"><button type="button" data-tilt-accept>Enable tilt</button><button type="button" data-tilt-skip>Not now</button></div>';
+  prompt.querySelector('[data-tilt-accept]').addEventListener('click',()=>activate(true));
+  prompt.querySelector('[data-tilt-skip]').addEventListener('click',()=>{save('off');stop();dismissPrompt();});
+  prompt.addEventListener('cancel',e=>{e.preventDefault();save('off');stop();dismissPrompt();});
+  document.body.appendChild(prompt);prompt.showModal();
+ };
  const sync=()=>{
   button.hidden=reduced.matches;
-  if(reduced.matches){stop();return;}
-  if(preference()!=='off'&&(typeof Sensor.requestPermission!=='function'||preference()==='on'))start();
+  if(reduced.matches){stop();dismissPrompt();return;}
+  if(preference()===null){offerTilt();return;}
+  if(preference()==='on')start();
  };
  addEventListener('orientationchange',reset,{passive:true});
  screen.orientation?.addEventListener('change',reset);
