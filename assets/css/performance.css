@@ -379,9 +379,21 @@ main .thumbnail a:focus-visible { outline:2px solid #fff; outline-offset:-3px; }
  .stable-masonry > .gallery-column { gap:10px; }
 }
 
-/* Hover-only brand colour for category artwork; no persistent tint on touch screens. */
-@media (hover:hover) and (pointer:fine) {
-  main .thumbnail a:hover > img[src*="category-"] {
-    filter:url("#category-green-tint");
-  }
+/* Crossfade the cached image so white and red lettering both ease into brand green. */
+main .thumbnail a { position:relative; display:block; line-height:0; }
+main .thumbnail a > img { display:block; }
+main .thumbnail a > img.category-hover-colour,
+main .thumbnail:hover a > img.category-hover-colour {
+ position:absolute; inset:0; width:100%; height:100%; pointer-events:none;
+ filter:url("#category-green-tint"); opacity:0;
+ transition:opacity .42s cubic-bezier(.22,.61,.36,1); transform:none;
 }
+@media (hover:hover) and (pointer:fine) {
+ main .thumbnail a:hover > img.category-hover-colour { opacity:1; }
+}
+@media (prefers-reduced-motion:reduce) {
+ main .thumbnail a > img.category-hover-colour { transition:none; }
+}
+/* One lightweight cosmic scene replaces the old layered star renderers. */
+html.cosmic-galaxy #webgl-canvas { display:block!important; }
+html.cosmic-galaxy .stars-layer { display:none; }

@@ -8,11 +8,9 @@
  });
  const start = async () => {
   try {
-   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-   if (light) { await load('assets/js/mobile-galaxy.js?v=20261111-11'); return; }
+   await load('assets/js/cosmic-galaxy.js?v=20261111-16');
+   if (light) return;
    await load('assets/vendor/three.min.js');
-   // Decorative stars do not need a scroll-animation framework.
-   await load('assets/js/particles-effect.js');
    if (!document.getElementById('hero-3d-model')) return;
    await load('assets/vendor/GLTFLoader.js');
    await load('assets/vendor/gsap.min.js');
