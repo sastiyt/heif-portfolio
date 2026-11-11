@@ -45,3 +45,38 @@ html.art-modal-open{overflow:hidden}
 @media(max-width:767px),(hover:none) and (pointer:coarse){.explorer-lens-button{display:none!important}.art-dialog .explorer-lens-button{display:none!important}}
 @media(max-width:600px){.art-dialog{padding:12px}.art-stage>img{max-height:59dvh}.world-entry .explorer-button{min-height:40px;font-size:12px}.explorer-tools{gap:8px}.explorer-hint{font-size:12px}.explorer-surprise-button{min-width:180px}}
 @media(prefers-reduced-motion:reduce){.explorer-button,.art-lens{transition:none!important}}
+/* Mobile homepage: balanced intro and a quieter showreel invitation. */
+@media (max-width: 768px) {
+  #home-page .hero { padding: 28px 7% 24px; }
+  #home-page .hero h1,
+  #home-page .hero h1 span {
+    font-size: clamp(36px, 11.5vw, 64px);
+    line-height: .98;
+    letter-spacing: -.035em;
+  }
+  #home-page .hero .contact-info { margin-top: 14px; font-size: 12px; line-height: 1.35; }
+  #home-page .hero1 { padding: 26px 5% 30px; }
+  #home-page .hero1 h2,
+  #home-page .hero1 h2 span {
+    font-size: clamp(23px, 7vw, 36px) !important;
+    line-height: 1.08;
+    letter-spacing: -.025em;
+  }
+  #home-page .hero1 #he { margin-left: 4px; }
+  #home-page .hero1 #h { margin-left: 0; margin-bottom: 4px; }
+  #home-page .world-entry { margin-top: 16px; }
+  #home-page .world-entry .explorer-button {
+    position: relative;
+    min-height: 32px;
+    padding: 5px 10px 5px 5px;
+    gap: 7px;
+    font-size: 11px;
+    line-height: 20px;
+    border-radius: 18px;
+  }
+  /* Keep a comfortable tap area around the smaller visible button. */
+  #home-page .world-entry .explorer-button::after { content: ''; position: absolute; inset: -6px 0; }
+  #home-page .world-entry .world-play-icon { width: 20px; height: 20px; }
+  #home-page .world-entry .world-play-icon svg { width: 14px; height: 14px; }
+  #home-page .world-entry small { display: none; }
+}
