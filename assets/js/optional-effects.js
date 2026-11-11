@@ -8,7 +8,7 @@
  });
  const start = async () => {
   try {
-   await load('assets/js/cosmic-galaxy.js?v=20261111-16');
+   await load('assets/js/cosmic-galaxy.js?v=20261111-17');
    if (light) return;
    await load('assets/vendor/three.min.js');
    if (!document.getElementById('hero-3d-model')) return;
