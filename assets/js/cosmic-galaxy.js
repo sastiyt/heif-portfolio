@@ -130,16 +130,27 @@
   });
  };
  // Asymmetric entry anchors keep every object away from the central button.
- // Small independent drifts preserve spacing instead of circling or converging.
+ // Each object has a different continuous loop and spin within its own safe area.
  const entryAnchors={
   wide:{earth:[.84,.38],saturn:[.13,.61],mars:[.44,.84],neptune:[.37,.20],ps:[.19,.29],ae:[.73,.74]},
   tall:{earth:[.78,.27],saturn:[.20,.64],mars:[.65,.85],neptune:[.29,.15],ps:[.17,.37],ae:[.77,.65]}
  };
- const entryPosition=(name,phase,px,py,still)=>{
-  const [ax,ay]=entryAnchors[height>width?'tall':'wide'][name];
+ // Randomize once per visit, never per frame: motion stays smooth and resize-stable.
+ const entryMotion=Object.fromEntries(Object.keys(entryAnchors.wide).map(name=>[name,{
+  phase:Math.random()*Math.PI*2,
+  speed:.23+Math.random()*.16,
+  spread:.8+Math.random()*.2,
+  spin:(name==='ps'||name==='ae'?.045:.07)+Math.random()*.035,
+  direction:Math.random()<.5?-1:1
+ }]));
+ const entryPosition=(name,px,py,still)=>{
+  const [ax,ay]=entryAnchors[height>width?'tall':'wide'][name],motion=entryMotion[name];
+  const t=still?0:time*motion.speed,phase=motion.phase;
+  const rx=Math.min(width*.042,52)*motion.spread,ry=Math.min(height*.04,34)*motion.spread;
   return {
-   x:width*ax+(still?0:Math.sin(time*.21+phase)*Math.min(width*.018,12))+px*8,
-   y:height*ay+(still?0:Math.sin(time*.14+phase*.7)*Math.min(height*.016,10))+py*9
+   x:width*ax+(still?0:(Math.cos(t+phase)*.76+Math.sin(t*1.43+phase)*.24)*rx)+px*8,
+   y:height*ay+(still?0:(Math.sin(t*.87+phase)*.78+Math.cos(t*1.31+phase)*.22)*ry)+py*9,
+   rotation:still?0:time*motion.spin*motion.direction
   };
  };
  const draw=()=>{
@@ -186,12 +197,12 @@
    const size=p.side*(1+depth*.30);
    // Keep the established main-site motion; the entry uses scattered float positions.
    const orbitAngle=-.6+index*Math.PI/2+(still?0:time*(mobile.matches?.058:.038)+travel*.13);
-   const position=inIntro?entryPosition(p.kind,index*1.7,px,py,still):{
+   const position=inIntro?entryPosition(p.kind,px,py,still):{
     x:width*.5+Math.cos(orbitAngle)*width*.34+px*18,
     y:height*.52+Math.sin(orbitAngle)*height*.32+py*14
    };
    const {x,y}=position;
-   ctx.save();ctx.translate(x,y);ctx.rotate(p.kind==='earth'?-.12:Math.sin(inIntro?(still?0:time*.15+index):orbitAngle)*.13);
+   ctx.save();ctx.translate(x,y);ctx.rotate(inIntro?position.rotation:(p.kind==='earth'?-.12:Math.sin(orbitAngle)*.13));
    let visibility=1;
    for(const block of avoid){
     const gap=Math.hypot(x-block.x,y-block.y)-block.r-p.r*(1+depth*.3)*(p.rings?1.8:1);
@@ -208,11 +219,11 @@
   }
   // Cached tool renders share the same canvas without loading 3D models on phones.
   if(inIntro){
-   for(const [name,phase] of [['ps',7],['ae',9]]){
+   for(const name of ['ps','ae']){
     const img=entryMarks[name];if(!img)continue;
-    const {x,y}=entryPosition(name,phase,px,py,still);
+    const {x,y,rotation}=entryPosition(name,px,py,still);
     const size=Math.min(mobile.matches?60:94,width*.16,height*.15);
-    ctx.save();ctx.translate(x,y);ctx.rotate(still?0:Math.sin(time*.18+phase)*.06);
+    ctx.save();ctx.translate(x,y);ctx.rotate(rotation);
     ctx.globalAlpha=.96;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore();
    }
   }

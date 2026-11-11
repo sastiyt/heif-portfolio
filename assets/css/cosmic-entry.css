@@ -9,7 +9,7 @@ html.cosmic-intro-open,html.cosmic-intro-open body { overflow:hidden; }
 .cosmic-entry button { font-family:'Josefin Sans',sans-serif; cursor:pointer; }
 .cosmic-entry-core { text-align:center; border:0; transition:opacity .4s ease,transform .8s cubic-bezier(.2,.7,.2,1); }
 /* A quiet wordmark button leaves the galaxy unobstructed. */
-.cosmic-enter { display:inline-flex; flex-direction:column; gap:9px; align-items:center; justify-content:center; min-height:62px; padding:8px 14px; border:0; background:transparent; color:#dce6e0; border-radius:4px; box-shadow:none; text-shadow:none; transition:transform .3s ease; }
+.cosmic-enter { display:inline-flex; flex-direction:column; gap:3px; align-items:center; justify-content:center; min-height:62px; padding:8px 14px; border:0; background:transparent; color:#dce6e0; border-radius:4px; box-shadow:none; text-shadow:none; transition:transform .3s ease; }
 .cosmic-enter-label { font-size:10px; letter-spacing:.22em; font-weight:600; line-height:1; }
 .cosmic-enter-name { display:inline-block; font-family:var(--font-heading,'Phonk Contrast','Arial Black',sans-serif); font-size:26px; font-style:normal; font-weight:400; line-height:1; letter-spacing:-.025em; color:#19bd4a; transform:none; transition:color .3s ease; }
 .cosmic-enter:hover { background:transparent; transform:translateY(-2px); }
