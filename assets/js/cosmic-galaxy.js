@@ -61,7 +61,7 @@
   }));
  };
  let contextLost=false;
- let width=0,height=0,frame=0,last=0,time=0,scroll=scrollY,target=scrollY,dragging=false;
+ let width=0,height=0,frame=0,last=0,time=0,entryTime=0,scroll=scrollY,target=scrollY,dragging=false;
  let seed=7419;
  const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
  const glow=(paint,x,y,r,colour,alpha)=>{
@@ -147,13 +147,13 @@
  }]));
  const entryPosition=(name,px,py,still)=>{
   const [ax,ay]=entryAnchors[height>width?'tall':'wide'][name],motion=entryMotion[name];
-  const animate=!still&&!(introOpen()&&touchDevice.matches);
-  const t=animate?time*motion.speed:0,phase=motion.phase;
+  const animate=!still;
+  const t=animate?entryTime*motion.speed:0,phase=motion.phase;
   const rx=Math.min(width*.042,52)*motion.spread,ry=Math.min(height*.04,34)*motion.spread;
   return {
    x:width*ax+(still?0:(Math.cos(t+phase)*.76+Math.sin(t*1.43+phase)*.24)*rx)+px*8,
    y:height*ay+(still?0:(Math.sin(t*.87+phase)*.78+Math.cos(t*1.31+phase)*.22)*ry)+py*9,
-   rotation:animate?time*motion.spin*motion.direction:0
+   rotation:animate?entryTime*motion.spin*motion.direction:0
   };
  };
  const draw=()=>{
@@ -161,8 +161,8 @@
   ctx.clearRect(0,0,width,height);
   const still=reduced.matches;
   const inIntro=introOpen();
-  const gyroOnly=inIntro&&touchDevice.matches;
-  const sceneTime=gyroOnly?0:time;
+  const gyroOnly=inIntro&&touchDevice.matches&&!window.heifTilt?.automatic;
+  const sceneTime=inIntro?entryTime:time;
   const inputGain=gyroOnly?0:inIntro?1.4:1;
   const depth=still?0:1-Math.exp(-Math.max(0,scroll)/height*.65);
   const px=still?0:Math.max(-2.4,Math.min(2.4,pointer.x*inputGain+tilt.x*2.2));
@@ -238,6 +238,7 @@
   // Keep a steady cadence while tilt is enabled; switching rates mid-gesture causes judder.
   if(last&&stamp-last<(sensor?.active?16:33))return;
   const dt=last?Math.min(stamp-last,80):33;last=stamp;time+=dt/1000;
+  if(introOpen()&&(!touchDevice.matches||sensor?.automatic))entryTime+=dt/1000;
   if(flightStart)flight=Math.min(1,(stamp-flightStart)/1450);
   const ease=1-Math.exp(-dt/140);
   const tiltEase=1-Math.exp(-dt/105);

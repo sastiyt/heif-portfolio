@@ -4,7 +4,7 @@
  const coarse=matchMedia('(pointer:coarse)'), reduced=matchMedia('(prefers-reduced-motion: reduce)');
  const Sensor=window.DeviceOrientationEvent;
  if(!coarse.matches||!Sensor||!window.isSecureContext)return;
- const state=window.heifTilt={x:0,y:0,active:false};
+ const state=window.heifTilt={x:0,y:0,active:false,automatic:false};
  let previous=null,travelX=0,travelY=0;
  let origin=null,listening=false,enabled=false,pending=false,received=false,timeout=0;
  const button=document.createElement('button');button.type='button';button.className='cosmic-tilt-toggle';
@@ -46,12 +46,12 @@
   state.active=true;
  };
  const stop=()=>{
-  enabled=false;clearTimeout(timeout);reset();
+  enabled=false;state.automatic=true;clearTimeout(timeout);reset();
   if(listening){removeEventListener('deviceorientation',read);listening=false;}
   button.textContent='Enable tilt';button.setAttribute('aria-pressed','false');
  };
  const start=()=>{
-  enabled=true;received=false;reset();
+  enabled=true;state.automatic=false;received=false;reset();
   if(!listening){addEventListener('deviceorientation',read,{passive:true});listening=true;}
   button.textContent='Tilt phone';button.setAttribute('aria-pressed','false');
   clearTimeout(timeout);timeout=setTimeout(()=>{
@@ -66,10 +66,10 @@
    if(typeof Sensor.requestPermission==='function'){
     // Call directly in the tap handler: iOS requires a user gesture.
     const permission=await Sensor.requestPermission();
-    if(permission!=='granted'){save('off');button.textContent='Tilt blocked';button.title='Allow motion access in your browser to enable tilt.';return;}
+    if(permission!=='granted'){stop();save('off');button.textContent='Tilt blocked';button.title='Allow motion access in your browser to enable tilt.';return;}
    }
    save('on');start();
-  }catch{button.textContent='Try tilt';button.title='Motion access unavailable. You can continue exploring the site.';}
+  }catch{stop();button.textContent='Try tilt';button.title='Motion access unavailable. You can continue exploring the site.';}
   finally{pending=false;button.disabled=false;dismissPrompt();}
  };
  button.addEventListener('click',()=>activate());
@@ -87,7 +87,7 @@
   button.hidden=reduced.matches;
   if(reduced.matches){stop();dismissPrompt();return;}
   if(preference()===null){offerTilt();return;}
-  if(preference()==='on')start();
+  if(preference()==='on')start();else stop();
  };
  addEventListener('orientationchange',reset,{passive:true});
  screen.orientation?.addEventListener('change',reset);
